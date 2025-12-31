@@ -351,8 +351,8 @@ function enviarWhatsApp() {
         });
     }
     
-    // Calcular total (100 soles por horario)
-    const total = ultimaInscripcion.horarios ? ultimaInscripcion.horarios.length * 100 : 0;
+    // Calcular total (50 soles por horario)
+    const total = ultimaInscripcion.horarios ? ultimaInscripcion.horarios.length * 50 : 0;
     
     const whatsappNumero = '51955195324'; // Cambiar por el número real
     const mensaje = `🐆 *JAGUARES - Inscripción*\n\n` +

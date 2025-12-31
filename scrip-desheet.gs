@@ -426,6 +426,11 @@ function inscribirMultiple(alumno, horarios) {
       ];
       
       hojaDeporte.appendRow(filaDeporte);
+      
+      // ===== INCREMENTAR CUPOS OCUPADOS EN HORARIOS =====
+      // Incrementar inmediatamente para que el cupo se reserve
+      const cuposActuales = parseInt(horarioInfo.datos[6]) || 0;
+      horariosSheet.getRange(horarioInfo.fila, 7).setValue(cuposActuales + 1);
     }
     
     // ===== AGREGAR REGISTRO EN PAGOS =====
@@ -729,31 +734,8 @@ function confirmarPagoYActivarInscripciones(dni) {
     // Actualizar estado en TODAS las hojas de días y deportes
     actualizarEstadoEnHojas(dni.toString(), 'activa');
     
-    // Incrementar cupos ocupados en HORARIOS
-    const pagosData2 = pagosSheet.getDataRange().getValues();
-    let horarioIds = '';
-    
-    for (let i = 1; i < pagosData2.length; i++) {
-      if (pagosData2[i][1]?.toString() === dni.toString()) {
-        horarioIds = pagosData2[i][10] || ''; // Columna K (horarios_seleccionados)
-        break;
-      }
-    }
-    
-    if (horarioIds) {
-      const horariosArray = horarioIds.split(',');
-      const horariosData = horariosSheet.getDataRange().getValues();
-      
-      for (const horarioId of horariosArray) {
-        for (let j = 1; j < horariosData.length; j++) {
-          if (horariosData[j][0]?.toString() === horarioId.toString()) {
-            const cuposOcupados = parseInt(horariosData[j][6]) || 0;
-            horariosSheet.getRange(j + 1, 7).setValue(cuposOcupados + 1);
-            break;
-          }
-        }
-      }
-    }
+    // NOTA: Los cupos ya se incrementaron al hacer la inscripción
+    // Solo cambiamos el estado a "activa"
     
     return { 
       success: true, 
@@ -831,7 +813,40 @@ function eliminarUsuarioPorDNI(dni) {
   
   try {
     const ss = SpreadsheetApp.openById(SHEET_ID);
+    const horariosSheet = ss.getSheetByName('HORARIOS');
     let registrosEliminados = 0;
+    let horariosAfectados = [];
+    
+    // 3. Obtener horarios del usuario antes de eliminar (desde hojas de días)
+    const dias = ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SÁBADO', 'DOMINGO'];
+    for (const nombreDia of dias) {
+      const hojaDia = ss.getSheetByName(nombreDia);
+      if (!hojaDia) continue;
+      
+      const datosDia = hojaDia.getDataRange().getValues();
+      for (let i = 1; i < datosDia.length; i++) {
+        if (datosDia[i][1]?.toString() === dni.toString()) {
+          // Buscar el horario_id correspondiente en HORARIOS
+          const deporte = datosDia[i][8]; // columna I
+          const dia = nombreDia;
+          const horaInicio = datosDia[i][9]; // columna J
+          
+          // Buscar en HORARIOS para obtener el ID
+          const horariosData = horariosSheet.getDataRange().getValues();
+          for (let j = 1; j < horariosData.length; j++) {
+            if (horariosData[j][1] === deporte && 
+                horariosData[j][2].toUpperCase() === dia && 
+                horariosData[j][3] === horaInicio) {
+              horariosAfectados.push({
+                id: horariosData[j][0],
+                fila: j + 1
+              });
+              break;
+            }
+          }
+        }
+      }
+    }
     
     // 1. Eliminar de INSCRIPCIONES
     const inscripcionesSheet = ss.getSheetByName('INSCRIPCIONES');
@@ -858,8 +873,7 @@ function eliminarUsuarioPorDNI(dni) {
       }
     }
     
-    // 3. Eliminar de hojas de DÍAS (MIERCOLES sin tilde, SÁBADO con tilde según el Sheet)
-    const dias = ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SÁBADO', 'DOMINGO'];
+    // 3. Eliminar de hojas de DÍAS
     for (const nombreDia of dias) {
       const hojaDia = ss.getSheetByName(nombreDia);
       if (!hojaDia) continue;
@@ -892,9 +906,19 @@ function eliminarUsuarioPorDNI(dni) {
       }
     }
     
+    // 5. DECREMENTAR CUPOS EN HORARIOS
+    if (horariosSheet && horariosAfectados.length > 0) {
+      for (const horario of horariosAfectados) {
+        const cuposActuales = parseInt(horariosSheet.getRange(horario.fila, 7).getValue()) || 0;
+        const nuevosCupos = Math.max(0, cuposActuales - 1); // No permitir negativos
+        horariosSheet.getRange(horario.fila, 7).setValue(nuevosCupos);
+      }
+    }
+    
     return jsonResponse({
       success: true,
       registros_eliminados: registrosEliminados,
+      cupos_liberados: horariosAfectados.length,
       message: 'Usuario con DNI ' + dni + ' eliminado completamente del sistema'
     });
     
