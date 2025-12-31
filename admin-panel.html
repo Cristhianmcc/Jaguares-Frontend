@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html class="light" lang="es">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>JAGUARES - Panel Administrativo</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;700;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: { DEFAULT: '#C59D5F', dark: '#B08546', light: '#E3C58E' },
+                        'background-light': '#FFFFFF',
+                        'background-dark': '#0A0A0A',
+                        'surface-light': '#F9F9F9',
+                        'surface-dark': '#1A1A1A',
+                        'text-main': '#1A1A1A',
+                        'text-muted': '#6B6B6B',
+                        'border-color': '#E5E5E5'
+                    },
+                    fontFamily: {
+                        display: ['Lexend', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-text-main font-display min-h-screen flex flex-col">
+    <header class="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-border-color bg-surface-light/95 dark:bg-surface-dark/95 backdrop-blur-sm px-6 py-4 lg:px-10 shadow-sm">
+        <div class="flex items-center gap-3 text-text-main dark:text-white">
+            <div class="h-10 w-auto flex items-center justify-center text-primary">
+                <svg class="h-10 w-auto" fill="currentColor" viewBox="0 0 100 60" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 30 C 20 10, 50 10, 60 30 C 70 50, 40 50, 30 30" fill="#C59D5F"></path>
+                    <path d="M5 45 L 95 45 L 80 55 L 20 55 Z" fill="#000000"></path>
+                </svg>
+            </div>
+            <h2 class="text-2xl font-black italic uppercase tracking-wider text-black dark:text-white">JAGUARES</h2>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="text-right hidden md:block">
+                <p class="text-xs text-text-muted dark:text-gray-400 uppercase tracking-wide">Administrador</p>
+                <p id="adminEmail" class="text-sm font-semibold text-black dark:text-white"></p>
+            </div>
+            <button id="btnCerrarSesion" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 text-black dark:text-white rounded-lg font-semibold text-sm transition-colors flex items-center gap-2">
+                <span class="material-symbols-outlined text-lg">logout</span>
+                Cerrar Sesión
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-grow px-4 sm:px-6 lg:px-10 py-8">
+        <div class="max-w-screen-2xl mx-auto">
+            <div class="mb-8">
+                <h1 class="text-3xl md:text-4xl font-black italic uppercase tracking-tight text-black dark:text-white">
+                    Panel de <span class="text-primary">Control</span>
+                </h1>
+                <p class="text-text-muted dark:text-gray-400 mt-2">Gestión de inscripciones y usuarios</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white dark:bg-surface-dark p-6 rounded-xl shadow-md border-l-4 border-blue-500">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-semibold text-text-muted dark:text-gray-400 uppercase">Total Inscritos</p>
+                            <p id="totalInscritos" class="text-3xl font-black text-black dark:text-white mt-1">0</p>
+                        </div>
+                        <span class="material-symbols-outlined text-5xl text-blue-500">group</span>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-surface-dark p-6 rounded-xl shadow-md border-l-4 border-green-500">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-semibold text-text-muted dark:text-gray-400 uppercase">Activos</p>
+                            <p id="totalActivos" class="text-3xl font-black text-black dark:text-white mt-1">0</p>
+                        </div>
+                        <span class="material-symbols-outlined text-5xl text-green-500">check_circle</span>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-surface-dark p-6 rounded-xl shadow-md border-l-4 border-yellow-500">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-semibold text-text-muted dark:text-gray-400 uppercase">Pendientes</p>
+                            <p id="totalPendientes" class="text-3xl font-black text-black dark:text-white mt-1">0</p>
+                        </div>
+                        <span class="material-symbols-outlined text-5xl text-yellow-500">pending</span>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-surface-dark p-6 rounded-xl shadow-md border-l-4 border-primary">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-semibold text-text-muted dark:text-gray-400 uppercase">Ingresos</p>
+                            <p id="totalIngresos" class="text-3xl font-black text-black dark:text-white mt-1">S/ 0</p>
+                        </div>
+                        <span class="material-symbols-outlined text-5xl text-primary">payments</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-surface-dark rounded-xl p-6 shadow-xl mb-6">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                    <h2 class="text-xl font-bold text-black dark:text-white uppercase tracking-tight">
+                        Lista de Inscritos
+                    </h2>
+                    <div class="flex flex-wrap gap-3">
+                        <div class="flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2">
+                            <span class="material-symbols-outlined text-text-muted">badge</span>
+                            <input type="text" id="filtroDNI" placeholder="Buscar por DNI (8 dígitos)" 
+                                   maxlength="8" pattern="[0-9]{8}" 
+                                   class="bg-transparent border-none focus:outline-none text-sm font-semibold w-48 text-black dark:text-white" />
+                        </div>
+                        
+                        <select id="filtroDia" class="px-4 py-2 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-sm font-semibold focus:ring-2 focus:ring-primary">
+                            <option value="">Todos los días</option>
+                            <option value="LUNES">Lunes</option>
+                            <option value="MARTES">Martes</option>
+                            <option value="MIERCOLES">Miércoles</option>
+                            <option value="JUEVES">Jueves</option>
+                            <option value="VIERNES">Viernes</option>
+                            <option value="SÁBADO">Sábado</option>
+                            <option value="DOMINGO">Domingo</option>
+                        </select>
+
+                        <select id="filtroDeporte" class="px-4 py-2 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-sm font-semibold focus:ring-2 focus:ring-primary">
+                            <option value="">Todos los deportes</option>
+                            <option value="FÚTBOL">Fútbol</option>
+                            <option value="VÓLEY">Vóley</option>
+                            <option value="BÁSQUET">Básquet</option>
+                            <option value="FÚTBOL FEMENINO">Fútbol Femenino</option>
+                            <option value="ENTRENAMIENTO FUNCIONAL ADULTOS">Func. Adultos</option>
+                            <option value="ENTRENAMIENTO FUNCIONAL MENORES">Func. Menores</option>
+                        </select>
+
+                        <button id="btnFiltrar" class="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg font-semibold text-sm transition-colors flex items-center gap-2">
+                            <span class="material-symbols-outlined">filter_list</span>
+                            Filtrar
+                        </button>
+
+                        <button id="btnLimpiarFiltros" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 text-black dark:text-white rounded-lg font-semibold text-sm transition-colors">
+                            Limpiar
+                        </button>
+                    </div>
+                </div>
+
+                <div id="loadingContainer" class="text-center py-12">
+                    <span class="material-symbols-outlined animate-spin text-6xl text-primary">progress_activity</span>
+                    <p class="text-text-muted mt-4">Cargando datos...</p>
+                </div>
+
+                <div id="detalleUsuario" class="hidden bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 mb-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-bold text-black dark:text-white flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">person</span>
+                            Información del Usuario
+                        </h3>
+                        <button onclick="cerrarDetalleUsuario()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                            <span class="material-symbols-outlined">close</span>
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <!-- Columna 1: Datos Personales -->
+                        <div class="space-y-2">
+                            <h4 class="font-semibold text-xs text-primary mb-2 uppercase">Datos Personales</h4>
+                            <div class="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                                <span class="material-symbols-outlined text-primary text-sm">badge</span>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-xs text-text-muted">DNI</p>
+                                    <p class="font-bold text-sm truncate" id="detalleDNI">-</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                                <span class="material-symbols-outlined text-primary text-sm">person</span>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-xs text-text-muted">Nombre Completo</p>
+                                    <p class="font-bold text-xs truncate" id="detalleNombre">-</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                                <span class="material-symbols-outlined text-primary text-sm">cake</span>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-xs text-text-muted">Fecha Nac.</p>
+                                    <p class="font-bold text-xs truncate" id="detalleFechaNacimiento">-</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                                <span class="material-symbols-outlined text-primary text-sm">calendar_month</span>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-xs text-text-muted">Edad / Sexo</p>
+                                    <p class="font-bold text-sm truncate" id="detalleEdadSexo">-</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Columna 2: Contacto y Apoderado -->
+                        <div class="space-y-2">
+                            <h4 class="font-semibold text-xs text-primary mb-2 uppercase">Contacto</h4>
+                            <div class="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                                <span class="material-symbols-outlined text-primary text-sm">phone</span>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-xs text-text-muted">Teléfono</p>
+                                    <p class="font-bold text-sm truncate" id="detalleTelefono">-</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                                <span class="material-symbols-outlined text-primary text-sm">email</span>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-xs text-text-muted">Email</p>
+                                    <p class="font-bold text-xs truncate" id="detalleEmail">-</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                                <span class="material-symbols-outlined text-primary text-sm">home</span>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-xs text-text-muted">Dirección</p>
+                                    <p class="font-bold text-xs truncate" id="detalleDireccion">-</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                                <span class="material-symbols-outlined text-primary text-sm">family_restroom</span>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-xs text-text-muted">Apoderado</p>
+                                    <p class="font-bold text-xs truncate" id="detalleApoderado">-</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                                <span class="material-symbols-outlined text-primary text-sm">contact_phone</span>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-xs text-text-muted">Tel. Apoderado</p>
+                                    <p class="font-bold text-sm truncate" id="detalleTelefonoApoderado">-</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Columna 3: Salud y Pago -->
+                        <div class="space-y-2">
+                            <h4 class="font-semibold text-xs text-primary mb-2 uppercase">Salud</h4>
+                            <div class="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                                <span class="material-symbols-outlined text-primary text-sm">medical_services</span>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-xs text-text-muted">Seguro</p>
+                                    <p class="font-bold text-xs truncate" id="detalleSeguroTipo">-</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                                <span class="material-symbols-outlined text-primary text-sm">health_and_safety</span>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-xs text-text-muted">Condición Médica</p>
+                                    <p class="font-bold text-xs truncate" id="detalleCondicionMedica">-</p>
+                                </div>
+                            </div>
+                            
+                            <h4 class="font-semibold text-xs text-primary mb-2 mt-3 uppercase">Pago</h4>
+                            <div class="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                                <span class="material-symbols-outlined text-primary text-sm">payments</span>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-xs text-text-muted">Monto</p>
+                                    <p class="font-bold text-green-600 text-sm truncate" id="detalleMonto">-</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                                <span class="material-symbols-outlined text-primary text-sm">credit_card</span>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-xs text-text-muted">Método</p>
+                                    <p class="font-bold text-sm truncate" id="detalleMetodoPago">-</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                                <span class="material-symbols-outlined text-primary text-sm">verified</span>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-xs text-text-muted">Estado</p>
+                                    <p class="font-bold text-sm truncate" id="detalleEstadoPago">-</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6">
+                        <h4 class="font-bold text-lg mb-3 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">event</span>
+                            Horarios Inscritos
+                        </h4>
+                        <div id="detalleHorarios" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tablaContainer" class="hidden overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b-2 border-gray-200 dark:border-gray-800">
+                                <th class="px-4 py-3 text-left font-bold text-xs uppercase tracking-wider text-text-muted">DNI</th>
+                                <th class="px-4 py-3 text-left font-bold text-xs uppercase tracking-wider text-text-muted">Nombres</th>
+                                <th class="px-4 py-3 text-left font-bold text-xs uppercase tracking-wider text-text-muted">Apellidos</th>
+                                <th class="px-4 py-3 text-left font-bold text-xs uppercase tracking-wider text-text-muted">Teléfono</th>
+                                <th class="px-4 py-3 text-left font-bold text-xs uppercase tracking-wider text-text-muted">Deporte</th>
+                                <th class="px-4 py-3 text-left font-bold text-xs uppercase tracking-wider text-text-muted">Horario</th>
+                                <th class="px-4 py-3 text-left font-bold text-xs uppercase tracking-wider text-text-muted">Estado</th>
+                                <th class="px-4 py-3 text-center font-bold text-xs uppercase tracking-wider text-text-muted">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaBody">
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="sinResultados" class="hidden text-center py-12">
+                    <span class="material-symbols-outlined text-6xl text-text-muted">search_off</span>
+                    <p class="text-text-muted mt-4 font-semibold">No se encontraron resultados</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="modalEliminar" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-surface-dark rounded-xl p-8 max-w-md w-full shadow-2xl">
+            <div class="text-center mb-6">
+                <span class="material-symbols-outlined text-6xl text-red-500">warning</span>
+                <h3 class="text-2xl font-bold text-black dark:text-white mt-4 uppercase">Confirmar Eliminación</h3>
+            </div>
+            <p class="text-text-muted dark:text-gray-400 text-center mb-2">
+                Se eliminarán TODOS los registros del usuario con DNI <span id="dniEliminar" class="font-bold text-black dark:text-white"></span>
+            </p>
+            <p class="text-sm text-red-600 font-bold text-center mb-6">
+                (Incluye: días, deportes, inscripciones y pagos - No se puede deshacer)
+            </p>
+            <div class="flex gap-3">
+                <button id="btnCancelarEliminar" class="flex-1 px-4 py-3 bg-gray-200 hover:bg-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 text-black dark:text-white rounded-lg font-semibold transition-colors">
+                    Cancelar
+                </button>
+                <button id="btnConfirmarEliminar" class="flex-1 px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold transition-colors">
+                    Eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/api-service.js"></script>
+    <script src="js/admin-panel.js"></script>
+</body>
+</html>

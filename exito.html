@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html class="light" lang="es">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>JAGUARES - Inscripción Exitosa</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;700;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: { DEFAULT: '#C59D5F', dark: '#B08546', light: '#E3C58E' },
+                        'background-light': '#FFFFFF',
+                        'background-dark': '#0A0A0A',
+                        'text-main': '#1A1A1A'
+                    },
+                    fontFamily: { display: ['Lexend', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-text-main dark:text-white transition-colors duration-200">
+    <div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+        <header class="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#e5e5e5] dark:border-b-white/10 px-4 py-3 bg-white/90 dark:bg-background-dark/90 backdrop-blur-md lg:px-10">
+            <div class="flex items-center gap-4">
+                <div class="h-12 w-auto">
+                    <svg class="h-full w-auto" fill="currentColor" viewBox="0 0 100 60" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 30 C 20 10, 50 10, 60 30 C 70 50, 40 50, 30 30" fill="#C59D5F"></path>
+                        <path d="M5 45 L 95 45 L 80 55 L 20 55 Z" fill="#000000"></path>
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-black italic uppercase tracking-wider text-black dark:text-white">JAGUARES</h2>
+            </div>
+            <div class="flex flex-1 justify-end gap-8">
+                <nav class="hidden md:flex items-center gap-9">
+                    <a class="text-text-main dark:text-white hover:text-primary dark:hover:text-primary text-sm font-bold uppercase tracking-wide leading-normal transition-colors" href="index.html">Inicio</a>
+                    <a class="text-text-main dark:text-white hover:text-primary dark:hover:text-primary text-sm font-bold uppercase tracking-wide leading-normal transition-colors" href="#">Nosotros</a>
+                    <a class="text-text-main dark:text-white hover:text-primary dark:hover:text-primary text-sm font-bold uppercase tracking-wide leading-normal transition-colors" href="#">Programas</a>
+                </nav>
+            </div>
+        </header>
+
+        <main class="flex-1 flex flex-col items-center justify-center py-12 px-4 md:px-10 lg:px-40 bg-background-light dark:bg-background-dark relative">
+            <div class="absolute inset-0 pointer-events-none opacity-5 overflow-hidden">
+                <div class="absolute -top-20 -right-20 w-96 h-96 bg-primary rounded-full blur-3xl"></div>
+                <div class="absolute -bottom-20 -left-20 w-80 h-80 bg-primary rounded-full blur-3xl"></div>
+            </div>
+
+            <div class="max-w-[600px] w-full flex flex-col gap-10 items-center relative z-10" id="contenidoExito">
+                <!-- Se llenará dinámicamente -->
+            </div>
+        </main>
+
+        <footer class="bg-black text-white py-8 border-t border-white/10 mt-auto">
+            <div class="max-w-[960px] mx-auto px-4 text-center">
+                <p class="text-gray-400 text-sm">© 2025 JAGUARES. Todos los derechos reservados.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="js/api-service.js"></script>
+    <script src="js/exito.js"></script>
+</body>
+</html>

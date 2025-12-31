@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html class="light" lang="es">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>JAGUARES - Acceso Administrativo</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;700;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: { DEFAULT: '#C59D5F', dark: '#B08546', light: '#E3C58E' },
+                        'background-light': '#FFFFFF',
+                        'background-dark': '#0A0A0A',
+                        'surface-light': '#F9F9F9',
+                        'surface-dark': '#1A1A1A',
+                        'text-main': '#1A1A1A',
+                        'text-muted': '#6B6B6B',
+                        'border-color': '#E5E5E5'
+                    },
+                    fontFamily: {
+                        display: ['Lexend', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center gap-3 mb-4">
+                <div class="h-12 w-auto flex items-center justify-center text-primary">
+                    <svg class="h-12 w-auto" fill="currentColor" viewBox="0 0 100 60" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 30 C 20 10, 50 10, 60 30 C 70 50, 40 50, 30 30" fill="#C59D5F"></path>
+                        <path d="M5 45 L 95 45 L 80 55 L 20 55 Z" fill="#000000"></path>
+                    </svg>
+                </div>
+                <h2 class="text-3xl font-black italic uppercase tracking-wider text-black dark:text-white">JAGUARES</h2>
+            </div>
+            <div class="inline-block px-4 py-1.5 bg-gradient-to-r from-gray-900 to-gray-800 text-primary rounded-md text-sm font-bold uppercase tracking-wider">
+                Panel Administrativo
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-surface-dark rounded-xl p-8 shadow-2xl border-t-4 border-primary">
+            <h1 class="text-2xl font-bold text-black dark:text-white mb-6 text-center uppercase tracking-tight">
+                Acceso Seguro
+            </h1>
+
+            <form id="formLogin" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-bold text-text-main dark:text-gray-300 uppercase tracking-wide mb-2">
+                        Correo Electrónico
+                    </label>
+                    <input 
+                        id="email" 
+                        type="email" 
+                        class="w-full h-12 px-4 rounded-lg border border-gray-300 bg-white dark:bg-[#252525] dark:border-gray-700 dark:text-white text-sm focus:ring-2 focus:ring-primary focus:border-primary" 
+                        placeholder="admin@jaguares.com" 
+                        required
+                        autocomplete="username"
+                    />
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-text-main dark:text-gray-300 uppercase tracking-wide mb-2">
+                        Contraseña
+                    </label>
+                    <input 
+                        id="password" 
+                        type="password" 
+                        class="w-full h-12 px-4 rounded-lg border border-gray-300 bg-white dark:bg-[#252525] dark:border-gray-700 dark:text-white text-sm focus:ring-2 focus:ring-primary focus:border-primary" 
+                        placeholder="••••••••" 
+                        required
+                        autocomplete="current-password"
+                    />
+                </div>
+
+                <div id="errorMessage" class="hidden bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
+                    <p class="text-sm text-red-800 dark:text-red-300 font-medium text-center"></p>
+                </div>
+
+                <button 
+                    type="submit"
+                    id="btnLogin"
+                    class="w-full h-12 bg-gradient-to-r from-gray-900 to-gray-800 hover:from-black hover:to-gray-900 text-primary font-bold uppercase tracking-wide rounded-lg transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+                >
+                    <span class="material-symbols-outlined">login</span>
+                    Iniciar Sesión
+                </button>
+            </form>
+
+            <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-800">
+                <p class="text-xs text-text-muted dark:text-gray-500 text-center">
+                    Acceso restringido solo para personal autorizado
+                </p>
+            </div>
+        </div>
+
+        <div class="mt-6 text-center">
+            <a href="index.html" class="inline-flex items-center gap-2 text-text-muted hover:text-primary font-medium text-sm transition-colors">
+                <span class="material-symbols-outlined text-lg">arrow_back</span>
+                Volver al sitio público
+            </a>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('formLogin');
+        const btnLogin = document.getElementById('btnLogin');
+        const errorMessage = document.getElementById('errorMessage');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+
+            // Ocultar error previo
+            errorMessage.classList.add('hidden');
+
+            // Mostrar loading
+            const textoOriginal = btnLogin.innerHTML;
+            btnLogin.disabled = true;
+            btnLogin.innerHTML = '<span class="material-symbols-outlined animate-spin">progress_activity</span> Verificando...';
+
+            try {
+                const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                    ? 'http://localhost:3002'
+                    : 'https://jaguares-backend.onrender.com';
+                
+                const response = await fetch(`${API_BASE}/api/admin/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Guardar sesión
+                    localStorage.setItem('adminSession', JSON.stringify({
+                        admin: data.admin,
+                        timestamp: new Date().toISOString()
+                    }));
+
+                    // Redirigir al panel
+                    window.location.href = 'admin-panel.html';
+                } else {
+                    // Mostrar error
+                    errorMessage.querySelector('p').textContent = data.error || 'Credenciales inválidas';
+                    errorMessage.classList.remove('hidden');
+                    btnLogin.disabled = false;
+                    btnLogin.innerHTML = textoOriginal;
+                }
+            } catch (error) {
+                console.error('Error en login:', error);
+                errorMessage.querySelector('p').textContent = 'Error de conexión. Verifica que el servidor esté activo.';
+                errorMessage.classList.remove('hidden');
+                btnLogin.disabled = false;
+                btnLogin.innerHTML = textoOriginal;
+            }
+        });
+
+        // Verificar si ya hay sesión activa
+        const session = localStorage.getItem('adminSession');
+        if (session) {
+            const data = JSON.parse(session);
+            const sessionTime = new Date(data.timestamp).getTime();
+            const now = new Date().getTime();
+            const hoursElapsed = (now - sessionTime) / (1000 * 60 * 60);
+
+            // Si la sesión tiene menos de 8 horas, redirigir al panel
+            if (hoursElapsed < 8) {
+                window.location.href = 'admin-panel.html';
+            } else {
+                localStorage.removeItem('adminSession');
+            }
+        }
+    </script>
+</body>
+</html>

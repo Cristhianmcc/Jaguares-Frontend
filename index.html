@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html class="light" lang="es">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>JAGUARES - Centro de Alto Rendimiento</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;700;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Just+Sans:wght@400;700;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: { DEFAULT: '#C59D5F', dark: '#B08546', light: '#E3C58E' },
+                        'background-light': '#FFFFFF',
+                        'background-dark': '#0A0A0A',
+                        'text-main': '#1A1A1A',
+                        'text-muted': '#6B6B6B'
+                    },
+                    fontFamily: {
+                        display: ['Lexend', 'sans-serif'],
+                        heading: ['"Just Sans"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-text-main dark:text-white transition-colors duration-200">
+    <div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+        <header class="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-b-gray-200 dark:border-b-white/10 px-4 py-3 bg-background-light/90 dark:bg-black/90 backdrop-blur-md lg:px-10 shadow-sm">
+            <div class="flex items-center gap-3">
+                <div class="size-10 text-primary">
+                    <svg class="w-full h-full" fill="none" viewBox="0 0 100 60" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 50 L90 50 C90 50 70 30 50 30 C30 30 10 50 10 50Z" fill="black"></path>
+                        <path d="M20 50 L80 45 C80 45 60 10 40 10 C20 10 20 50 20 50Z" fill="url(#paint0_linear)"></path>
+                        <defs>
+                            <linearGradient gradientUnits="userSpaceOnUse" id="paint0_linear" x1="20" x2="80" y1="10" y2="50">
+                                <stop stop-color="#C59D5F"></stop>
+                                <stop offset="0.5" stop-color="#E3C58E"></stop>
+                                <stop offset="1" stop-color="#B08546"></stop>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <div class="flex flex-col -space-y-1">
+                    <h2 class="text-black dark:text-white text-2xl font-black leading-none tracking-tighter uppercase italic">JAGUARES</h2>
+                    <span class="text-[10px] font-bold tracking-[0.2em] text-primary uppercase">Centro de Alto Rendimiento</span>
+                </div>
+            </div>
+            <div class="flex flex-1 justify-end gap-8">
+                <nav class="hidden md:flex items-center gap-9">
+                    <a class="text-text-main dark:text-white hover:text-primary dark:hover:text-primary text-sm font-bold uppercase tracking-wide transition-colors" href="#">Inicio</a>
+                    <a class="text-text-main dark:text-white hover:text-primary dark:hover:text-primary text-sm font-bold uppercase tracking-wide transition-colors" href="#">Nosotros</a>
+                    <a class="text-text-main dark:text-white hover:text-primary dark:hover:text-primary text-sm font-bold uppercase tracking-wide transition-colors" href="#">Programas</a>
+                    <a class="text-text-main dark:text-white hover:text-primary dark:hover:text-primary text-sm font-bold uppercase tracking-wide transition-colors" href="admin-login.html" title="Acceso Administrador">Admin</a>
+                </nav>
+                <button onclick="consultarEstado()" class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-md h-10 px-6 bg-black hover:bg-gray-800 dark:bg-primary dark:hover:bg-primary-dark text-white text-sm font-bold leading-normal tracking-wide transition-all border border-transparent dark:border-primary">
+                    <span class="truncate uppercase">Consultar Estado</span>
+                </button>
+            </div>
+        </header>
+
+        <main class="flex-1 flex flex-col">
+            <section class="w-full px-4 py-6 md:px-10 lg:px-40 bg-background-light dark:bg-background-dark">
+                <div class="max-w-[1200px] mx-auto">
+                    <div class="@container">
+                        <div class="flex min-h-[600px] flex-col gap-6 bg-cover bg-center bg-no-repeat rounded-xl md:rounded-2xl items-center justify-center p-6 md:p-12 relative overflow-hidden group shadow-2xl" style='background-image: linear-gradient(rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.8) 100%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuDark2X0DlyJ1UHfQP0r3mPCerhsO1jBfk5NjtvZgy9ZyBdTaUeDU-WJBAr6ZAkaiTlTYkmqiCh0Jez1HmrrLvEEI5-l3F20CyQDIIKPaKKNYln7DDTq6kIAmWzFTzR2U13_MEUOOwgYRxrViGRxKUyKxQWNPhzibA2-5VZi5AupXIQghYZ3buQpqMEU9aOKyGXkoz_8c-y8PvDg9_UM-pqHQxy5I-GaNZS4yE1c9pmQSRA0ncvNYkqlT9ZeARAJzYJ5-RVUObOM98");'>
+                            <div class="absolute inset-0 bg-gradient-to-tr from-black via-transparent to-primary/20 mix-blend-overlay"></div>
+                            <div class="flex flex-col gap-6 text-center z-10 max-w-[850px]">
+                                <div class="inline-flex items-center justify-center mx-auto px-4 py-1.5 rounded-full border border-primary/50 bg-black/40 backdrop-blur-sm">
+                                    <span class="text-primary text-xs font-black tracking-[0.2em] uppercase">Academia Deportiva Oficial</span>
+                                </div>
+                                <h1 class="text-white text-5xl md:text-7xl lg:text-8xl font-black leading-none tracking-tighter uppercase italic drop-shadow-xl">
+                                    FORJAMOS<br/>CAMPEONES
+                                </h1>
+                                <h2 class="text-gray-200 text-lg md:text-xl font-medium leading-relaxed max-w-[650px] mx-auto mt-2 drop-shadow-md">
+                                    Entrenamiento de alto rendimiento deportivo en múltiples disciplinas. Desarrolla tu potencial con los mejores profesionales.
+                                </h2>
+                                <div class="flex flex-col sm:flex-row gap-5 mt-8 z-10">
+                                    <button onclick="window.location.href='inscripcion.html'" class="flex min-w-[180px] cursor-pointer items-center justify-center rounded-md h-14 px-8 bg-gradient-to-r from-primary to-primary-dark hover:brightness-110 text-black text-base font-black uppercase tracking-wider shadow-[0_0_20px_rgba(197,157,95,0.4)] transition-all hover:scale-105 border border-primary/50">
+                                        <span class="truncate">Inscribirse Ahora</span>
+                                    </button>
+                                    <button class="flex min-w-[180px] cursor-pointer items-center justify-center rounded-md h-14 px-8 bg-transparent hover:bg-white/10 backdrop-blur-sm text-white border-2 border-white/20 hover:border-white text-base font-bold uppercase tracking-wider transition-all">
+                                        <span class="truncate">Conocer Más</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="w-full px-4 py-16 md:px-10 lg:px-40 bg-white dark:bg-black relative">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-black via-primary to-black opacity-20"></div>
+                <div class="max-w-[1000px] mx-auto flex flex-col gap-12">
+                    <div class="flex flex-col gap-4 text-center items-center">
+                        <h1 class="text-black dark:text-white tracking-tight text-4xl md:text-5xl font-black uppercase italic max-w-[800px]">
+                            COMIENZA TU PROCESO DE INSCRIPCIÓN
+                        </h1>
+                        <p class="text-gray-600 dark:text-gray-400 text-lg font-medium max-w-[600px]">
+                            Selecciona una opción para comenzar tu camino hacia el alto rendimiento deportivo
+                        </p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div onclick="window.location.href='inscripcion.html'" class="group flex flex-col gap-6 rounded-2xl border border-gray-100 dark:border-white/10 bg-background-light dark:bg-[#1a1a1a] p-8 hover:border-primary transition-all duration-300 cursor-pointer shadow-lg hover:shadow-primary/10">
+                            <div class="size-14 rounded-xl bg-black dark:bg-black flex items-center justify-center text-primary mb-2 group-hover:bg-primary group-hover:text-black transition-colors shadow-md">
+                                <span class="material-symbols-outlined text-[32px]">edit_note</span>
+                            </div>
+                            <div class="flex flex-col gap-3">
+                                <h2 class="text-black dark:text-white text-2xl font-bold uppercase tracking-tight">Nueva Inscripción</h2>
+                                <p class="text-gray-500 dark:text-gray-400 text-base leading-relaxed">
+                                    Completa el formulario de inscripción y selecciona tus horarios preferidos para comenzar tu entrenamiento.
+                                </p>
+                            </div>
+                            <div class="mt-auto pt-4 flex items-center text-primary font-black text-sm uppercase tracking-wider group-hover:translate-x-2 transition-transform">
+                                Comenzar Inscripción <span class="material-symbols-outlined ml-2">arrow_forward</span>
+                            </div>
+                        </div>
+
+                        <div onclick="consultarEstado()" class="group flex flex-col gap-6 rounded-2xl border border-gray-100 dark:border-white/10 bg-background-light dark:bg-[#1a1a1a] p-8 hover:border-primary transition-all duration-300 cursor-pointer shadow-lg hover:shadow-primary/10">
+                            <div class="size-14 rounded-xl bg-black dark:bg-black flex items-center justify-center text-primary mb-2 group-hover:bg-primary group-hover:text-black transition-colors shadow-md">
+                                <span class="material-symbols-outlined text-[32px]">badge</span>
+                            </div>
+                            <div class="flex flex-col gap-3">
+                                <h2 class="text-black dark:text-white text-2xl font-bold uppercase tracking-tight">Consulta por DNI</h2>
+                                <p class="text-gray-500 dark:text-gray-400 text-base leading-relaxed">
+                                    Revisa el estado de tu inscripción y los horarios asignados utilizando tu número de documento.
+                                </p>
+                            </div>
+                            <div class="mt-auto pt-4 flex items-center text-primary font-black text-sm uppercase tracking-wider group-hover:translate-x-2 transition-transform">
+                                Consultar Ahora <span class="material-symbols-outlined ml-2">arrow_forward</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="w-full bg-black text-white relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-[#1a1a1a] to-transparent opacity-50"></div>
+                <div class="px-4 py-20 md:px-10 lg:px-40 relative z-10">
+                    <div class="max-w-[1100px] mx-auto flex flex-col gap-16">
+                        <div class="flex flex-col gap-4 items-center text-center">
+                            <span class="text-primary font-black uppercase tracking-[0.2em] text-xs border border-primary/30 px-3 py-1 rounded-full">Excelencia Deportiva</span>
+                            <h2 class="text-white text-4xl md:text-6xl font-black leading-none uppercase italic tracking-tighter">
+                                NUESTRAS DISCIPLINAS
+                            </h2>
+                            <p class="text-gray-400 text-xl font-light leading-normal max-w-[700px]">
+                                Programas especializados diseñados para todas las edades y niveles de rendimiento
+                            </p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            <div class="flex flex-col gap-6 pb-3 group">
+                                <div class="aspect-square rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-primary/20 group-hover:border-primary transition-all">
+                                    <span class="material-symbols-outlined text-primary text-[80px]">sports_soccer</span>
+                                </div>
+                                <h3 class="text-white text-2xl font-black uppercase italic">Fútbol</h3>
+                                <p class="text-gray-400 text-sm">Desarrollo técnico, táctico y físico para todas las categorías</p>
+                            </div>
+
+                            <div class="flex flex-col gap-6 pb-3 group">
+                                <div class="aspect-square rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-primary/20 group-hover:border-primary transition-all">
+                                    <span class="material-symbols-outlined text-primary text-[80px]">sports_volleyball</span>
+                                </div>
+                                <h3 class="text-white text-2xl font-black uppercase italic">Vóley</h3>
+                                <p class="text-gray-400 text-sm">Formación integral en técnica y estrategia de voleibol</p>
+                            </div>
+
+                            <div class="flex flex-col gap-6 pb-3 group">
+                                <div class="aspect-square rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-primary/20 group-hover:border-primary transition-all">
+                                    <span class="material-symbols-outlined text-primary text-[80px]">sports_basketball</span>
+                                </div>
+                                <h3 class="text-white text-2xl font-black uppercase italic">Básquet</h3>
+                                <p class="text-gray-400 text-sm">Entrenamiento competitivo para jugadores de basketball</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="bg-black text-white py-12 border-t border-white/10">
+            <div class="max-w-[1200px] mx-auto px-4 md:px-10 lg:px-40">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div class="flex items-center gap-3">
+                        <div class="size-8 text-primary">
+                            <svg class="w-full h-full" fill="none" viewBox="0 0 100 60" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M10 50 L90 50 C90 50 70 30 50 30 C30 30 10 50 10 50Z" fill="white"></path>
+                                <path d="M20 50 L80 45 C80 45 60 10 40 10 C20 10 20 50 20 50Z" fill="url(#paint0_linear_footer)"></path>
+                                <defs>
+                                    <linearGradient gradientUnits="userSpaceOnUse" id="paint0_linear_footer" x1="20" x2="80" y1="10" y2="50">
+                                        <stop stop-color="#C59D5F"></stop>
+                                        <stop offset="0.5" stop-color="#E3C58E"></stop>
+                                        <stop offset="1" stop-color="#B08546"></stop>
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                        </div>
+                        <span class="text-white text-lg font-black uppercase italic">JAGUARES</span>
+                    </div>
+                    <p class="text-gray-400 text-sm">© 2025 JAGUARES. Todos los derechos reservados.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="js/api-service.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html class="light" lang="es">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Consulta tu Estado - JAGUARES</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;700;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: { DEFAULT: '#C59D5F', dark: '#B08546', light: '#E3C58E' },
+                        'background-light': '#FFFFFF',
+                        'background-dark': '#0A0A0A',
+                        'surface-light': '#F9F9F9',
+                        'surface-dark': '#1A1A1A',
+                        'text-main': '#1A1A1A',
+                        'text-muted': '#6B6B6B',
+                        'border-color': '#E5E5E5'
+                    },
+                    fontFamily: {
+                        display: ['Lexend', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-text-main font-display min-h-screen flex flex-col overflow-x-hidden transition-colors duration-200">
+    
+    <!-- Header -->
+    <header class="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-border-color bg-surface-light/95 dark:bg-surface-dark/95 backdrop-blur-sm px-6 py-4 lg:px-10 shadow-sm">
+        <div class="flex items-center gap-3 text-text-main dark:text-white">
+            <div class="h-10 w-auto flex items-center justify-center text-primary">
+                <svg class="h-10 w-auto" fill="currentColor" viewBox="0 0 100 60" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 30 C 20 10, 50 10, 60 30 C 70 50, 40 50, 30 30" fill="#C59D5F"></path>
+                    <path d="M5 45 L 95 45 L 80 55 L 20 55 Z" fill="#000000"></path>
+                </svg>
+            </div>
+            <h2 class="text-2xl font-black italic uppercase tracking-wider text-black dark:text-white">JAGUARES</h2>
+        </div>
+        
+        <!-- Usuario logueado (oculto inicialmente) -->
+        <div id="userInfo" class="hidden items-center gap-3 bg-surface-light dark:bg-surface-dark border border-gray-200 dark:border-gray-700 rounded-full px-4 py-2">
+            <div class="size-8 rounded-full bg-black text-primary flex items-center justify-center font-bold text-sm">
+                <span class="material-symbols-outlined text-lg">person</span>
+            </div>
+            <span id="userName" class="text-sm font-bold text-text-main dark:text-white uppercase"></span>
+        </div>
+
+        <div class="hidden md:flex flex-1 justify-end gap-8">
+            <nav class="flex items-center gap-9">
+                <a class="text-text-main dark:text-gray-200 text-sm font-semibold uppercase tracking-wide hover:text-primary transition-colors" href="index.html">Inicio</a>
+                <a class="text-text-main dark:text-gray-200 text-sm font-semibold uppercase tracking-wide hover:text-primary transition-colors" href="#">Academia</a>
+                <a class="text-text-main dark:text-gray-200 text-sm font-semibold uppercase tracking-wide hover:text-primary transition-colors" href="#">Ayuda</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="flex-grow flex flex-col items-center justify-start py-10 px-4 sm:px-6 lg:px-8 relative z-10">
+        
+        <!-- Vista de ingreso DNI -->
+        <div id="vistaIngreso" class="w-full max-w-[600px] flex flex-col gap-8">
+            <div class="flex flex-col gap-6 text-center">
+                <div class="flex justify-center">
+                    <div class="size-20 rounded-full bg-primary/10 flex items-center justify-center text-primary border-2 border-primary/30">
+                        <span class="material-symbols-outlined text-[48px]">badge</span>
+                    </div>
+                </div>
+                <div>
+                    <h1 class="text-black dark:text-white text-4xl md:text-5xl font-black italic uppercase tracking-tight mb-3">
+                        Consulta tu <span class="text-primary">Estado</span>
+                    </h1>
+                    <p class="text-text-muted dark:text-gray-400 text-lg font-medium">
+                        Ingresa tu DNI para verificar el estado de tu inscripción
+                    </p>
+                </div>
+            </div>
+
+            <div class="bg-surface-light dark:bg-surface-dark rounded-xl p-8 shadow-xl border-t-4 border-primary">
+                <form id="formConsulta" class="flex flex-col gap-6">
+                    <div class="flex flex-col gap-3 group">
+                        <label class="text-text-main dark:text-gray-300 text-sm font-bold uppercase tracking-wider">
+                            DNI / Documento <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-gray-400">badge</span>
+                            <input 
+                                id="dniConsulta" 
+                                name="dni" 
+                                class="w-full h-14 pl-12 pr-4 rounded-lg border-2 border-gray-300 bg-white dark:bg-[#252525] dark:border-gray-700 dark:text-white text-lg font-bold focus:ring-2 focus:ring-primary focus:border-primary placeholder:text-gray-400 transition-all shadow-sm group-hover:border-primary/50" 
+                                placeholder="Ingrese su número de DNI" 
+                                type="text" 
+                                maxlength="8"
+                                pattern="[0-9]{8}"
+                                required/>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="flex items-center justify-center gap-2 h-14 rounded-lg bg-gradient-to-r from-primary to-primary-dark text-black font-bold text-base uppercase tracking-wider hover:brightness-110 transition-all shadow-lg shadow-primary/20">
+                        <span>Consultar Estado</span>
+                        <span class="material-symbols-outlined">search</span>
+                    </button>
+
+                    <a href="index.html" class="text-text-main/60 dark:text-white/60 hover:text-primary dark:hover:text-primary text-sm font-bold flex items-center justify-center gap-2 transition-colors py-2 uppercase tracking-wide">
+                        <span class="material-symbols-outlined text-lg">arrow_back</span>
+                        Volver al Inicio
+                    </a>
+                </form>
+            </div>
+        </div>
+
+        <!-- Vista de resultados (oculta inicialmente) -->
+        <div id="vistaResultados" class="hidden w-full max-w-[1024px] flex flex-col gap-8">
+            <div class="flex flex-col gap-6">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-6">
+                    <div>
+                        <h1 class="text-black dark:text-white text-4xl md:text-5xl font-black italic uppercase tracking-tight">
+                            Tu <span class="text-primary">Inscripción</span>
+                        </h1>
+                        <p class="text-text-muted dark:text-gray-400 text-lg font-medium mt-2">Estado de tu cuenta y horarios registrados</p>
+                    </div>
+                    <button onclick="cerrarSesion()" class="flex items-center gap-2 px-6 py-3 rounded-lg border border-gray-300 dark:border-gray-700 text-text-main dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800 transition-all">
+                        <span class="material-symbols-outlined">logout</span>
+                        <span class="font-bold text-sm uppercase">Salir</span>
+                    </button>
+                </div>
+
+                <!-- Tarjeta de estado -->
+                <div id="estadoInscripcion" class="bg-surface-light dark:bg-surface-dark rounded-xl p-6 md:p-8 shadow-xl border-l-4">
+                    <!-- Se llenará dinámicamente -->
+                </div>
+
+                <!-- Datos del alumno -->
+                <div id="datosAlumno" class="bg-surface-light dark:bg-surface-dark rounded-xl p-6 md:p-8 shadow-md">
+                    <!-- Se llenará dinámicamente -->
+                </div>
+
+                <!-- Horarios inscritos -->
+                <div class="bg-surface-light dark:bg-surface-dark rounded-xl p-6 md:p-8 shadow-md">
+                    <h3 class="text-2xl font-bold text-black dark:text-white uppercase tracking-tight mb-6 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">schedule</span>
+                        Horarios Inscritos
+                    </h3>
+                    <div id="horariosInscritos" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Se llenará dinámicamente -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="bg-black text-white py-8 border-t border-white/10 mt-auto">
+        <div class="max-w-[960px] mx-auto px-4 text-center">
+            <p class="text-gray-400 text-sm">© 2025 JAGUARES. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="js/api-service.js"></script>
+    <script src="js/consulta.js"></script>
+</body>
+</html>

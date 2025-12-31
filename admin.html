@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html class="light" lang="es">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>JAGUARES - Panel Admin</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;700;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: { DEFAULT: '#C59D5F', dark: '#B08546', light: '#E3C58E' },
+                        'background-light': '#FFFFFF',
+                        'background-dark': '#0A0A0A',
+                        'surface-light': '#F9F9F9',
+                        'surface-dark': '#1A1A1A',
+                        'text-main': '#1A1A1A',
+                        'text-muted': '#6B6B6B',
+                        'border-color': '#E5E5E5'
+                    },
+                    fontFamily: {
+                        display: ['Lexend', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-text-main font-display min-h-screen flex flex-col">
+    <header class="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-border-color bg-surface-light/95 dark:bg-surface-dark/95 backdrop-blur-sm px-6 py-4 lg:px-10 shadow-sm">
+        <div class="flex items-center gap-3 text-text-main dark:text-white">
+            <div class="h-10 w-auto flex items-center justify-center text-primary">
+                <svg class="h-10 w-auto" fill="currentColor" viewBox="0 0 100 60" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 30 C 20 10, 50 10, 60 30 C 70 50, 40 50, 30 30" fill="#C59D5F"></path>
+                    <path d="M5 45 L 95 45 L 80 55 L 20 55 Z" fill="#000000"></path>
+                </svg>
+            </div>
+            <h2 class="text-2xl font-black italic uppercase tracking-wider text-black dark:text-white">JAGUARES</h2>
+        </div>
+        <div class="flex items-center gap-4">
+            <span class="px-3 py-1 bg-red-600 text-white rounded-md text-xs font-bold uppercase">Admin</span>
+        </div>
+    </header>
+
+    <main class="flex-grow flex flex-col items-center justify-start py-10 px-4 sm:px-6 lg:px-8">
+        <div class="w-full max-w-[600px] flex flex-col gap-8">
+            <div class="flex flex-col gap-4">
+                <h1 class="text-black dark:text-white text-4xl font-black italic uppercase tracking-tight">Panel de <span class="text-primary">Administración</span></h1>
+                <p class="text-text-muted dark:text-gray-400 text-base">Gestiona los usuarios registrados en el sistema.</p>
+            </div>
+
+            <!-- Eliminar Usuario -->
+            <div class="bg-white dark:bg-surface-dark rounded-xl p-8 shadow-xl border-l-4 border-red-500">
+                <div class="mb-6">
+                    <h3 class="text-2xl font-bold text-black dark:text-white uppercase flex items-center gap-3">
+                        <span class="material-symbols-outlined text-red-500 text-3xl">delete_forever</span>
+                        Eliminar Usuario
+                    </h3>
+                    <p class="text-sm text-text-muted dark:text-gray-400 mt-2">
+                        ⚠️ Esta acción eliminará TODOS los registros del usuario en:
+                    </p>
+                    <ul class="list-disc list-inside text-sm text-text-muted dark:text-gray-400 mt-2 ml-4">
+                        <li>Hoja INSCRIPCIONES</li>
+                        <li>Hoja PAGOS</li>
+                        <li>Todas las hojas de días (LUNES, MARTES, etc.)</li>
+                        <li>Todas las hojas de deportes (FÚTBOL, VÓLEY, etc.)</li>
+                    </ul>
+                </div>
+
+                <form id="formEliminar" class="flex flex-col gap-6">
+                    <div class="flex flex-col gap-2">
+                        <label class="text-text-main dark:text-gray-300 text-xs font-bold uppercase tracking-wider">
+                            DNI del Usuario a Eliminar <span class="text-red-500">*</span>
+                        </label>
+                        <input 
+                            id="dniEliminar" 
+                            type="text" 
+                            maxlength="8" 
+                            pattern="[0-9]{8}"
+                            inputmode="numeric"
+                            class="w-full h-12 px-4 rounded-lg border border-gray-300 bg-white dark:bg-[#252525] dark:border-gray-700 dark:text-white text-base focus:ring-2 focus:ring-red-500 focus:border-red-500 placeholder:text-gray-400 transition-all" 
+                            placeholder="Ingrese DNI (8 dígitos)" 
+                            required
+                        />
+                        <span class="text-xs text-gray-500 dark:text-gray-400">Solo números, exactamente 8 dígitos</span>
+                    </div>
+
+                    <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                        <div class="flex items-start gap-3">
+                            <span class="material-symbols-outlined text-red-600 dark:text-red-400 text-xl">warning</span>
+                            <p class="text-sm text-red-800 dark:text-red-300 font-medium">
+                                <strong>ADVERTENCIA:</strong> Esta acción NO se puede deshacer. Se eliminarán permanentemente todos los registros asociados a este DNI.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4 mt-4">
+                        <button 
+                            type="submit" 
+                            class="flex-1 h-12 bg-red-600 hover:bg-red-700 text-white font-bold uppercase tracking-wide rounded-lg transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+                        >
+                            <span class="material-symbols-outlined">delete_forever</span>
+                            Eliminar Usuario
+                        </button>
+                        <button 
+                            type="button" 
+                            onclick="document.getElementById('dniEliminar').value = ''"
+                            class="px-6 h-12 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white font-bold uppercase tracking-wide rounded-lg transition-all"
+                        >
+                            Limpiar
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Resultado -->
+                <div id="resultado" class="mt-6 hidden"></div>
+            </div>
+
+            <!-- Volver al inicio -->
+            <div class="text-center">
+                <a href="index.html" class="inline-flex items-center gap-2 text-primary hover:text-primary-dark font-semibold transition-colors">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                    Volver al Inicio
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/api-service.js"></script>
+    <script>
+        const ApiService = new AcademiaAPI();
+        const form = document.getElementById('formEliminar');
+        const dniInput = document.getElementById('dniEliminar');
+        const resultado = document.getElementById('resultado');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const dni = dniInput.value.trim();
+            
+            // Validar DNI
+            if (dni.length !== 8 || isNaN(dni)) {
+                mostrarResultado('error', 'El DNI debe tener exactamente 8 dígitos numéricos');
+                return;
+            }
+
+            // Confirmar acción
+            const confirmar = confirm(
+                `¿Estás seguro de eliminar TODOS los registros del usuario con DNI ${dni}?\n\n` +
+                'Esta acción NO se puede deshacer y eliminará:\n' +
+                '• Datos personales en INSCRIPCIONES\n' +
+                '• Registros de pago en PAGOS\n' +
+                '• Todas las inscripciones en hojas de días\n' +
+                '• Todas las inscripciones en hojas de deportes\n\n' +
+                'Escribe "ELIMINAR" en mayúsculas para confirmar:'
+            );
+
+            if (!confirmar) {
+                return;
+            }
+
+            const confirmacionTexto = prompt('Escribe "ELIMINAR" para confirmar:');
+            
+            if (confirmacionTexto !== 'ELIMINAR') {
+                mostrarResultado('warning', 'Operación cancelada. Debes escribir "ELIMINAR" para confirmar.');
+                return;
+            }
+
+            // Mostrar loading
+            mostrarResultado('loading', 'Eliminando usuario... Por favor espera.');
+
+            try {
+                const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                    ? 'http://localhost:3002'
+                    : 'https://jaguares-backend.onrender.com';
+                
+                const response = await fetch(`${API_BASE}/api/eliminar-usuario/${dni}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    mostrarResultado('success', 
+                        `✅ Usuario eliminado exitosamente\n\n` +
+                        `DNI: ${dni}\n` +
+                        `Registros eliminados: ${data.registros_eliminados}\n\n` +
+                        data.message
+                    );
+                    dniInput.value = '';
+                } else {
+                    mostrarResultado('error', `❌ Error: ${data.error || 'No se pudo eliminar el usuario'}`);
+                }
+            } catch (error) {
+                console.error('Error al eliminar usuario:', error);
+                mostrarResultado('error', `❌ Error de conexión: ${error.message}`);
+            }
+        });
+
+        function mostrarResultado(tipo, mensaje) {
+            resultado.classList.remove('hidden');
+            
+            const colores = {
+                success: 'bg-green-50 dark:bg-green-900/20 border-green-500 text-green-800 dark:text-green-300',
+                error: 'bg-red-50 dark:bg-red-900/20 border-red-500 text-red-800 dark:text-red-300',
+                warning: 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-500 text-yellow-800 dark:text-yellow-300',
+                loading: 'bg-blue-50 dark:bg-blue-900/20 border-blue-500 text-blue-800 dark:text-blue-300'
+            };
+
+            const iconos = {
+                success: 'check_circle',
+                error: 'error',
+                warning: 'warning',
+                loading: 'progress_activity'
+            };
+
+            resultado.className = `p-4 rounded-lg border-l-4 ${colores[tipo] || colores.error}`;
+            resultado.innerHTML = `
+                <div class="flex items-start gap-3">
+                    <span class="material-symbols-outlined text-2xl">${iconos[tipo] || iconos.error}</span>
+                    <pre class="text-sm font-medium whitespace-pre-wrap">${mensaje}</pre>
+                </div>
+            `;
+
+            // Scroll al resultado
+            resultado.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // Validar solo números mientras escribe
+        dniInput.addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/[^0-9]/g, '');
+        });
+    </script>
+</body>
+</html>

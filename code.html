@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Inscripción: Selección de Horarios - JAGUARES</title>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&amp;family=Noto+Sans:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#c59d5f","primary-hover": "#a67f42","background-light": "#f8f8f8",
+              "background-dark": "#0a0a0a","surface-light": "#ffffff",
+              "surface-dark": "#1a1a1a","border-light": "#e5e5e5",
+              "border-dark": "#333333",
+              "text-main": "#000000","text-muted": "#666666",
+              "gold-accent": "#D4AF37",
+            },
+            fontFamily: {
+              "display": ["Lexend", "sans-serif"],
+              "body": ["Noto Sans", "sans-serif"],
+            },
+            borderRadius: {
+              "DEFAULT": "0.5rem","lg": "1rem", 
+              "xl": "1.5rem", 
+              "2xl": "2rem",
+              "full": "9999px"
+            },
+            boxShadow: {
+                'card': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
+                'card-hover': '0 10px 25px -5px rgba(197, 157, 95, 0.25)','selected': '0 0 0 2px #c59d5f, 0 4px 20px -2px rgba(197, 157, 95, 0.3)',
+            },
+            backgroundImage: {
+                'gold-gradient': 'linear-gradient(135deg, #c59d5f 0%, #a67f42 100%)',
+            }
+          },
+        },
+      }
+    </script>
+<style>.no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .jaguares-text {
+            font-family: 'Lexend', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: -0.05em;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-text-main dark:text-white font-display overflow-x-hidden antialiased selection:bg-primary selection:text-white">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root">
+<header class="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-border-light dark:border-border-dark bg-surface-light/95 dark:bg-black/90 backdrop-blur-md px-6 lg:px-10 py-4">
+<div class="flex items-center gap-3">
+<div class="h-10 w-auto flex items-center justify-center">
+<img alt="Jaguares Logo" class="h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBet2yhpXquBCQiSnI2fnw6HgV0B-swyDO6Jg8Pl1Q7WhjSg20eeeiBgqDjPaO6ZcyuiAa6l0TnhCoqv9vcDkA3cCBY2ARUsQ6mLF7FNqN_VAFUmvkywmZVDu2HodMgSNPq3SCL3jJsjo6JI9TzFkYh2K6Qfxfqv6hTudKAQ7Q-wY_OEimPI9d9YXkkQQ_GGhgOWYd1CZ4UogHSugQdnleR8KteExKX952Hp86XlqzKETEtA0ST4sp-g40b8ulO_GSoEaoB0GyVXoI"/>
+</div>
+</div>
+<div class="hidden md:flex flex-1 justify-end gap-8 items-center">
+<nav class="flex items-center gap-9">
+<a class="text-text-main dark:text-gray-200 text-sm font-bold uppercase tracking-wide hover:text-primary transition-colors" href="#">Inicio</a>
+<a class="text-text-main dark:text-gray-200 text-sm font-bold uppercase tracking-wide hover:text-primary transition-colors" href="#">Academia</a>
+<a class="text-text-main dark:text-gray-200 text-sm font-bold uppercase tracking-wide hover:text-primary transition-colors" href="#">Ayuda</a>
+</nav>
+<div class="flex items-center gap-2 pl-4 border-l border-border-light dark:border-border-dark">
+<div class="h-9 w-9 rounded-full bg-black text-white flex items-center justify-center font-bold text-xs ring-2 ring-primary">JD</div>
+<span class="text-sm font-bold hidden lg:block">Juan Doe</span>
+</div>
+</div>
+<div class="md:hidden">
+<button class="text-text-main dark:text-white p-2">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+</header>
+<div class="layout-container flex h-full grow flex-col">
+<div class="px-4 md:px-10 lg:px-40 flex flex-1 justify-center py-8">
+<div class="layout-content-container flex flex-col max-w-[1024px] flex-1 pb-24">
+<div class="flex flex-col gap-3 p-4 mb-4">
+<div class="flex gap-6 justify-between items-end">
+<p class="text-text-main dark:text-white text-sm font-bold uppercase tracking-wider text-opacity-80">Paso 2 de 3: Selección de Horarios</p>
+<span class="text-xs font-bold text-primary dark:text-primary bg-primary/10 px-3 py-1 rounded-md border border-primary/20">2/3</span>
+</div>
+<div class="rounded-full bg-gray-200 dark:bg-gray-800 h-2 overflow-hidden">
+<div class="h-full bg-gold-gradient relative overflow-hidden w-[66%] shadow-[0_0_10px_rgba(197,157,95,0.5)]">
+<div class="absolute inset-0 bg-white/30 w-full h-full animate-[shimmer_2s_infinite]"></div>
+</div>
+</div>
+<div class="flex justify-between text-sm pt-1">
+<a class="text-text-muted hover:text-black dark:hover:text-white flex items-center gap-1 transition-colors" href="#">
+<span class="material-symbols-outlined text-[16px]">arrow_back</span>
+<span class="font-medium">Anterior: Datos</span>
+</a>
+<span class="text-primary font-bold tracking-wide">Siguiente: Confirmación</span>
+</div>
+</div>
+<div class="flex flex-col gap-4 p-4">
+<div class="flex flex-col gap-3">
+<h1 class="text-text-main dark:text-white text-4xl md:text-5xl font-black leading-tight tracking-tighter uppercase italic">
+                                Elige tus <span class="text-primary">entrenamientos</span>
+</h1>
+<p class="text-text-muted dark:text-gray-400 text-base md:text-lg font-medium leading-relaxed max-w-2xl">
+                                Selecciona el día para ver disponibilidad. Puedes inscribirte a un <span class="font-bold text-black dark:text-white border-b-2 border-primary">máximo de 2 horarios</span> por semana.
+                            </p>
+</div>
+</div>
+<div class="sticky top-[72px] z-30 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm py-3 px-4 mb-8 -mx-4 md:mx-0 border-b border-transparent transition-all" id="filter-bar">
+<div class="flex gap-3 overflow-x-auto no-scrollbar py-2 px-1">
+<button class="group flex h-11 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-black text-white px-7 shadow-lg shadow-black/20 transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-95 border border-black">
+<span class="text-sm font-bold uppercase tracking-wide">Lunes</span>
+<span class="bg-primary text-black rounded-md w-5 h-5 flex items-center justify-center text-[11px] font-black">4</span>
+</button>
+<button class="group flex h-11 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark px-7 text-text-main dark:text-gray-300 hover:border-primary hover:text-primary dark:hover:text-primary transition-all active:scale-95">
+<span class="text-sm font-bold uppercase tracking-wide">Martes</span>
+</button>
+<button class="group flex h-11 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark px-7 text-text-main dark:text-gray-300 hover:border-primary hover:text-primary dark:hover:text-primary transition-all active:scale-95">
+<span class="text-sm font-bold uppercase tracking-wide">Miércoles</span>
+</button>
+<button class="group flex h-11 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark px-7 text-text-main dark:text-gray-300 hover:border-primary hover:text-primary dark:hover:text-primary transition-all active:scale-95">
+<span class="text-sm font-bold uppercase tracking-wide">Jueves</span>
+</button>
+<button class="group flex h-11 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark px-7 text-text-main dark:text-gray-300 hover:border-primary hover:text-primary dark:hover:text-primary transition-all active:scale-95">
+<span class="text-sm font-bold uppercase tracking-wide">Viernes</span>
+</button>
+<button class="group flex h-11 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark px-7 text-text-main dark:text-gray-300 hover:border-primary hover:text-primary dark:hover:text-primary transition-all active:scale-95">
+<span class="text-sm font-bold uppercase tracking-wide">Sábado</span>
+</button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-4">
+<div class="group relative flex flex-col gap-4 rounded-xl bg-surface-light dark:bg-surface-dark p-6 shadow-card hover:shadow-card-hover transition-all duration-300 border border-transparent hover:border-primary/40 cursor-pointer">
+<div class="flex justify-between items-start">
+<div class="flex items-center gap-4">
+<div class="size-12 rounded-lg bg-gray-100 text-black dark:bg-gray-800 dark:text-primary flex items-center justify-center border border-gray-200 dark:border-gray-700">
+<span class="material-symbols-outlined">sports_soccer</span>
+</div>
+<div>
+<h3 class="text-xl font-black text-text-main dark:text-white uppercase italic tracking-tight">Fútbol</h3>
+<p class="text-xs font-bold text-text-muted dark:text-gray-500 uppercase tracking-wider">Campo 1</p>
+</div>
+</div>
+<span class="px-2.5 py-1 rounded-md bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-400 text-[10px] font-black uppercase tracking-wider border border-green-200 dark:border-green-800">Disponible</span>
+</div>
+<div class="flex flex-col gap-3 my-2 pl-1">
+<div class="flex items-center gap-3 text-text-main dark:text-gray-200">
+<span class="material-symbols-outlined text-xl text-primary">schedule</span>
+<span class="font-bold text-lg">17:00 - 18:30</span>
+</div>
+<div class="flex items-center gap-3 text-text-muted dark:text-gray-400 text-sm">
+<span class="material-symbols-outlined text-xl">diversity_3</span>
+<span class="font-medium">Categoría Sub-15</span>
+</div>
+</div>
+<div class="h-px w-full bg-gradient-to-r from-transparent via-border-light dark:via-border-dark to-transparent"></div>
+<div class="flex justify-between items-center mt-auto">
+<span class="text-xs font-bold text-text-muted dark:text-gray-500">8 cupos libres</span>
+<button class="h-9 w-9 rounded-full bg-black text-white flex items-center justify-center group-hover:bg-primary group-hover:text-black transition-colors shadow-md">
+<span class="material-symbols-outlined text-xl">add</span>
+</button>
+</div>
+</div>
+<div class="group relative flex flex-col gap-4 rounded-xl bg-surface-light dark:bg-surface-dark p-6 shadow-selected transition-all duration-300 border-2 border-primary cursor-pointer">
+<div class="absolute -top-3 -right-3 size-8 bg-black text-primary rounded-full flex items-center justify-center shadow-lg shadow-black/30 z-10 border-2 border-primary">
+<span class="material-symbols-outlined text-base font-bold">check</span>
+</div>
+<div class="flex justify-between items-start">
+<div class="flex items-center gap-4">
+<div class="size-12 rounded-lg bg-black text-primary flex items-center justify-center border border-primary/30">
+<span class="material-symbols-outlined">sports_tennis</span>
+</div>
+<div>
+<h3 class="text-xl font-black text-text-main dark:text-white uppercase italic tracking-tight">Tenis</h3>
+<p class="text-xs font-bold text-text-muted dark:text-gray-500 uppercase tracking-wider">Cancha 3</p>
+</div>
+</div>
+<span class="px-2.5 py-1 rounded-md bg-primary text-black text-[10px] font-black uppercase tracking-wider">Seleccionado</span>
+</div>
+<div class="flex flex-col gap-3 my-2 pl-1">
+<div class="flex items-center gap-3 text-text-main dark:text-gray-200">
+<span class="material-symbols-outlined text-xl text-primary">schedule</span>
+<span class="font-bold text-lg">18:00 - 19:30</span>
+</div>
+<div class="flex items-center gap-3 text-text-muted dark:text-gray-400 text-sm">
+<span class="material-symbols-outlined text-xl">diversity_3</span>
+<span class="font-medium">Nivel Intermedio</span>
+</div>
+</div>
+<div class="h-px w-full bg-gradient-to-r from-transparent via-primary/20 to-transparent"></div>
+<div class="flex justify-between items-center mt-auto">
+<span class="text-xs font-bold text-primary dark:text-primary flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">local_fire_department</span>
+                                    ¡Últimos 2 cupos!
+                                </span>
+<button class="h-8 px-4 rounded-md bg-black text-white text-xs font-bold flex items-center justify-center transition-colors border border-transparent hover:border-primary uppercase tracking-wide">
+                                    QUITAR
+                                </button>
+</div>
+</div>
+<div class="relative flex flex-col gap-4 rounded-xl bg-surface-light dark:bg-surface-dark p-6 border border-border-light dark:border-border-dark opacity-70 cursor-not-allowed select-none overflow-hidden">
+<div class="absolute inset-0 z-0 opacity-5" style="background-image: linear-gradient(135deg, #000000 10%, transparent 10%, transparent 50%, #000000 50%, #000000 60%, transparent 60%, transparent 100%); background-size: 8px 8px;"></div>
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -rotate-12 border-4 border-black dark:border-white text-black dark:text-white px-6 py-2 text-2xl font-black tracking-widest uppercase opacity-20 z-10 whitespace-nowrap mix-blend-multiply dark:mix-blend-overlay">
+                                Agotado
+                            </div>
+<div class="flex justify-between items-start z-10 grayscale opacity-50">
+<div class="flex items-center gap-4">
+<div class="size-12 rounded-lg bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400 flex items-center justify-center border border-gray-200 dark:border-gray-700">
+<span class="material-symbols-outlined">sports_basketball</span>
+</div>
+<div>
+<h3 class="text-xl font-black text-text-main dark:text-white uppercase italic tracking-tight">Basquet</h3>
+<p class="text-xs font-bold text-text-muted dark:text-gray-500 uppercase tracking-wider">Gimnasio A</p>
+</div>
+</div>
+<span class="px-2.5 py-1 rounded-md bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-400 text-[10px] font-black uppercase tracking-wider">Lleno</span>
+</div>
+<div class="flex flex-col gap-3 my-2 pl-1 z-10 grayscale opacity-50">
+<div class="flex items-center gap-3 text-text-main dark:text-gray-200">
+<span class="material-symbols-outlined text-xl text-gray-400">schedule</span>
+<span class="font-bold text-lg">19:00 - 20:30</span>
+</div>
+<div class="flex items-center gap-3 text-text-muted dark:text-gray-400 text-sm">
+<span class="material-symbols-outlined text-xl">diversity_3</span>
+<span class="font-medium">Juveniles</span>
+</div>
+</div>
+<div class="h-px w-full bg-border-light dark:bg-border-dark z-10"></div>
+<div class="flex justify-between items-center mt-auto z-10">
+<span class="text-xs font-bold text-gray-400">0 cupos libres</span>
+<div class="h-9 w-9 flex items-center justify-center text-gray-300">
+<span class="material-symbols-outlined text-xl">block</span>
+</div>
+</div>
+</div>
+<div class="group relative flex flex-col gap-4 rounded-xl bg-surface-light dark:bg-surface-dark p-6 shadow-card hover:shadow-card-hover transition-all duration-300 border border-transparent hover:border-primary/40 cursor-pointer">
+<div class="flex justify-between items-start">
+<div class="flex items-center gap-4">
+<div class="size-12 rounded-lg bg-gray-100 text-black dark:bg-gray-800 dark:text-primary flex items-center justify-center border border-gray-200 dark:border-gray-700">
+<span class="material-symbols-outlined">pool</span>
+</div>
+<div>
+<h3 class="text-xl font-black text-text-main dark:text-white uppercase italic tracking-tight">Natación</h3>
+<p class="text-xs font-bold text-text-muted dark:text-gray-500 uppercase tracking-wider">Pileta 2</p>
+</div>
+</div>
+<span class="px-2.5 py-1 rounded-md bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-400 text-[10px] font-black uppercase tracking-wider border border-green-200 dark:border-green-800">Disponible</span>
+</div>
+<div class="flex flex-col gap-3 my-2 pl-1">
+<div class="flex items-center gap-3 text-text-main dark:text-gray-200">
+<span class="material-symbols-outlined text-xl text-primary">schedule</span>
+<span class="font-bold text-lg">19:30 - 20:30</span>
+</div>
+<div class="flex items-center gap-3 text-text-muted dark:text-gray-400 text-sm">
+<span class="material-symbols-outlined text-xl">diversity_3</span>
+<span class="font-medium">Todo Nivel</span>
+</div>
+</div>
+<div class="h-px w-full bg-gradient-to-r from-transparent via-border-light dark:via-border-dark to-transparent"></div>
+<div class="flex justify-between items-center mt-auto">
+<span class="text-xs font-bold text-text-muted dark:text-gray-500">12 cupos libres</span>
+<button class="h-9 w-9 rounded-full bg-black text-white flex items-center justify-center group-hover:bg-primary group-hover:text-black transition-colors shadow-md">
+<span class="material-symbols-outlined text-xl">add</span>
+</button>
+</div>
+</div>
+<div class="group relative flex flex-col gap-4 rounded-xl bg-surface-light dark:bg-surface-dark p-6 shadow-selected transition-all duration-300 border-2 border-primary cursor-pointer">
+<div class="absolute -top-3 -right-3 size-8 bg-black text-primary rounded-full flex items-center justify-center shadow-lg shadow-black/30 z-10 border-2 border-primary">
+<span class="material-symbols-outlined text-base font-bold">check</span>
+</div>
+<div class="flex justify-between items-start">
+<div class="flex items-center gap-4">
+<div class="size-12 rounded-lg bg-black text-primary flex items-center justify-center border border-primary/30">
+<span class="material-symbols-outlined">sprint</span>
+</div>
+<div>
+<h3 class="text-xl font-black text-text-main dark:text-white uppercase italic tracking-tight">Atletismo</h3>
+<p class="text-xs font-bold text-text-muted dark:text-gray-500 uppercase tracking-wider">Pista Exterior</p>
+</div>
+</div>
+<span class="px-2.5 py-1 rounded-md bg-primary text-black text-[10px] font-black uppercase tracking-wider">Seleccionado</span>
+</div>
+<div class="flex flex-col gap-3 my-2 pl-1">
+<div class="flex items-center gap-3 text-text-main dark:text-gray-200">
+<span class="material-symbols-outlined text-xl text-primary">schedule</span>
+<span class="font-bold text-lg">20:00 - 21:30</span>
+</div>
+<div class="flex items-center gap-3 text-text-muted dark:text-gray-400 text-sm">
+<span class="material-symbols-outlined text-xl">diversity_3</span>
+<span class="font-medium">Velocidad</span>
+</div>
+</div>
+<div class="h-px w-full bg-gradient-to-r from-transparent via-primary/20 to-transparent"></div>
+<div class="flex justify-between items-center mt-auto">
+<span class="text-xs font-bold text-text-muted dark:text-gray-500">5 cupos libres</span>
+<button class="h-8 px-4 rounded-md bg-black text-white text-xs font-bold flex items-center justify-center transition-colors border border-transparent hover:border-primary uppercase tracking-wide">
+                                    QUITAR
+                                </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sticky bottom-0 z-50 w-full px-4 md:px-10 lg:px-40 py-4 bg-surface-light dark:bg-surface-dark border-t border-border-light dark:border-border-dark shadow-[0_-5px_30px_rgba(0,0,0,0.1)]">
+<div class="max-w-[1024px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+<div class="flex items-center gap-4 w-full sm:w-auto p-2 sm:p-0 rounded-lg bg-background-light dark:bg-background-dark sm:bg-transparent sm:dark:bg-transparent">
+<div class="relative size-12 shrink-0">
+<svg class="size-full -rotate-90" viewBox="0 0 36 36">
+<path class="text-gray-200 dark:text-gray-800" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3"></path>
+<path class="text-primary transition-all duration-500" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="100, 100" stroke-width="3"></path>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center font-black text-xs text-black dark:text-white">
+                            2/2
+                        </div>
+</div>
+<div class="flex flex-col">
+<span class="text-[10px] font-bold text-text-muted dark:text-gray-400 uppercase tracking-widest">Tu selección</span>
+<span class="text-sm font-bold text-text-main dark:text-white leading-tight">Tenis 18:00hs, Atletismo 20:00hs</span>
+</div>
+</div>
+<div class="flex w-full sm:w-auto items-center gap-3">
+<button class="flex-1 sm:flex-none h-12 px-6 rounded-full border-2 border-border-light dark:border-gray-700 bg-transparent text-text-main dark:text-gray-300 font-bold text-sm uppercase tracking-wide hover:border-black dark:hover:border-white transition-colors">
+                        Atrás
+                    </button>
+<button class="flex-1 sm:flex-none flex items-center justify-center gap-2 h-12 px-8 rounded-full bg-gold-gradient hover:bg-black text-black hover:text-white font-bold text-sm uppercase tracking-wide shadow-lg shadow-primary/20 transition-all active:scale-95 group">
+                        Continuar
+                        <span class="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</body></html>
