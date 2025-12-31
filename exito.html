@@ -4,6 +4,8 @@
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>JAGUARES - Inscripción Exitosa</title>
+    <link rel="icon" type="image/x-icon" href="assets/logo.ico"/>
+    <link rel="apple-touch-icon" href="assets/logo.ico"/>
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;700;900&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -28,12 +30,7 @@
     <div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
         <header class="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#e5e5e5] dark:border-b-white/10 px-4 py-3 bg-white/90 dark:bg-background-dark/90 backdrop-blur-md lg:px-10">
             <div class="flex items-center gap-4">
-                <div class="h-12 w-auto">
-                    <svg class="h-full w-auto" fill="currentColor" viewBox="0 0 100 60" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M10 30 C 20 10, 50 10, 60 30 C 70 50, 40 50, 30 30" fill="#C59D5F"></path>
-                        <path d="M5 45 L 95 45 L 80 55 L 20 55 Z" fill="#000000"></path>
-                    </svg>
-                </div>
+                <img src="assets/logo.ico" alt="Logo Jaguares" class="h-12 w-auto object-contain">
                 <h2 class="text-2xl font-black italic uppercase tracking-wider text-black dark:text-white">JAGUARES</h2>
             </div>
             <div class="flex flex-1 justify-end gap-8">
@@ -57,8 +54,14 @@
         </main>
 
         <footer class="bg-black text-white py-8 border-t border-white/10 mt-auto">
-            <div class="max-w-[960px] mx-auto px-4 text-center">
-                <p class="text-gray-400 text-sm">© 2025 JAGUARES. Todos los derechos reservados.</p>
+            <div class="max-w-[960px] mx-auto px-4">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div class="flex items-center gap-3">
+                        <img src="assets/logo.ico" alt="Logo Jaguares" class="size-6 object-contain">
+                        <span class="text-white text-sm font-black uppercase italic">JAGUARES</span>
+                    </div>
+                    <p class="text-gray-400 text-sm">© 2025 JAGUARES. Todos los derechos reservados.</p>
+                </div>
             </div>
         </footer>
     </div>
