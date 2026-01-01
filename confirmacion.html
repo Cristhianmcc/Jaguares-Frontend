@@ -48,16 +48,37 @@
 </head>
 <body class="bg-background-light dark:bg-background-dark text-text-main dark:text-gray-100 font-display overflow-x-hidden transition-colors duration-200">
     <div class="relative flex min-h-screen w-full flex-col group/design-root">
-        <header class="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#e5e0d6] dark:border-b-[#333] px-4 md:px-10 py-3 bg-white/95 dark:bg-[#111]/95 backdrop-blur-sm shadow-sm">
-            <div class="flex items-center gap-3">
-                <img src="assets/logo.ico" alt="Logo Jaguares" class="h-10 w-auto object-contain">
-                <h2 class="text-2xl font-black italic uppercase tracking-wider text-black dark:text-white ml-2">JAGUARES</h2>
-            </div>
-            <div class="hidden md:flex flex-1 justify-end gap-8">
-                <div class="flex items-center gap-9">
-                    <a class="text-secondary dark:text-gray-300 text-sm font-semibold leading-normal hover:text-primary transition-colors uppercase tracking-wide" href="index.html">Inicio</a>
-                    <a class="text-secondary dark:text-gray-300 text-sm font-semibold leading-normal hover:text-primary transition-colors uppercase tracking-wide" href="#">Nosotros</a>
-                    <a class="text-secondary dark:text-gray-300 text-sm font-semibold leading-normal hover:text-primary transition-colors uppercase tracking-wide" href="#">Inscripciones</a>
+        <header class="sticky top-0 z-50 border-b border-solid border-b-[#e5e0d6] dark:border-b-[#333] bg-white/95 dark:bg-[#111]/95 backdrop-blur-sm shadow-sm">
+            <div class="px-4 md:px-10 py-3">
+                <div class="flex items-center justify-between">
+                    <!-- Logo centrado en móvil -->
+                    <div class="flex items-center gap-3 flex-1 justify-center lg:justify-start">
+                        <img src="assets/logo.ico" alt="Logo Jaguares" class="h-10 w-auto object-contain">
+                        <h2 class="text-xl lg:text-2xl font-black italic uppercase tracking-wider text-black dark:text-white">JAGUARES</h2>
+                    </div>
+                    
+                    <!-- Botón hamburguesa -->
+                    <button id="mobile-menu-btn" class="lg:hidden p-2 text-secondary dark:text-white hover:text-primary transition-colors" aria-label="Menú">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                    </button>
+                    
+                    <!-- Navegación desktop -->
+                    <div class="hidden lg:flex flex-1 justify-end gap-8">
+                        <div class="flex items-center gap-9">
+                            <a class="text-secondary dark:text-gray-300 text-sm font-semibold leading-normal hover:text-primary transition-colors uppercase tracking-wide" href="index.html">Inicio</a>
+                            <a class="text-secondary dark:text-gray-300 text-sm font-semibold leading-normal hover:text-primary transition-colors uppercase tracking-wide" href="#">Nosotros</a>
+                            <a class="text-secondary dark:text-gray-300 text-sm font-semibold leading-normal hover:text-primary transition-colors uppercase tracking-wide" href="#">Inscripciones</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Menú móvil -->
+                <div id="mobile-menu" class="hidden lg:hidden mt-4 pb-2 space-y-3 border-t border-[#e5e0d6] dark:border-[#333] pt-4">
+                    <a class="block text-secondary dark:text-white hover:text-primary text-base font-semibold uppercase tracking-wide transition-colors py-2" href="index.html">Inicio</a>
+                    <a class="block text-secondary dark:text-white hover:text-primary text-base font-semibold uppercase tracking-wide transition-colors py-2" href="#">Nosotros</a>
+                    <a class="block text-secondary dark:text-white hover:text-primary text-base font-semibold uppercase tracking-wide transition-colors py-2" href="#">Inscripciones</a>
                 </div>
             </div>
         </header>
@@ -108,5 +129,6 @@
 
     <script src="js/api-service.js"></script>
     <script src="js/confirmacion.js"></script>
+    <script src="js/mobile-menu.js"></script>
 </body>
 </html>

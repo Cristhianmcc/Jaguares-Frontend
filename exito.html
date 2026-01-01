@@ -28,17 +28,38 @@
 </head>
 <body class="bg-background-light dark:bg-background-dark text-text-main dark:text-white transition-colors duration-200">
     <div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
-        <header class="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#e5e5e5] dark:border-b-white/10 px-4 py-3 bg-white/90 dark:bg-background-dark/90 backdrop-blur-md lg:px-10">
-            <div class="flex items-center gap-4">
-                <img src="assets/logo.ico" alt="Logo Jaguares" class="h-12 w-auto object-contain">
-                <h2 class="text-2xl font-black italic uppercase tracking-wider text-black dark:text-white">JAGUARES</h2>
-            </div>
-            <div class="flex flex-1 justify-end gap-8">
-                <nav class="hidden md:flex items-center gap-9">
-                    <a class="text-text-main dark:text-white hover:text-primary dark:hover:text-primary text-sm font-bold uppercase tracking-wide leading-normal transition-colors" href="index.html">Inicio</a>
-                    <a class="text-text-main dark:text-white hover:text-primary dark:hover:text-primary text-sm font-bold uppercase tracking-wide leading-normal transition-colors" href="#">Nosotros</a>
-                    <a class="text-text-main dark:text-white hover:text-primary dark:hover:text-primary text-sm font-bold uppercase tracking-wide leading-normal transition-colors" href="#">Programas</a>
-                </nav>
+        <header class="sticky top-0 z-50 border-b border-solid border-b-[#e5e5e5] dark:border-b-white/10 bg-white/90 dark:bg-background-dark/90 backdrop-blur-md">
+            <div class="px-4 py-3 lg:px-10">
+                <div class="flex items-center justify-between">
+                    <!-- Logo centrado en móvil -->
+                    <div class="flex items-center gap-4 flex-1 justify-center lg:justify-start">
+                        <img src="assets/logo.ico" alt="Logo Jaguares" class="h-12 w-auto object-contain">
+                        <h2 class="text-xl lg:text-2xl font-black italic uppercase tracking-wider text-black dark:text-white">JAGUARES</h2>
+                    </div>
+                    
+                    <!-- Botón hamburguesa -->
+                    <button id="mobile-menu-btn" class="lg:hidden p-2 text-text-main dark:text-white hover:text-primary transition-colors" aria-label="Menú">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                    </button>
+                    
+                    <!-- Navegación desktop -->
+                    <div class="hidden lg:flex flex-1 justify-end gap-8">
+                        <nav class="flex items-center gap-9">
+                            <a class="text-text-main dark:text-white hover:text-primary dark:hover:text-primary text-sm font-bold uppercase tracking-wide leading-normal transition-colors" href="index.html">Inicio</a>
+                            <a class="text-text-main dark:text-white hover:text-primary dark:hover:text-primary text-sm font-bold uppercase tracking-wide leading-normal transition-colors" href="#">Nosotros</a>
+                            <a class="text-text-main dark:text-white hover:text-primary dark:hover:text-primary text-sm font-bold uppercase tracking-wide leading-normal transition-colors" href="#">Programas</a>
+                        </nav>
+                    </div>
+                </div>
+                
+                <!-- Menú móvil -->
+                <div id="mobile-menu" class="hidden lg:hidden mt-4 pb-2 space-y-3 border-t border-[#e5e5e5] dark:border-white/10 pt-4">
+                    <a class="block text-text-main dark:text-white hover:text-primary text-base font-bold uppercase tracking-wide transition-colors py-2" href="index.html">Inicio</a>
+                    <a class="block text-text-main dark:text-white hover:text-primary text-base font-bold uppercase tracking-wide transition-colors py-2" href="#">Nosotros</a>
+                    <a class="block text-text-main dark:text-white hover:text-primary text-base font-bold uppercase tracking-wide transition-colors py-2" href="#">Programas</a>
+                </div>
             </div>
         </header>
 
@@ -68,5 +89,6 @@
 
     <script src="js/api-service.js"></script>
     <script src="js/exito.js"></script>
+    <script src="js/mobile-menu.js"></script>
 </body>
 </html>

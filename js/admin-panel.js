@@ -31,11 +31,23 @@ function verificarSesion() {
         return;
     }
     
+    // Actualizar email en desktop y móvil
     document.getElementById('adminEmail').textContent = data.admin.email;
+    const adminEmailMobile = document.getElementById('adminEmailMobile');
+    if (adminEmailMobile) {
+        adminEmailMobile.textContent = data.admin.email;
+    }
 }
 
 function inicializarEventos() {
     document.getElementById('btnCerrarSesion').addEventListener('click', cerrarSesion);
+    
+    // Botón cerrar sesión móvil
+    const btnCerrarSesionMobile = document.getElementById('btnCerrarSesionMobile');
+    if (btnCerrarSesionMobile) {
+        btnCerrarSesionMobile.addEventListener('click', cerrarSesion);
+    }
+    
     document.getElementById('btnFiltrar').addEventListener('click', aplicarFiltros);
     document.getElementById('btnLimpiarFiltros').addEventListener('click', limpiarFiltros);
     document.getElementById('btnCancelarEliminar').addEventListener('click', cerrarModal);

@@ -51,17 +51,38 @@
 </head>
 <body class="bg-background-light dark:bg-background-dark text-text-main dark:text-white font-display overflow-x-hidden antialiased selection:bg-primary selection:text-white">
     <div class="relative flex h-auto min-h-screen w-full flex-col group/design-root">
-        <header class="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-border-light dark:border-border-dark bg-surface-light/95 dark:bg-black/90 backdrop-blur-md px-6 lg:px-10 py-4">
-            <div class="flex items-center gap-3">
-                <img src="assets/logo.ico" alt="Logo Jaguares" class="h-10 w-auto object-contain">
-                <h2 class="text-2xl font-black italic uppercase tracking-wider text-black dark:text-white">JAGUARES</h2>
-            </div>
-            <div class="hidden md:flex flex-1 justify-end gap-8 items-center">
-                <nav class="flex items-center gap-9">
-                    <a class="text-text-main dark:text-gray-200 text-sm font-bold uppercase tracking-wide hover:text-primary transition-colors" href="index.html">Inicio</a>
-                    <a class="text-text-main dark:text-gray-200 text-sm font-bold uppercase tracking-wide hover:text-primary transition-colors" href="#">Academia</a>
-                    <a class="text-text-main dark:text-gray-200 text-sm font-bold uppercase tracking-wide hover:text-primary transition-colors" href="#">Ayuda</a>
-                </nav>
+        <header class="sticky top-0 z-50 border-b border-solid border-border-light dark:border-border-dark bg-surface-light/95 dark:bg-black/90 backdrop-blur-md shadow-sm">
+            <div class="px-4 lg:px-10 py-4">
+                <div class="flex items-center justify-between">
+                    <!-- Logo centrado en móvil -->
+                    <div class="flex items-center gap-3 flex-1 justify-center lg:justify-start">
+                        <img src="assets/logo.ico" alt="Logo Jaguares" class="h-10 w-auto object-contain">
+                        <h2 class="text-xl lg:text-2xl font-black italic uppercase tracking-wider text-black dark:text-white">JAGUARES</h2>
+                    </div>
+                    
+                    <!-- Botón hamburguesa -->
+                    <button id="mobile-menu-btn" class="lg:hidden p-2 text-text-main dark:text-white hover:text-primary transition-colors" aria-label="Menú">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                    </button>
+                    
+                    <!-- Navegación desktop -->
+                    <div class="hidden lg:flex flex-1 justify-end gap-8 items-center">
+                        <nav class="flex items-center gap-9">
+                            <a class="text-text-main dark:text-gray-200 text-sm font-bold uppercase tracking-wide hover:text-primary transition-colors" href="index.html">Inicio</a>
+                            <a class="text-text-main dark:text-gray-200 text-sm font-bold uppercase tracking-wide hover:text-primary transition-colors" href="#">Academia</a>
+                            <a class="text-text-main dark:text-gray-200 text-sm font-bold uppercase tracking-wide hover:text-primary transition-colors" href="#">Ayuda</a>
+                        </nav>
+                    </div>
+                </div>
+                
+                <!-- Menú móvil -->
+                <div id="mobile-menu" class="hidden lg:hidden mt-4 pb-2 space-y-3 border-t border-gray-200 dark:border-gray-800 pt-4">
+                    <a class="block text-text-main dark:text-white hover:text-primary text-base font-bold uppercase tracking-wide transition-colors py-2" href="index.html">Inicio</a>
+                    <a class="block text-text-main dark:text-white hover:text-primary text-base font-bold uppercase tracking-wide transition-colors py-2" href="#">Academia</a>
+                    <a class="block text-text-main dark:text-white hover:text-primary text-base font-bold uppercase tracking-wide transition-colors py-2" href="#">Ayuda</a>
+                </div>
             </div>
         </header>
 
@@ -98,39 +119,69 @@
                         </div>
                     </div>
 
-                    <!-- Filtros por día -->
-                    <div class="sticky top-[72px] z-30 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm py-3 px-4 mb-8 -mx-4 md:mx-0 border-b border-transparent transition-all" id="filter-bar">
-                        <div class="flex gap-2 overflow-x-auto no-scrollbar py-2 px-1" id="diasFilter">
-                            <button onclick="filtrarPorDia('Todos')" class="dia-filter-btn active flex h-11 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-black text-white px-5 shadow-lg shadow-black/20 transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-95 border border-black" data-dia="Todos">
-                                <span class="text-sm font-bold uppercase tracking-wide">Todos</span>
-                                <span class="bg-primary text-black rounded-md w-5 h-5 flex items-center justify-center text-[11px] font-black" id="count-Todos">0</span>
+                    <!-- Filtros por día - Mobile (Pestañas verticales en móvil) -->
+                    <div class="sticky top-[72px] z-30 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm py-3 px-4 mb-6 -mx-4 md:mx-0 border-b-2 border-primary/20 transition-all" id="filter-bar">
+                        <!-- Vista móvil: Grid compacto -->
+                        <div class="grid grid-cols-4 gap-2 md:hidden mb-2" id="diasFilterMobile">
+                            <button onclick="filtrarPorDia('Todos')" class="dia-filter-btn active flex flex-col items-center justify-center gap-1 rounded-lg bg-black dark:bg-primary text-white dark:text-black p-3 shadow-lg transition-all active:scale-95 border-2 border-black dark:border-primary" data-dia="Todos">
+                                <span class="text-xs font-black uppercase">Todos</span>
+                                <span class="bg-primary dark:bg-black text-black dark:text-primary rounded-md w-6 h-6 flex items-center justify-center text-[10px] font-black" id="count-Todos-mobile">0</span>
                             </button>
-                            <button onclick="filtrarPorDia('Lunes')" class="dia-filter-btn flex h-11 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark px-5 text-text-main dark:text-gray-300 hover:border-primary hover:text-primary dark:hover:text-primary transition-all active:scale-95" data-dia="Lunes">
+                            <button onclick="filtrarPorDia('Lunes')" class="dia-filter-btn flex flex-col items-center justify-center gap-1 rounded-lg bg-white dark:bg-surface-dark border-2 border-gray-200 dark:border-gray-700 p-3 text-text-main dark:text-gray-300 transition-all active:scale-95" data-dia="Lunes">
+                                <span class="text-xs font-black uppercase">Lun</span>
+                            </button>
+                            <button onclick="filtrarPorDia('Martes')" class="dia-filter-btn flex flex-col items-center justify-center gap-1 rounded-lg bg-white dark:bg-surface-dark border-2 border-gray-200 dark:border-gray-700 p-3 text-text-main dark:text-gray-300 transition-all active:scale-95" data-dia="Martes">
+                                <span class="text-xs font-black uppercase">Mar</span>
+                            </button>
+                            <button onclick="filtrarPorDia('Miércoles')" class="dia-filter-btn flex flex-col items-center justify-center gap-1 rounded-lg bg-white dark:bg-surface-dark border-2 border-gray-200 dark:border-gray-700 p-3 text-text-main dark:text-gray-300 transition-all active:scale-95" data-dia="Miércoles">
+                                <span class="text-xs font-black uppercase">Mié</span>
+                            </button>
+                            <button onclick="filtrarPorDia('Jueves')" class="dia-filter-btn flex flex-col items-center justify-center gap-1 rounded-lg bg-white dark:bg-surface-dark border-2 border-gray-200 dark:border-gray-700 p-3 text-text-main dark:text-gray-300 transition-all active:scale-95" data-dia="Jueves">
+                                <span class="text-xs font-black uppercase">Jue</span>
+                            </button>
+                            <button onclick="filtrarPorDia('Viernes')" class="dia-filter-btn flex flex-col items-center justify-center gap-1 rounded-lg bg-white dark:bg-surface-dark border-2 border-gray-200 dark:border-gray-700 p-3 text-text-main dark:text-gray-300 transition-all active:scale-95" data-dia="Viernes">
+                                <span class="text-xs font-black uppercase">Vie</span>
+                            </button>
+                            <button onclick="filtrarPorDia('Sábado')" class="dia-filter-btn flex flex-col items-center justify-center gap-1 rounded-lg bg-white dark:bg-surface-dark border-2 border-gray-200 dark:border-gray-700 p-3 text-text-main dark:text-gray-300 transition-all active:scale-95" data-dia="Sábado">
+                                <span class="text-xs font-black uppercase">Sáb</span>
+                            </button>
+                            <button onclick="filtrarPorDia('Domingo')" class="dia-filter-btn flex flex-col items-center justify-center gap-1 rounded-lg bg-white dark:bg-surface-dark border-2 border-gray-200 dark:border-gray-700 p-3 text-text-main dark:text-gray-300 transition-all active:scale-95" data-dia="Domingo">
+                                <span class="text-xs font-black uppercase">Dom</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Vista desktop: Horizontal scroll -->
+                        <div class="hidden md:flex gap-2 overflow-x-auto no-scrollbar py-2" id="diasFilterDesktop">
+                            <button onclick="filtrarPorDia('Todos')" class="dia-filter-btn active flex h-11 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-black dark:bg-primary text-white dark:text-black px-5 shadow-lg transition-all hover:-translate-y-0.5 active:scale-95 border-2 border-black dark:border-primary" data-dia="Todos">
+                                <span class="text-sm font-bold uppercase tracking-wide">Todos</span>
+                                <span class="bg-primary dark:bg-black text-black dark:text-primary rounded-md w-5 h-5 flex items-center justify-center text-[11px] font-black" id="count-Todos-desktop">0</span>
+                            </button>
+                            <button onclick="filtrarPorDia('Lunes')" class="dia-filter-btn flex h-11 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-surface-dark border-2 border-gray-200 dark:border-gray-700 px-5 text-text-main dark:text-gray-300 transition-all active:scale-95" data-dia="Lunes">
                                 <span class="text-sm font-bold uppercase tracking-wide">Lunes</span>
                             </button>
-                            <button onclick="filtrarPorDia('Martes')" class="dia-filter-btn flex h-11 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark px-5 text-text-main dark:text-gray-300 hover:border-primary hover:text-primary dark:hover:text-primary transition-all active:scale-95" data-dia="Martes">
+                            <button onclick="filtrarPorDia('Martes')" class="dia-filter-btn flex h-11 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-surface-dark border-2 border-gray-200 dark:border-gray-700 px-5 text-text-main dark:text-gray-300 transition-all active:scale-95" data-dia="Martes">
                                 <span class="text-sm font-bold uppercase tracking-wide">Martes</span>
                             </button>
-                            <button onclick="filtrarPorDia('Miércoles')" class="dia-filter-btn flex h-11 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark px-4 text-text-main dark:text-gray-300 hover:border-primary hover:text-primary dark:hover:text-primary transition-all active:scale-95" data-dia="Miércoles">
+                            <button onclick="filtrarPorDia('Miércoles')" class="dia-filter-btn flex h-11 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-surface-dark border-2 border-gray-200 dark:border-gray-700 px-5 text-text-main dark:text-gray-300 transition-all active:scale-95" data-dia="Miércoles">
                                 <span class="text-sm font-bold uppercase tracking-wide">Miércoles</span>
                             </button>
-                            <button onclick="filtrarPorDia('Jueves')" class="dia-filter-btn flex h-11 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark px-5 text-text-main dark:text-gray-300 hover:border-primary hover:text-primary dark:hover:text-primary transition-all active:scale-95" data-dia="Jueves">
+                            <button onclick="filtrarPorDia('Jueves')" class="dia-filter-btn flex h-11 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-surface-dark border-2 border-gray-200 dark:border-gray-700 px-5 text-text-main dark:text-gray-300 transition-all active:scale-95" data-dia="Jueves">
                                 <span class="text-sm font-bold uppercase tracking-wide">Jueves</span>
                             </button>
-                            <button onclick="filtrarPorDia('Viernes')" class="dia-filter-btn flex h-11 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark px-5 text-text-main dark:text-gray-300 hover:border-primary hover:text-primary dark:hover:text-primary transition-all active:scale-95" data-dia="Viernes">
+                            <button onclick="filtrarPorDia('Viernes')" class="dia-filter-btn flex h-11 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-surface-dark border-2 border-gray-200 dark:border-gray-700 px-5 text-text-main dark:text-gray-300 transition-all active:scale-95" data-dia="Viernes">
                                 <span class="text-sm font-bold uppercase tracking-wide">Viernes</span>
                             </button>
-                            <button onclick="filtrarPorDia('Sábado')" class="dia-filter-btn flex h-11 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark px-5 text-text-main dark:text-gray-300 hover:border-primary hover:text-primary dark:hover:text-primary transition-all active:scale-95" data-dia="Sábado">
+                            <button onclick="filtrarPorDia('Sábado')" class="dia-filter-btn flex h-11 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-surface-dark border-2 border-gray-200 dark:border-gray-700 px-5 text-text-main dark:text-gray-300 transition-all active:scale-95" data-dia="Sábado">
                                 <span class="text-sm font-bold uppercase tracking-wide">Sábado</span>
                             </button>
-                            <button onclick="filtrarPorDia('Domingo')" class="dia-filter-btn flex h-11 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark px-5 text-text-main dark:text-gray-300 hover:border-primary hover:text-primary dark:hover:text-primary transition-all active:scale-95" data-dia="Domingo">
+                            <button onclick="filtrarPorDia('Domingo')" class="dia-filter-btn flex h-11 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-surface-dark border-2 border-gray-200 dark:border-gray-700 px-5 text-text-main dark:text-gray-300 transition-all active:scale-95" data-dia="Domingo">
                                 <span class="text-sm font-bold uppercase tracking-wide">Domingo</span>
                             </button>
                         </div>
                     </div>
 
                     <!-- Grid de horarios -->
-                    <div id="horariosContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-4">
+                    <div id="horariosContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 px-2 md:px-4 scroll-mt-4">
                         <!-- Los horarios se cargarán dinámicamente aquí -->
                         <div class="col-span-full flex justify-center py-12">
                             <div class="flex flex-col items-center gap-4">
@@ -213,5 +264,6 @@
 
     <script src="js/api-service.js"></script>
     <script src="js/seleccion-horarios.js"></script>
+    <script src="js/mobile-menu.js"></script>
 </body>
 </html>

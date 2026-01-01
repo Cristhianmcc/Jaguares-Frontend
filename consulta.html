@@ -37,26 +37,54 @@
 <body class="bg-background-light dark:bg-background-dark text-text-main font-display min-h-screen flex flex-col overflow-x-hidden transition-colors duration-200">
     
     <!-- Header -->
-    <header class="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-border-color bg-surface-light/95 dark:bg-surface-dark/95 backdrop-blur-sm px-6 py-4 lg:px-10 shadow-sm">
-        <div class="flex items-center gap-3 text-text-main dark:text-white">
-            <img src="assets/logo.ico" alt="Logo Jaguares" class="h-10 w-auto object-contain">
-            <h2 class="text-2xl font-black italic uppercase tracking-wider text-black dark:text-white">JAGUARES</h2>
-        </div>
-        
-        <!-- Usuario logueado (oculto inicialmente) -->
-        <div id="userInfo" class="hidden items-center gap-3 bg-surface-light dark:bg-surface-dark border border-gray-200 dark:border-gray-700 rounded-full px-4 py-2">
-            <div class="size-8 rounded-full bg-black text-primary flex items-center justify-center font-bold text-sm">
-                <span class="material-symbols-outlined text-lg">person</span>
-            </div>
-            <span id="userName" class="text-sm font-bold text-text-main dark:text-white uppercase"></span>
-        </div>
+    <header class="sticky top-0 z-50 border-b border-solid border-border-color bg-surface-light/95 dark:bg-surface-dark/95 backdrop-blur-sm shadow-sm">
+        <div class="px-4 py-4 lg:px-10">
+            <div class="flex items-center justify-between">
+                <!-- Logo centrado en móvil -->
+                <div class="flex items-center gap-3 text-text-main dark:text-white flex-1 justify-center lg:justify-start">
+                    <img src="assets/logo.ico" alt="Logo Jaguares" class="h-10 w-auto object-contain">
+                    <h2 class="text-xl lg:text-2xl font-black italic uppercase tracking-wider text-black dark:text-white">JAGUARES</h2>
+                </div>
+                
+                <!-- Botón hamburguesa -->
+                <button id="mobile-menu-btn" class="lg:hidden p-2 text-text-main dark:text-white hover:text-primary transition-colors" aria-label="Menú">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
+                
+                <!-- Usuario logueado (hidden inicialmente, móvil y desktop) -->
+                <div id="userInfo" class="hidden lg:flex items-center gap-3 bg-surface-light dark:bg-surface-dark border border-gray-200 dark:border-gray-700 rounded-full px-4 py-2">
+                    <div class="size-8 rounded-full bg-black text-primary flex items-center justify-center font-bold text-sm">
+                        <span class="material-symbols-outlined text-lg">person</span>
+                    </div>
+                    <span id="userName" class="text-sm font-bold text-text-main dark:text-white uppercase"></span>
+                </div>
 
-        <div class="hidden md:flex flex-1 justify-end gap-8">
-            <nav class="flex items-center gap-9">
-                <a class="text-text-main dark:text-gray-200 text-sm font-semibold uppercase tracking-wide hover:text-primary transition-colors" href="index.html">Inicio</a>
-                <a class="text-text-main dark:text-gray-200 text-sm font-semibold uppercase tracking-wide hover:text-primary transition-colors" href="#">Academia</a>
-                <a class="text-text-main dark:text-gray-200 text-sm font-semibold uppercase tracking-wide hover:text-primary transition-colors" href="#">Ayuda</a>
-            </nav>
+                <!-- Navegación desktop -->
+                <div class="hidden lg:flex flex-1 justify-end gap-8">
+                    <nav class="flex items-center gap-9">
+                        <a class="text-text-main dark:text-gray-200 text-sm font-semibold uppercase tracking-wide hover:text-primary transition-colors" href="index.html">Inicio</a>
+                        <a class="text-text-main dark:text-gray-200 text-sm font-semibold uppercase tracking-wide hover:text-primary transition-colors" href="#">Academia</a>
+                        <a class="text-text-main dark:text-gray-200 text-sm font-semibold uppercase tracking-wide hover:text-primary transition-colors" href="#">Ayuda</a>
+                    </nav>
+                </div>
+            </div>
+            
+            <!-- Menú móvil -->
+            <div id="mobile-menu" class="hidden lg:hidden mt-4 pb-2 space-y-3 border-t border-gray-200 dark:border-gray-800 pt-4">
+                <a class="block text-text-main dark:text-white hover:text-primary text-base font-semibold uppercase tracking-wide transition-colors py-2" href="index.html">Inicio</a>
+                <a class="block text-text-main dark:text-white hover:text-primary text-base font-semibold uppercase tracking-wide transition-colors py-2" href="#">Academia</a>
+                <a class="block text-text-main dark:text-white hover:text-primary text-base font-semibold uppercase tracking-wide transition-colors py-2" href="#">Ayuda</a>
+                
+                <!-- Usuario info en móvil -->
+                <div id="userInfoMobile" class="hidden flex items-center gap-3 bg-surface-light dark:bg-surface-dark border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-3 mt-4">
+                    <div class="size-8 rounded-full bg-black text-primary flex items-center justify-center">
+                        <span class="material-symbols-outlined text-lg">person</span>
+                    </div>
+                    <span id="userNameMobile" class="text-sm font-bold text-text-main dark:text-white uppercase"></span>
+                </div>
+            </div>
         </div>
     </header>
 
@@ -168,5 +196,6 @@
 
     <script src="js/api-service.js"></script>
     <script src="js/consulta.js"></script>
+    <script src="js/mobile-menu.js"></script>
 </body>
 </html>

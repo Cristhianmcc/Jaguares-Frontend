@@ -181,7 +181,7 @@ function renderizarExito(codigo, datosInscripcion) {
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-xs text-text-main/50 dark:text-white/50 mb-1 font-medium uppercase tracking-wider">Monto Total</p>
-                            <p class="text-3xl font-black text-primary">S/. ${datosInscripcion.horarios.length * 100}.00</p>
+                            <p class="text-3xl font-black text-primary">S/. ${datosInscripcion.horarios.reduce((sum, h) => sum + parseFloat(h.precio || 0), 0).toFixed(2)}</p>
                         </div>
                         <div class="text-right">
                             <p class="text-xs text-text-main/50 dark:text-white/50 mb-1 font-medium uppercase tracking-wider">Clases</p>
@@ -296,6 +296,17 @@ function descargarComprobante() {
         return;
     }
     
+    // Calcular total
+    let total = 0;
+    let horariosDetalle = '';
+    if (ultimaInscripcion.horarios && ultimaInscripcion.horarios.length > 0) {
+        horariosDetalle = '\n\nHORARIOS SELECCIONADOS:\n';
+        ultimaInscripcion.horarios.forEach((horario, index) => {
+            horariosDetalle += `${index + 1}. ${horario.deporte} - ${horario.dia} ${horario.hora_inicio} - S/. ${parseFloat(horario.precio).toFixed(2)}\n`;
+            total += parseFloat(horario.precio || 0);
+        });
+    }
+    
     // Crear contenido del comprobante
     const contenido = `
 JAGUARES - CENTRO DE ALTO RENDIMIENTO
@@ -307,7 +318,10 @@ Código: ${ultimaInscripcion.codigo}
 Fecha: ${Utils.formatearFecha(new Date().toISOString().split('T')[0])}
 
 Alumno: ${ultimaInscripcion.alumno}
-DNI: ${ultimaInscripcion.dni}
+DNI: ${ultimaInscripcion.dni}${horariosDetalle}
+
+Total a Pagar: S/. ${total.toFixed(2)}
+Clases: ${ultimaInscripcion.horarios ? ultimaInscripcion.horarios.length : 0}
 
 Estado: PENDIENTE DE PAGO
 
@@ -344,15 +358,14 @@ function enviarWhatsApp() {
     
     // Construir lista de horarios
     let horariosTexto = '';
+    let total = 0;
     if (ultimaInscripcion.horarios && ultimaInscripcion.horarios.length > 0) {
         horariosTexto = '\n⚽ *Clases Seleccionadas:*\n';
         ultimaInscripcion.horarios.forEach((horario, index) => {
             horariosTexto += `${index + 1}. ${horario.deporte} - ${horario.dia} ${horario.hora_inicio}hs\n`;
+            total += parseFloat(horario.precio || 0);
         });
     }
-    
-    // Calcular total (50 soles por horario)
-    const total = ultimaInscripcion.horarios ? ultimaInscripcion.horarios.length * 50 : 0;
     
     const whatsappNumero = '51955195324'; // Cambiar por el número real
     const mensaje = `🐆 *JAGUARES - Inscripción*\n\n` +
@@ -360,7 +373,7 @@ function enviarWhatsApp() {
         `👤 *Alumno:* ${ultimaInscripcion.alumno}\n` +
         `DNI: ${ultimaInscripcion.dni}` +
         horariosTexto +
-        `\n💰 *Total a Pagar:* S/. ${total}.00\n\n` +
+        `\n💰 *Total a Pagar:* S/. ${total.toFixed(2)}\n\n` +
         `Hola, he completado mi inscripción y estoy listo para enviar mi comprobante de pago.`;
     
     const url = `https://wa.me/${whatsappNumero}?text=${encodeURIComponent(mensaje)}`;

@@ -39,19 +39,42 @@
     </style>
 </head>
 <body class="bg-background-light dark:bg-background-dark text-text-main font-display min-h-screen flex flex-col overflow-x-hidden transition-colors duration-200">
-    <header class="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-border-color bg-surface-light/95 dark:bg-surface-dark/95 backdrop-blur-sm px-6 py-4 lg:px-10 shadow-sm">
-        <div class="flex items-center gap-3 text-text-main dark:text-white">
-            <img src="assets/logo.ico" alt="Logo Jaguares" class="h-10 w-auto object-contain">
-            <h2 class="text-2xl font-black italic uppercase tracking-wider text-black dark:text-white">JAGUARES</h2>
-        </div>
-        <div class="hidden md:flex flex-1 justify-end gap-8">
-            <nav class="flex items-center gap-9">
-                <a class="text-text-main dark:text-gray-200 text-sm font-semibold uppercase tracking-wide hover:text-primary transition-colors" href="index.html">Inicio</a>
-                <a class="text-text-main dark:text-gray-200 text-sm font-semibold uppercase tracking-wide hover:text-primary transition-colors" href="#">Nosotros</a>
-                <a class="text-text-main dark:text-gray-200 text-sm font-semibold uppercase tracking-wide hover:text-primary transition-colors" href="#">Sedes</a>
-                <a class="text-text-main dark:text-gray-200 text-sm font-semibold uppercase tracking-wide hover:text-primary transition-colors" href="#">Contacto</a>
-                <a class="text-text-main dark:text-gray-200 text-sm font-semibold uppercase tracking-wide hover:text-primary transition-colors" href="admin-login.html" title="Acceso Administrador">Admin</a>
-            </nav>
+    <header class="sticky top-0 z-50 bg-surface-light/95 dark:bg-surface-dark/95 backdrop-blur-sm border-b border-solid border-border-color shadow-sm">
+        <div class="px-4 py-4 lg:px-10">
+            <div class="flex items-center justify-between">
+                <!-- Logo centrado en móvil -->
+                <div class="flex items-center gap-3 text-text-main dark:text-white flex-1 justify-center lg:justify-start">
+                    <img src="assets/logo.ico" alt="Logo Jaguares" class="h-10 w-auto object-contain">
+                    <h2 class="text-xl lg:text-2xl font-black italic uppercase tracking-wider text-black dark:text-white">JAGUARES</h2>
+                </div>
+                
+                <!-- Botón hamburguesa -->
+                <button id="mobile-menu-btn" class="lg:hidden p-2 text-text-main dark:text-white hover:text-primary transition-colors" aria-label="Menú">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
+                
+                <!-- Navegación desktop -->
+                <div class="hidden lg:flex flex-1 justify-end gap-8">
+                    <nav class="flex items-center gap-9">
+                        <a class="text-text-main dark:text-gray-200 text-sm font-semibold uppercase tracking-wide hover:text-primary transition-colors" href="index.html">Inicio</a>
+                        <a class="text-text-main dark:text-gray-200 text-sm font-semibold uppercase tracking-wide hover:text-primary transition-colors" href="#">Nosotros</a>
+                        <a class="text-text-main dark:text-gray-200 text-sm font-semibold uppercase tracking-wide hover:text-primary transition-colors" href="#">Sedes</a>
+                        <a class="text-text-main dark:text-gray-200 text-sm font-semibold uppercase tracking-wide hover:text-primary transition-colors" href="#">Contacto</a>
+                        <a class="text-text-main dark:text-gray-200 text-sm font-semibold uppercase tracking-wide hover:text-primary transition-colors" href="admin-login.html" title="Acceso Administrador">Admin</a>
+                    </nav>
+                </div>
+            </div>
+            
+            <!-- Menú móvil -->
+            <div id="mobile-menu" class="hidden lg:hidden mt-4 pb-2 space-y-3 border-t border-gray-200 dark:border-gray-800 pt-4">
+                <a class="block text-text-main dark:text-white hover:text-primary text-base font-semibold uppercase tracking-wide transition-colors py-2" href="index.html">Inicio</a>
+                <a class="block text-text-main dark:text-white hover:text-primary text-base font-semibold uppercase tracking-wide transition-colors py-2" href="#">Nosotros</a>
+                <a class="block text-text-main dark:text-white hover:text-primary text-base font-semibold uppercase tracking-wide transition-colors py-2" href="#">Sedes</a>
+                <a class="block text-text-main dark:text-white hover:text-primary text-base font-semibold uppercase tracking-wide transition-colors py-2" href="#">Contacto</a>
+                <a class="block text-text-main dark:text-white hover:text-primary text-base font-semibold uppercase tracking-wide transition-colors py-2" href="admin-login.html">Admin</a>
+            </div>
         </div>
     </header>
 
@@ -60,7 +83,7 @@
             <div class="flex flex-col gap-6">
                 <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-6">
                     <div>
-                        <h1 class="text-black dark:text-white text-4xl md:text-5xl font-black italic uppercase tracking-tight">Inscripción <span class="text-primary">2024</span></h1>
+                        <h1 class="text-black dark:text-white text-4xl md:text-5xl font-black italic uppercase tracking-tight">Inscripción <span class="text-primary">2026</span></h1>
                         <p class="text-text-muted dark:text-gray-400 text-lg font-medium mt-2">Comienza tu camino al alto rendimiento.</p>
                     </div>
                     <div class="hidden md:block">
@@ -262,5 +285,6 @@
 
     <script src="js/api-service.js"></script>
     <script src="js/inscripcion.js"></script>
+    <script src="js/mobile-menu.js"></script>
 </body>
 </html>

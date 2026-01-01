@@ -75,9 +75,24 @@ function mostrarResultados() {
     // Mostrar vista de resultados
     document.getElementById('vistaResultados').classList.remove('hidden');
     
-    // Mostrar info de usuario en header
+    // Mostrar info de usuario en header (desktop y móvil)
     const userInfo = document.getElementById('userInfo');
     const userName = document.getElementById('userName');
+    const userInfoMobile = document.getElementById('userInfoMobile');
+    const userNameMobile = document.getElementById('userNameMobile');
+    
+    const nombreCompleto = `${datosUsuario.alumno.nombres} ${datosUsuario.alumno.apellidos}`;
+    
+    userInfo.classList.remove('hidden');
+    userInfo.classList.add('flex');
+    userName.textContent = nombreCompleto;
+    
+    // Actualizar móvil también
+    if (userInfoMobile && userNameMobile) {
+        userInfoMobile.classList.remove('hidden');
+        userInfoMobile.classList.add('flex');
+        userNameMobile.textContent = nombreCompleto;
+    }
     userName.textContent = datosUsuario.alumno.nombres || 'Usuario';
     userInfo.classList.remove('hidden');
     userInfo.classList.add('flex');
