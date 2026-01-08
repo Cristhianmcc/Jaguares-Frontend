@@ -12,6 +12,37 @@ function normalizarTexto(texto) {
     return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 }
 
+// Función para convertir hora "HH:mm" a minutos desde medianoche
+function horaAMinutos(horaStr) {
+    if (!horaStr || typeof horaStr !== 'string') return 0;
+    const partes = horaStr.split(':');
+    if (partes.length !== 2) return 0;
+    const horas = parseInt(partes[0]) || 0;
+    const minutos = parseInt(partes[1]) || 0;
+    return horas * 60 + minutos;
+}
+
+// Función para verificar si dos horarios se traslapan/cruzan
+function horariosSeTraslapan(horario1, horario2) {
+    // Convertir horas a minutos para facilitar comparación
+    const inicio1 = horaAMinutos(horario1.hora_inicio);
+    const fin1 = horaAMinutos(horario1.hora_fin);
+    const inicio2 = horaAMinutos(horario2.hora_inicio);
+    const fin2 = horaAMinutos(horario2.hora_fin);
+    
+    // Dos horarios se traslapan si:
+    // inicio1 < fin2 Y fin1 > inicio2
+    const seTraslapan = inicio1 < fin2 && fin1 > inicio2;
+    
+    if (seTraslapan) {
+        console.log(`⚠️ TRASLAPE DETECTADO:`);
+        console.log(`   ${horario1.deporte}: ${horario1.hora_inicio}-${horario1.hora_fin}`);
+        console.log(`   ${horario2.deporte}: ${horario2.hora_inicio}-${horario2.hora_fin}`);
+    }
+    
+    return seTraslapan;
+}
+
 // Funciones para el modal de notificaciones
 function mostrarModal(mensaje, tipo = 'info') {
     const modal = document.getElementById('modalNotificacion');
@@ -115,13 +146,30 @@ async function cargarHorarios() {
             <div class="col-span-full flex justify-center py-12">
                 <div class="flex flex-col items-center gap-4">
                     <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-                    <p class="text-text-muted dark:text-gray-400 font-medium">Cargando horarios disponibles...</p>
+                    <p class="text-text-muted dark:text-gray-400 font-medium">Cargando horarios disponibles para tu edad...</p>
                 </div>
             </div>
         `;
         
-        // Obtener horarios desde la API
-        horariosDisponibles = await academiaAPI.getHorarios();
+        // Obtener datos del alumno para filtrar por edad
+        const datosInscripcion = LocalStorage.get('datosInscripcion');
+        const fechaNacimiento = datosInscripcion?.alumno?.fecha_nacimiento;
+        
+        console.log('🔍 Datos completos inscripción:', datosInscripcion);
+        console.log('📅 Fecha nacimiento obtenida:', fechaNacimiento);
+        
+        // Extraer año de nacimiento si existe
+        let añoNacimiento = null;
+        if (fechaNacimiento) {
+            añoNacimiento = new Date(fechaNacimiento).getFullYear();
+            console.log('🎯 Año de nacimiento calculado:', añoNacimiento);
+            console.log('📞 Llamando API con año:', añoNacimiento);
+        } else {
+            console.warn('⚠️ NO se encontró fecha de nacimiento - mostrando TODOS los horarios');
+        }
+        
+        // Obtener horarios desde la API (filtrados por edad si se proporciona año)
+        horariosDisponibles = await academiaAPI.getHorarios(añoNacimiento);
         
         console.log('Horarios cargados:', horariosDisponibles);
         console.log('Total horarios:', horariosDisponibles.length);
@@ -235,9 +283,12 @@ function renderizarHorarios() {
 }
 
 function crearCardHorario(horario) {
-    const seleccionado = horariosSeleccionados.includes(horario.id);
+    const horarioId = horario.id || horario.horario_id;
+    // Verificar si está seleccionado comparando como números
+    const seleccionado = horariosSeleccionados.some(id => parseInt(id) === parseInt(horarioId));
     const iconoDeporte = obtenerIconoDeporte(horario.deporte);
-    const lleno = horario.cupos_restantes === 0;
+    const cuposRestantes = horario.cupos_restantes !== undefined ? horario.cupos_restantes : (horario.cupo_maximo || 20) - (horario.cupos_ocupados || 0);
+    const lleno = cuposRestantes <= 0;
     
     // Card para horario lleno
     if (lleno) {
@@ -283,7 +334,7 @@ function crearCardHorario(horario) {
     // Card para horario seleccionado
     if (seleccionado) {
         return `
-            <div onclick="toggleHorario('${horario.id}')" 
+            <div onclick="toggleHorario('${horarioId}')" 
                  class="group relative flex flex-col gap-4 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 p-6 shadow-2xl transition-all duration-300 border-2 border-primary cursor-pointer ring-2 ring-primary/30 active:scale-[0.98]">
                 <div class="absolute -top-3 -right-3 size-9 bg-black text-primary rounded-full flex items-center justify-center shadow-lg shadow-primary/30 z-10 border-2 border-primary">
                     <span class="material-symbols-outlined text-base font-bold">check</span>
@@ -312,13 +363,13 @@ function crearCardHorario(horario) {
                 </div>
                 <div class="h-px w-full bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
                 <div class="flex justify-between items-center mt-auto">
-                    ${horario.cupos_restantes <= 3 ? `
+                    ${cuposRestantes <= 3 && cuposRestantes > 0 ? `
                     <span class="text-xs font-bold text-primary flex items-center gap-1">
                         <span class="material-symbols-outlined text-[16px]">local_fire_department</span>
-                        ¡Últimos ${horario.cupos_restantes} cupos!
+                        ¡Últimos ${cuposRestantes} cupos!
                     </span>
                     ` : `
-                    <span class="text-xs font-bold text-gray-700 dark:text-gray-400">${horario.cupos_restantes} cupos libres</span>
+                    <span class="text-xs font-bold text-gray-700 dark:text-gray-400">${cuposRestantes} cupos libres</span>
                     `}
                     <button class="h-8 px-4 rounded-md bg-black text-white text-xs font-bold flex items-center justify-center transition-colors border-2 border-transparent hover:border-primary uppercase tracking-wide shadow-md">
                         QUITAR
@@ -330,7 +381,7 @@ function crearCardHorario(horario) {
     
     // Card para horario disponible
     return `
-        <div onclick="toggleHorario('${horario.id}')" 
+        <div onclick="toggleHorario('${horarioId}')" 
              class="group relative flex flex-col gap-4 rounded-xl bg-white dark:bg-surface-dark p-6 shadow-lg hover:shadow-xl transition-all duration-300 border-2 border-gray-200 dark:border-gray-700 hover:border-primary/60 dark:hover:border-primary/60 cursor-pointer active:scale-[0.98]">
             <div class="flex justify-between items-start">
                 <div class="flex items-center gap-4">
@@ -356,7 +407,7 @@ function crearCardHorario(horario) {
             </div>
             <div class="h-px w-full bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-700 to-transparent"></div>
             <div class="flex justify-between items-center mt-auto">
-                <span class="text-xs font-bold text-gray-700 dark:text-gray-400">${horario.cupos_restantes} cupos libres</span>
+                <span class="text-xs font-bold text-gray-700 dark:text-gray-400">${cuposRestantes} cupos libres</span>
                 <button class="h-9 w-9 rounded-full bg-black text-white flex items-center justify-center group-hover:bg-primary group-hover:text-black transition-colors shadow-md group-hover:shadow-lg">
                     <span class="material-symbols-outlined text-xl">add</span>
                 </button>
@@ -383,43 +434,84 @@ function obtenerIconoDeporte(deporte) {
 }
 
 function toggleHorario(horarioId) {
-    const horario = horariosDisponibles.find(h => h.id === horarioId);
+    // Convertir a número para comparación (los IDs vienen como números del backend)
+    const idNumerico = parseInt(horarioId);
     
-    if (!horario) return;
+    const horario = horariosDisponibles.find(h => {
+        const hId = h.id || h.horario_id;
+        return parseInt(hId) === idNumerico;
+    });
     
-    const index = horariosSeleccionados.indexOf(horarioId);
+    if (!horario) {
+        console.error('❌ Horario no encontrado:', horarioId);
+        console.log('📋 Horarios disponibles:', horariosDisponibles.map(h => ({id: h.id || h.horario_id, deporte: h.deporte})));
+        return;
+    }
+    
+    console.log('✅ Horario encontrado:', horario.deporte, horario.dia);
+    
+    // Normalizar el ID
+    const normalizedId = horario.id || horario.horario_id;
+    const index = horariosSeleccionados.findIndex(id => parseInt(id) === parseInt(normalizedId));
     
     if (index > -1) {
         // Deseleccionar
         horariosSeleccionados.splice(index, 1);
+        console.log('➖ Horario deseleccionado:', horario.deporte, horario.dia, horario.hora_inicio);
     } else {
-        // Validar que no haya otro horario a la misma hora EN EL MISMO DÍA
-        const horarioMismaHoraMismoDia = horariosSeleccionados.find(id => {
-            const h = horariosDisponibles.find(ho => ho.id === id);
-            return h && 
-                   h.hora_inicio === horario.hora_inicio && 
-                   normalizarTexto(h.dia) === normalizarTexto(horario.dia);
+        // Validar que no haya traslape de horarios EN EL MISMO DÍA
+        const horarioConConflicto = horariosSeleccionados.find(id => {
+            const h = horariosDisponibles.find(ho => {
+                const hoId = ho.id || ho.horario_id;
+                return parseInt(hoId) === parseInt(id);
+            });
+            
+            if (!h) return false;
+            
+            // Solo verificar si es el mismo día
+            const mismoDia = normalizarTexto(h.dia) === normalizarTexto(horario.dia);
+            if (!mismoDia) return false;
+            
+            // Verificar si los horarios se traslapan/cruzan
+            return horariosSeTraslapan(h, horario);
         });
         
-        if (horarioMismaHoraMismoDia) {
-            const horarioConflicto = horariosDisponibles.find(h => h.id === horarioMismaHoraMismoDia);
-            mostrarModal(`No puedes estar en dos lugares al mismo tiempo. Ya tienes ${horarioConflicto.deporte} a las ${horarioConflicto.hora_inicio}hs el ${horario.dia}`, 'warning');
+        if (horarioConConflicto) {
+            const horarioConflicto = horariosDisponibles.find(h => {
+                const hId = h.id || h.horario_id;
+                return parseInt(hId) === parseInt(horarioConConflicto);
+            });
+            mostrarModal(
+                `Los horarios se cruzan y no puedes asistir a ambos.\n\n` +
+                `Ya tienes:\n${horarioConflicto.deporte} (${horarioConflicto.hora_inicio} - ${horarioConflicto.hora_fin})\n\n` +
+                `Quieres agregar:\n${horario.deporte} (${horario.hora_inicio} - ${horario.hora_fin})\n\n` +
+                `Deselecciona el anterior para poder elegir este.`,
+                'warning'
+            );
             return;
         }
         
         // Validar máximo 2 horarios por día
         const horariosMismoDia = horariosSeleccionados.filter(id => {
-            const h = horariosDisponibles.find(ho => ho.id === id);
+            const h = horariosDisponibles.find(ho => {
+                const hoId = ho.id || ho.horario_id;
+                return parseInt(hoId) === parseInt(id);
+            });
             return h && normalizarTexto(h.dia) === normalizarTexto(horario.dia);
         });
         
         if (horariosMismoDia.length >= 2) {
-            mostrarModal(`Ya tienes 2 horarios seleccionados para ${horario.dia}. Deselecciona uno para agregar otro.`, 'warning');
+            mostrarModal(
+                `Ya tienes 2 horarios seleccionados para ${horario.dia}.\n\n` +
+                `Deselecciona uno para agregar otro.`,
+                'warning'
+            );
             return;
         }
         
         // Seleccionar
-        horariosSeleccionados.push(horarioId);
+        horariosSeleccionados.push(normalizedId);
+        console.log('➕ Horario seleccionado:', horario.deporte, horario.dia, horario.hora_inicio);
     }
     
     // Actualizar UI

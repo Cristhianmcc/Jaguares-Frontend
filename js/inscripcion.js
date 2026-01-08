@@ -5,6 +5,11 @@
 // Variable de control para validación de DNI
 let dniValidado = false;
 
+// Variables para almacenar imágenes en base64
+let imagenDNIFrontal = null;
+let imagenDNIReverso = null;
+let imagenFotoCarnet = null;
+
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('formInscripcion');
     const btnBuscarDni = document.getElementById('btnBuscarDni');
@@ -30,9 +35,75 @@ document.addEventListener('DOMContentLoaded', () => {
         helper.className = 'text-sm text-primary hidden';
     });
     
+    // Listeners para los inputs de imágenes
+    document.getElementById('dni_frontal').addEventListener('change', (e) => manejarImagenSeleccionada(e, 'dni_frontal'));
+    document.getElementById('dni_reverso').addEventListener('change', (e) => manejarImagenSeleccionada(e, 'dni_reverso'));
+    document.getElementById('foto_carnet').addEventListener('change', (e) => manejarImagenSeleccionada(e, 'foto_carnet'));
+    
     // Submit del formulario
     form.addEventListener('submit', handleSubmit);
 });
+
+/**
+ * Manejar selección de imagen y convertir a base64
+ */
+function manejarImagenSeleccionada(event, tipo) {
+    const file = event.target.files[0];
+    
+    if (!file) return;
+    
+    // Validar tamaño (máx 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB en bytes
+    if (file.size > maxSize) {
+        Utils.mostrarNotificacion('La imagen es muy grande. Máximo 5MB', 'error');
+        event.target.value = ''; // Limpiar input
+        return;
+    }
+    
+    // Validar tipo
+    if (!file.type.startsWith('image/')) {
+        Utils.mostrarNotificacion('Solo se permiten archivos de imagen', 'error');
+        event.target.value = '';
+        return;
+    }
+    
+    // Convertir a base64
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const base64 = e.target.result;
+        
+        // Guardar en variable correspondiente
+        if (tipo === 'dni_frontal') {
+            imagenDNIFrontal = base64;
+        } else if (tipo === 'dni_reverso') {
+            imagenDNIReverso = base64;
+        } else if (tipo === 'foto_carnet') {
+            imagenFotoCarnet = base64;
+        }
+        
+        // Mostrar preview
+        mostrarPreview(base64, tipo);
+    };
+    
+    reader.onerror = function() {
+        Utils.mostrarNotificacion('Error al cargar la imagen', 'error');
+    };
+    
+    reader.readAsDataURL(file);
+}
+
+/**
+ * Mostrar preview de la imagen
+ */
+function mostrarPreview(base64, tipo) {
+    const previewDiv = document.getElementById(`preview_${tipo}`);
+    const img = previewDiv.querySelector('img');
+    
+    if (img && previewDiv) {
+        img.src = base64;
+        previewDiv.classList.remove('hidden');
+    }
+}
 
 function cargarDatosGuardados() {
     const datosGuardados = LocalStorage.get('datosInscripcion');
@@ -154,6 +225,12 @@ async function handleSubmit(e) {
     
     const dni = document.getElementById('dni').value.trim();
     
+    // Validar que las imágenes estén cargadas
+    if (!imagenDNIFrontal || !imagenDNIReverso || !imagenFotoCarnet) {
+        Utils.mostrarNotificacion('Debes subir todas las imágenes requeridas (DNI frontal, DNI reverso y foto carnet)', 'error');
+        return;
+    }
+    
     // Si el DNI no fue validado aún, validarlo ahora automáticamente
     if (!dniValidado) {
         // Validar formato primero
@@ -203,7 +280,11 @@ async function handleSubmit(e) {
         seguro_tipo: formData.get('seguro_tipo'),
         condicion_medica: formData.get('condicion_medica'),
         apoderado: formData.get('apoderado'),
-        telefono_apoderado: formData.get('telefono_apoderado')
+        telefono_apoderado: formData.get('telefono_apoderado'),
+        // Agregar imágenes en base64
+        imagen_dni_frontal: imagenDNIFrontal,
+        imagen_dni_reverso: imagenDNIReverso,
+        imagen_foto_carnet: imagenFotoCarnet
     };
     
     // Calcular edad

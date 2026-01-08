@@ -53,10 +53,32 @@ class AcademiaAPI {
 
     /**
      * Obtiene todos los horarios disponibles
+     * @param {number} añoNacimiento - Año de nacimiento del alumno para filtrar por edad (opcional)
      */
-    async getHorarios() {
+    async getHorarios(añoNacimiento = null) {
         try {
-            const data = await this.request(API_CONFIG.endpoints.horarios);
+            let url = API_CONFIG.endpoints.horarios;
+            
+            console.log('🌐 URL base:', url);
+            console.log('🎂 Año recibido en getHorarios:', añoNacimiento);
+            
+            // Agregar parámetro de año si se proporciona
+            if (añoNacimiento) {
+                const separator = url.includes('?') ? '&' : '?';
+                url += `${separator}año_nacimiento=${añoNacimiento}`;
+                console.log('✅ URL con filtro:', url);
+            } else {
+                console.log('ℹ️ Sin filtro de edad');
+            }
+            
+            const fullUrl = `${this.baseUrl}${url}`;
+            console.log('📡 Llamando a:', fullUrl);
+            
+            const data = await this.request(url);
+            
+            console.log('📥 Respuesta recibida:', data);
+            console.log('📊 Total horarios:', data.horarios?.length);
+            console.log('🔍 Filtrado por edad:', data.filtradoPorEdad);
             
             if (!data.success || !data.horarios) {
                 throw new Error('Respuesta inválida del servidor');
@@ -64,7 +86,7 @@ class AcademiaAPI {
 
             return data.horarios;
         } catch (error) {
-            console.error('Error al obtener horarios:', error);
+            console.error('❌ Error al obtener horarios:', error);
             throw error;
         }
     }
@@ -190,6 +212,27 @@ class AcademiaAPI {
             return data;
         } catch (error) {
             console.error('Error al verificar pago:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Sube un comprobante de pago a Google Drive
+     */
+    async subirComprobante(datos) {
+        try {
+            if (!datos || !datos.codigo_operacion || !datos.imagen) {
+                throw new Error('Datos incompletos para subir comprobante');
+            }
+
+            const data = await this.request('/api/subir-comprobante', {
+                method: 'POST',
+                body: JSON.stringify(datos)
+            });
+
+            return data;
+        } catch (error) {
+            console.error('Error al subir comprobante:', error);
             throw error;
         }
     }

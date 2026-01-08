@@ -158,10 +158,12 @@ async function confirmarInscripcion() {
     
     try {
         const datosInscripcion = LocalStorage.get('datosInscripcion');
-        const { alumno, horariosSeleccionados } = datosInscripcion;
+        const { alumno, horariosCompletos } = datosInscripcion;
         
-        // Enviar inscripción al backend
-        const resultado = await academiaAPI.inscribirMultiple(alumno, horariosSeleccionados);
+        console.log('📋 Enviando inscripción con horarios completos:', horariosCompletos);
+        
+        // Enviar inscripción al backend con los horarios completos (no solo IDs)
+        const resultado = await academiaAPI.inscribirMultiple(alumno, horariosCompletos);
         
         if (resultado.success) {
             // Guardar código de operación con todos los datos necesarios
@@ -170,7 +172,7 @@ async function confirmarInscripcion() {
                 fecha: new Date().toISOString(),
                 alumno: `${alumno.nombres} ${alumno.apellidos}`,
                 dni: alumno.dni,
-                horarios: datosInscripcion.horariosCompletos // Guardar horarios completos para el WhatsApp
+                horarios: horariosCompletos // Guardar horarios completos para el WhatsApp
             });
             
             // Limpiar datos temporales

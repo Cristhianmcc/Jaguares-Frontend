@@ -308,6 +308,10 @@ async function buscarPorDNI(dni) {
         const response = await fetch(`${API_BASE}/api/consultar/${dni}`);
         const data = await response.json();
         
+        console.log('📊 Respuesta completa del backend:', data);
+        console.log('🏐 Horarios recibidos:', data.horarios);
+        console.log('💳 Pago recibido:', data.pago);
+        
         if (data.success) {
             mostrarDetalleUsuario(data);
             loadingContainer.classList.add('hidden');
@@ -325,22 +329,24 @@ async function buscarPorDNI(dni) {
 
 // Función para mostrar detalle del usuario
 function mostrarDetalleUsuario(data) {
+    console.log('👤 Datos alumno completos:', data.alumno);
+    
     // Datos personales
     document.getElementById('detalleDNI').textContent = data.alumno.dni;
     document.getElementById('detalleNombre').textContent = `${data.alumno.nombres} ${data.alumno.apellidos}`;
-    document.getElementById('detalleFechaNacimiento').textContent = data.alumno.fecha_nacimiento || '-';
-    document.getElementById('detalleEdadSexo').textContent = `${data.alumno.edad || '-'} / ${data.alumno.sexo || '-'}`;
+    document.getElementById('detalleFechaNacimiento').textContent = data.alumno.fecha_nacimiento || 'No registrado';
+    document.getElementById('detalleEdadSexo').textContent = `${data.alumno.edad || 'N/A'} / ${data.alumno.sexo || 'N/A'}`;
     
     // Contacto
-    document.getElementById('detalleTelefono').textContent = data.alumno.telefono || '-';
-    document.getElementById('detalleEmail').textContent = data.alumno.email || '-';
-    document.getElementById('detalleDireccion').textContent = data.alumno.direccion || '-';
-    document.getElementById('detalleApoderado').textContent = data.alumno.apoderado || '-';
-    document.getElementById('detalleTelefonoApoderado').textContent = data.alumno.telefono_apoderado || '-';
+    document.getElementById('detalleTelefono').textContent = data.alumno.telefono || 'No registrado';
+    document.getElementById('detalleEmail').textContent = data.alumno.email || 'No registrado';
+    document.getElementById('detalleDireccion').textContent = data.alumno.direccion || 'No registrado';
+    document.getElementById('detalleApoderado').textContent = data.alumno.apoderado || 'No registrado';
+    document.getElementById('detalleTelefonoApoderado').textContent = data.alumno.telefono_apoderado || 'No registrado';
     
     // Salud
-    document.getElementById('detalleSeguroTipo').textContent = data.alumno.seguro_tipo || '-';
-    document.getElementById('detalleCondicionMedica').textContent = data.alumno.condicion_medica || '-';
+    document.getElementById('detalleSeguroTipo').textContent = data.alumno.seguro_tipo || 'No registrado';
+    document.getElementById('detalleCondicionMedica').textContent = data.alumno.condicion_medica || 'No registrado';
     
     // Pago
     document.getElementById('detalleMonto').textContent = `S/ ${parseFloat(data.pago.monto).toFixed(2)}`;
@@ -351,6 +357,61 @@ function mostrarDetalleUsuario(data) {
     const estadoColor = estadoPago === 'confirmado' ? 'text-green-600' : 'text-yellow-600';
     document.getElementById('detalleEstadoPago').innerHTML = `<span class="${estadoColor}">${estadoTexto}</span>`;
     
+    // Comprobante de pago (si existe)
+    const comprobanteContainer = document.getElementById('detalleComprobante');
+    if (comprobanteContainer) {
+        if (data.pago.url_comprobante) {
+            console.log('📸 URL Comprobante original:', data.pago.url_comprobante);
+            
+            // Convertir URL de Drive si es necesario
+            let urlImagen = data.pago.url_comprobante;
+            if (urlImagen.includes('/file/d/')) {
+                const match = urlImagen.match(/\/file\/d\/([^\/]+)/);
+                if (match) {
+                    const fileId = match[1];
+                    // Probar con thumbnail primero, luego con uc
+                    urlImagen = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
+                    console.log('✅ URL convertida (thumbnail):', urlImagen);
+                }
+            }
+            
+            comprobanteContainer.innerHTML = `
+                <div class="bg-blue-50 dark:bg-blue-900/10 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-blue-600 dark:text-blue-400">receipt_long</span>
+                            <p class="font-bold text-sm text-blue-900 dark:text-blue-200">Comprobante de Pago</p>
+                        </div>
+                        <a href="${data.pago.url_comprobante}" target="_blank" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-all flex items-center gap-1">
+                            <span class="material-symbols-outlined text-sm">open_in_new</span>
+                            Ver original
+                        </a>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 rounded-lg p-2 overflow-auto" style="max-height: 80vh;">
+                        <img src="${urlImagen}" 
+                             alt="Comprobante" 
+                             class="w-full h-auto rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+                             onclick="window.open('${data.pago.url_comprobante}', '_blank')"
+                             onerror="console.error('❌ Error cargando imagen desde:', this.src); this.src='https://via.placeholder.com/400x600/e3f2fd/1976d2?text=Error+al+cargar+imagen'; this.onclick=null;">
+                    </div>
+                    <p class="text-xs text-blue-700 dark:text-blue-300 mt-2 text-center">
+                        <span class="material-symbols-outlined text-xs align-middle">touch_app</span>
+                        Haz clic en la imagen para verla en nueva pestaña
+                    </p>
+                </div>
+            `;
+        } else {
+            comprobanteContainer.innerHTML = `
+                <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center gap-2 text-gray-500 dark:text-gray-400">
+                        <span class="material-symbols-outlined">image_not_supported</span>
+                        <p class="text-sm">No se ha subido comprobante</p>
+                    </div>
+                </div>
+            `;
+        }
+    }
+    
     // Renderizar horarios
     const horariosContainer = document.getElementById('detalleHorarios');
     horariosContainer.innerHTML = '';
@@ -359,23 +420,28 @@ function mostrarDetalleUsuario(data) {
         data.horarios.forEach(horario => {
             const horarioCard = document.createElement('div');
             horarioCard.className = 'border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-900';
+            
+            // Determinar color del estado
+            const estadoColor = horario.estado === 'activa' ? 'text-green-600 dark:text-green-400' : 'text-yellow-600 dark:text-yellow-400';
+            const estadoTexto = horario.estado === 'activa' ? 'Activa' : 'Pendiente de Pago';
+            
             horarioCard.innerHTML = `
                 <div class="flex items-center gap-3 mb-2">
                     <span class="material-symbols-outlined text-primary">sports</span>
-                    <p class="font-bold text-lg">${horario.deporte}</p>
+                    <p class="font-bold text-lg">${horario.deporte || '-'}</p>
                 </div>
                 <div class="space-y-1 text-sm">
                     <div class="flex items-center gap-2">
                         <span class="material-symbols-outlined text-xs">calendar_today</span>
-                        <p><span class="font-semibold">Día:</span> ${horario.dia}</p>
+                        <p><span class="font-semibold">Día:</span> ${horario.dia || '-'}</p>
                     </div>
                     <div class="flex items-center gap-2">
                         <span class="material-symbols-outlined text-xs">schedule</span>
-                        <p><span class="font-semibold">Horario:</span> ${horario.hora_inicio} - ${horario.hora_fin}</p>
+                        <p><span class="font-semibold">Horario:</span> ${horario.hora_inicio || '-'} - ${horario.hora_fin || '-'}</p>
                     </div>
                     <div class="flex items-center gap-2">
-                        <span class="material-symbols-outlined text-xs">tag</span>
-                        <p><span class="font-semibold">Código:</span> ${horario.codigo_inscripcion}</p>
+                        <span class="material-symbols-outlined text-xs">check_circle</span>
+                        <p><span class="font-semibold">Estado:</span> <span class="${estadoColor} font-semibold">${estadoTexto}</span></p>
                     </div>
                 </div>
             `;

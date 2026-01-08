@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Contrato de Prestación de Servicios - JAGUARES</title>
+<style>
+    body {
+        font-family: 'Calibri', 'Arial', sans-serif;
+        line-height: 1.6;
+        max-width: 21cm;
+        margin: 2cm auto;
+        padding: 2cm;
+        color: #000;
+        background: #fff;
+    }
+    h1 {
+        text-align: center;
+        font-size: 18pt;
+        font-weight: bold;
+        color: #000;
+        margin-bottom: 0.5cm;
+        text-transform: uppercase;
+        border-bottom: 3px solid #000;
+        padding-bottom: 0.3cm;
+    }
+    h2 {
+        font-size: 16pt;
+        font-weight: bold;
+        color: #000;
+        margin-top: 1cm;
+        margin-bottom: 0.5cm;
+        text-align: center;
+    }
+    h3 {
+        font-size: 14pt;
+        font-weight: bold;
+        color: #000;
+        margin-top: 0.8cm;
+        margin-bottom: 0.4cm;
+    }
+    h4 {
+        font-size: 12pt;
+        font-weight: bold;
+        color: #333;
+        margin-top: 0.5cm;
+        margin-bottom: 0.3cm;
+    }
+    p {
+        text-align: justify;
+        margin: 0.3cm 0;
+        font-size: 11pt;
+    }
+    .fecha {
+        text-align: right;
+        font-weight: bold;
+        margin-bottom: 1cm;
+    }
+    .partes {
+        margin: 1cm 0;
+        line-height: 1.8;
+    }
+    .partes strong {
+        font-weight: bold;
+    }
+    ul, ol {
+        margin-left: 1cm;
+        margin-bottom: 0.5cm;
+    }
+    li {
+        margin-bottom: 0.2cm;
+        font-size: 11pt;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0.5cm 0;
+    }
+    th, td {
+        border: 1px solid #000;
+        padding: 0.3cm;
+        text-align: left;
+        font-size: 11pt;
+    }
+    th {
+        background-color: #e0e0e0;
+        font-weight: bold;
+    }
+    .check {
+        color: green;
+        font-weight: bold;
+    }
+    .cross {
+        color: red;
+        font-weight: bold;
+    }
+    .firma {
+        margin-top: 2cm;
+        page-break-before: avoid;
+    }
+    .firma-box {
+        border: 2px solid #000;
+        padding: 1cm;
+        margin: 1cm 0;
+    }
+    .linea-firma {
+        border-bottom: 1px solid #000;
+        width: 100%;
+        margin: 0.5cm 0;
+        min-height: 0.5cm;
+    }
+    .separador {
+        border-top: 2px solid #ccc;
+        margin: 1cm 0;
+    }
+    .nota {
+        background-color: #fffacd;
+        border-left: 4px solid #ffd700;
+        padding: 0.5cm;
+        margin: 0.5cm 0;
+    }
+    .importante {
+        background-color: #ffe6e6;
+        border-left: 4px solid #ff0000;
+        padding: 0.5cm;
+        margin: 0.5cm 0;
+        font-weight: bold;
+    }
+    @media print {
+        body {
+            margin: 0;
+            padding: 1cm;
+        }
+    }
+    @page {
+        size: A4;
+        margin: 2cm;
+    }
+</style>
+</head>
+<body>
+
+<h1>CONTRATO DE PRESTACIÓN DE SERVICIOS DE DESARROLLO WEB</h1>
+<h2>SISTEMA DE INSCRIPCIONES DEPORTIVAS - JAGUARES</h2>
+
+<p class="fecha"><strong>FECHA:</strong> Lima, 2 de enero de 2026</p>
+
+<div class="separador"></div>
+
+<h3>ENTRE:</h3>
+
+<div class="partes">
+<p><strong>DESARROLLADOR:</strong><br>
+Cristhian Arturo Medina Ccopa<br>
+Correo: cristhianmc84@gmail.com<br>
+Teléfono: 955195324<br>
+Ubicación: Lima, Perú</p>
+
+<p><strong>CLIENTE:</strong><br>
+[Nombre del representante legal - JAGUARES]<br>
+Centro de Alto Rendimiento Deportivo JAGUARES<br>
+RUC/DNI: _______________________<br>
+Correo: _______________________<br>
+Teléfono: _______________________<br>
+Ubicación: _______________________</p>
+</div>
+
+<div class="separador"></div>
+
+<h3>OBJETO DEL CONTRATO</h3>
+
+<p>Desarrollo de un <strong>Sistema Web de Inscripciones y Gestión</strong> para el Centro de Alto Rendimiento Deportivo JAGUARES, que incluye:</p>
+<ul>
+<li>Portal web público para inscripciones</li>
+<li>Sistema de consulta de inscripciones</li>
+<li>Panel administrativo de gestión</li>
+<li>Integración con sistema de pagos</li>
+<li>Base de datos en Google Sheets</li>
+</ul>
+
+<div class="separador"></div>
+
+<h3>1. ALCANCE Y ESPECIFICACIONES TÉCNICAS</h3>
+
+<h4>1.1 MÓDULOS DEL SISTEMA</h4>
+
+<h4>A) PORTAL WEB PÚBLICO</h4>
+
+<p><strong>Página Principal (Landing Page):</strong></p>
+<ul>
+<li>Hero section con imágenes destacadas</li>
+<li>Información sobre deportes disponibles (Fútbol, Vóley, Básquet, etc.)</li>
+<li>Testimonios y galerías</li>
+<li>Call-to-action para inscripciones</li>
+<li>Diseño responsive y optimizado SEO</li>
+</ul>
+
+<p><strong>Sistema de Inscripciones:</strong></p>
+<ul>
+<li>Formulario multi-paso validado</li>
+<li>Campos: datos personales, datos del apoderado, datos médicos</li>
+<li>Selección de deporte y categoría</li>
+<li>Selección de horarios disponibles</li>
+<li>Generación automática de código único de inscripción</li>
+<li>Envío de confirmación por correo (opcional)</li>
+<li>Integración con Google Sheets para almacenamiento</li>
+</ul>
+
+<p><strong>Sistema de Consulta:</strong></p>
+<ul>
+<li>Búsqueda por código de inscripción</li>
+<li>Visualización de estado de inscripción</li>
+<li>Descarga de información en PDF</li>
+<li>Consulta de horarios asignados</li>
+</ul>
+
+<p><strong>Página de Confirmación:</strong></p>
+<ul>
+<li>Resumen completo de inscripción</li>
+<li>Código QR para pago (Yape/Plin)</li>
+<li>Instrucciones de pago</li>
+<li>Información de contacto</li>
+</ul>
+
+<h4>B) PANEL ADMINISTRATIVO</h4>
+
+<p><strong>Dashboard de Control:</strong></p>
+<ul>
+<li>Estadísticas en tiempo real (total inscritos, por deporte, por estado)</li>
+<li>Gráficos visuales de datos</li>
+<li>Filtros avanzados de búsqueda</li>
+<li>Exportación de reportes</li>
+</ul>
+
+<p><strong>Gestión de Inscripciones:</strong></p>
+<ul>
+<li>Visualización de todas las inscripciones</li>
+<li>Búsqueda y filtrado avanzado</li>
+<li>Edición de estados (Pendiente, Confirmado, Rechazado)</li>
+<li>Eliminación de registros</li>
+<li>Exportación a Excel/PDF</li>
+</ul>
+
+<p><strong>Sistema de Autenticación:</strong></p>
+<ul>
+<li>Login seguro con credenciales</li>
+<li>Protección de acceso al panel</li>
+<li>Gestión de sesiones</li>
+</ul>
+
+<h4>C) INTEGRACIONES Y TECNOLOGÍAS</h4>
+
+<p><strong>Google Sheets API:</strong></p>
+<ul>
+<li>Conexión automática con hoja de cálculo</li>
+<li>Escritura de nuevas inscripciones</li>
+<li>Lectura para consultas y administración</li>
+<li>Script de Apps Script para gestión de datos</li>
+<li>Backup automático de información</li>
+</ul>
+
+<p><strong>Hosting y Deployment:</strong></p>
+<ul>
+<li>Despliegue en Netlify (plan gratuito)</li>
+<li>Dominio personalizado (si el cliente lo provee)</li>
+<li>Certificado SSL incluido</li>
+<li>CDN global automático</li>
+<li>Continuous deployment desde GitHub</li>
+</ul>
+
+<p><strong>Tecnologías Utilizadas:</strong></p>
+<ul>
+<li>Frontend: HTML5, CSS3, JavaScript Vanilla</li>
+<li>Backend: Google Apps Script (serverless)</li>
+<li>Base de datos: Google Sheets</li>
+<li>Hosting: Netlify</li>
+<li>Control de versiones: Git/GitHub</li>
+</ul>
+
+<h4>1.2 CARACTERÍSTICAS TÉCNICAS</h4>
+
+<ul>
+<li><span class="check">✓</span> Diseño Responsive: Optimizado para móviles, tablets y escritorio</li>
+<li><span class="check">✓</span> Validaciones en tiempo real: Prevención de errores de usuario</li>
+<li><span class="check">✓</span> Seguridad: Protección contra XSS, CSRF, inyección de código</li>
+<li><span class="check">✓</span> Performance: Tiempos de carga &lt; 2 segundos</li>
+<li><span class="check">✓</span> SEO Optimizado: Meta tags, Open Graph, Schema.org</li>
+<li><span class="check">✓</span> Accesibilidad: Cumplimiento de estándares WCAG</li>
+<li><span class="check">✓</span> Progressive Enhancement: Funciona incluso sin JavaScript</li>
+</ul>
+
+<h4>1.3 ENTREGABLES DOCUMENTALES</h4>
+
+<p>Documentación técnica completa en formato Markdown:</p>
+<ul>
+<li>README.md - Guía de inicio rápido</li>
+<li>INSTRUCCIONES-CONFIGURACION.md - Setup de Google Sheets</li>
+<li>ESTRUCTURA-SHEET-CLIENTE.md - Estructura de base de datos</li>
+<li>APPS-SCRIPT-GOOGLE-SHEETS.gs - Código del backend</li>
+<li>CONFIGURACION-MULTI-CLIENTE.md - Guía para reutilizar el sistema</li>
+<li>RESUMEN-PROYECTO.md - Visión general del proyecto</li>
+<li>Guías adicionales según necesidad</li>
+</ul>
+
+<div class="separador"></div>
+
+<h3>2. CRONOGRAMA Y METODOLOGÍA DE TRABAJO</h3>
+
+<p><strong>FASE 1: Diseño y Estructura (COMPLETADA ✓)</strong></p>
+<ul>
+<li>Diseño de interfaz de usuario</li>
+<li>Estructura HTML de todas las páginas</li>
+<li>Sistema de navegación responsive</li>
+</ul>
+
+<p><strong>FASE 2: Desarrollo Frontend (COMPLETADA ✓)</strong></p>
+<ul>
+<li>Formularios de inscripción con validación</li>
+<li>Sistema de selección de horarios</li>
+<li>Páginas de consulta y confirmación</li>
+<li>Panel administrativo completo</li>
+</ul>
+
+<p><strong>FASE 3: Integración Backend (COMPLETADA ✓)</strong></p>
+<ul>
+<li>Configuración de Google Sheets API</li>
+<li>Apps Script para manejo de datos</li>
+<li>Conexión frontend-backend</li>
+<li>Sistema de códigos únicos</li>
+</ul>
+
+<p><strong>FASE 4: Testing y Deployment (COMPLETADA ✓)</strong></p>
+<ul>
+<li>Pruebas de funcionalidad</li>
+<li>Pruebas de carga y rendimiento</li>
+<li>Deployment en Netlify</li>
+<li>Configuración de dominio</li>
+</ul>
+
+<p><strong>FASE 5: Documentación y Capacitación (EN PROCESO)</strong></p>
+<ul>
+<li>Documentación técnica completa ✓</li>
+<li>Capacitación al personal administrativo (pendiente)</li>
+<li>Entrega de credenciales y accesos (pendiente)</li>
+<li>Transferencia de conocimiento (pendiente)</li>
+</ul>
+
+<p><strong>TIEMPO TOTAL INVERTIDO:</strong> ~15-20 días hábiles<br>
+<strong>ESTADO ACTUAL:</strong> 90% completado</p>
+
+<div class="separador"></div>
+
+<h3>3. INVERSIÓN Y FORMA DE PAGO</h3>
+
+<h4>INVERSIÓN TOTAL DEL PROYECTO:</h4>
+
+<table>
+<tr>
+<th>Concepto</th>
+<th>Precio</th>
+</tr>
+<tr>
+<td>Desarrollo Frontend (5 páginas funcionales)</td>
+<td>S/ 400.00</td>
+</tr>
+<tr>
+<td>Panel Administrativo Completo</td>
+<td>S/ 250.00</td>
+</tr>
+<tr>
+<td>Integración Google Sheets API + Apps Script</td>
+<td>S/ 200.00</td>
+</tr>
+<tr>
+<td>Sistema de Consultas y Reportes</td>
+<td>S/ 150.00</td>
+</tr>
+<tr>
+<td>Documentación Técnica Completa</td>
+<td>S/ 100.00</td>
+</tr>
+<tr>
+<td>Testing, Deployment y Configuración</td>
+<td>S/ 150.00</td>
+</tr>
+<tr>
+<td>Capacitación y Soporte Inicial</td>
+<td>S/ 100.00</td>
+</tr>
+<tr>
+<th>SUBTOTAL</th>
+<th>S/ 1,350.00</th>
+</tr>
+<tr>
+<td>Descuento por proyecto completo (-10%)</td>
+<td>-S/ 135.00</td>
+</tr>
+<tr>
+<td>Descuento adicional</td>
+<td>-S/ 15.00</td>
+</tr>
+<tr>
+<th>INVERSIÓN TOTAL</th>
+<th style="font-size: 14pt;">S/ 1,200.00</th>
+</tr>
+</table>
+
+<h4>FORMA DE PAGO PROPUESTA:</h4>
+
+<p><strong>OPCIÓN A - Pago Único (Recomendado):</strong></p>
+<ul>
+<li>Pago único con 5% descuento adicional</li>
+<li><strong>Total a pagar: S/ 1,140.00</strong></li>
+<li>Transferencia bancaria o Yape/Plin</li>
+</ul>
+
+<p><strong>OPCIÓN B - Pagos Diferidos:</strong></p>
+<ul>
+<li>Adelanto 40%: S/ 480.00 (para formalizar contrato)</li>
+<li>Segunda cuota 30%: S/ 360.00 (a los 15 días)</li>
+<li>Saldo final 30%: S/ 360.00 (contra entrega y capacitación)</li>
+</ul>
+
+<p><strong>OPCIÓN C - Plan de Pago Mensual:</strong></p>
+<ul>
+<li>Adelanto 30%: S/ 360.00 (para formalizar contrato)</li>
+<li>3 cuotas mensuales: S/ 280.00 c/u</li>
+<li>Sin intereses adicionales</li>
+</ul>
+
+<h4>MÉTODOS DE PAGO ACEPTADOS:</h4>
+
+<ul>
+<li><span class="check">✓</span> Transferencia bancaria (BCP, Interbank, BBVA)</li>
+<li><span class="check">✓</span> Yape / Plin</li>
+<li><span class="check">✓</span> Depósito en cuenta</li>
+<li><span class="check">✓</span> Pago con tarjeta (+ 3.5% comisión)</li>
+</ul>
+
+<div class="importante">
+<p><strong>CONDICIÓN IMPORTANTE:</strong><br>
+El código fuente y accesos completos serán transferidos únicamente después del pago total del proyecto (100%).</p>
+</div>
+
+<div class="separador"></div>
+
+<h3>4. RESPONSABILIDADES DEL CLIENTE</h3>
+
+<p>El cliente se compromete a proporcionar:</p>
+
+<h4>4.1 ACCESOS Y PERMISOS:</h4>
+<ul>
+<li><span class="check">✓</span> Cuenta de Google (Gmail) para configurar Google Sheets</li>
+<li><span class="check">✓</span> Acceso a dominio (si desea usar dominio personalizado)</li>
+<li><span class="check">✓</span> Logo oficial en alta resolución (formato PNG transparente)</li>
+<li><span class="check">✓</span> Colores institucionales (códigos hexadecimales)</li>
+</ul>
+
+<h4>4.2 CONTENIDO:</h4>
+<ul>
+<li><span class="check">✓</span> Textos institucionales (Misión, Visión, Historia)</li>
+<li><span class="check">✓</span> Lista completa de deportes y categorías</li>
+<li><span class="check">✓</span> Horarios disponibles por deporte</li>
+<li><span class="check">✓</span> Precios de inscripción</li>
+<li><span class="check">✓</span> Imágenes de instalaciones (mínimo 10 fotos en alta calidad)</li>
+<li><span class="check">✓</span> Datos de contacto oficiales (teléfonos, email, dirección, redes sociales)</li>
+</ul>
+
+<h4>4.3 COORDINACIÓN:</h4>
+<ul>
+<li><span class="check">✓</span> Asignar un responsable de comunicación con el desarrollador</li>
+<li><span class="check">✓</span> Responder consultas en máximo 48 horas hábiles</li>
+<li><span class="check">✓</span> Aprobar avances y cambios de manera oportuna</li>
+<li><span class="check">✓</span> Participar en reuniones de revisión (máximo 3 reuniones de 1 hora)</li>
+<li><span class="check">✓</span> Asistir a capacitación del sistema (2 sesiones de 1.5 horas)</li>
+</ul>
+
+<h4>4.4 OPCIONALES (COSTOS ADICIONALES):</h4>
+<ul>
+<li><span class="check">✓</span> Dominio personalizado: ~S/ 80-120/año (cliente lo adquiere directamente)</li>
+<li><span class="check">✓</span> Email corporativo: ~S/ 50-150/año (Google Workspace o similar)</li>
+<li><span class="check">✓</span> Cloudflare Pro (CDN premium): ~$20/mes (opcional, no necesario inicialmente)</li>
+</ul>
+
+<div class="separador"></div>
+
+<h3>5. POLÍTICA DE REVISIONES Y CAMBIOS</h3>
+
+<h4>5.1 DURANTE EL DESARROLLO:</h4>
+
+<ul>
+<li><span class="check">✓</span> Se incluyen 3 rondas de revisiones/ajustes sin costo adicional</li>
+<li><span class="check">✓</span> Los cambios deben estar dentro del alcance definido en este contrato</li>
+<li><span class="check">✓</span> Cada ronda de revisión debe consolidar todos los cambios en una sola lista</li>
+<li><span class="check">✓</span> Tiempo máximo por ronda: 2-3 días hábiles</li>
+</ul>
+
+<p><strong>CAMBIOS QUE GENERAN COSTO ADICIONAL:</strong></p>
+<ul>
+<li>Agregar nuevos módulos o funcionalidades no contempladas</li>
+<li>Cambiar completamente el diseño visual después de aprobado</li>
+<li>Integrar nuevos servicios externos (más allá de Google Sheets)</li>
+<li>Desarrollo de aplicación móvil nativa</li>
+<li>Conexión con sistemas de pago automático (Culqi, Niubiz, etc.)</li>
+</ul>
+
+<h4>5.2 DESPUÉS DE LA ENTREGA FINAL:</h4>
+
+<p><strong>GARANTÍA INCLUIDA (30 DÍAS):</strong></p>
+<ul>
+<li><span class="check">✓</span> Corrección de errores de programación: SIN COSTO</li>
+<li><span class="check">✓</span> Bugs o fallos en funcionalidades existentes: SIN COSTO</li>
+<li><span class="check">✓</span> Problemas de compatibilidad de navegadores: SIN COSTO</li>
+</ul>
+
+<p><strong>NO CUBIERTO POR GARANTÍA:</strong></p>
+<ul>
+<li><span class="cross">✗</span> Cambios de contenido (textos, imágenes)</li>
+<li><span class="cross">✗</span> Nuevas funcionalidades o módulos</li>
+<li><span class="cross">✗</span> Modificaciones al diseño visual</li>
+<li><span class="cross">✗</span> Errores causados por modificaciones del cliente</li>
+<li><span class="cross">✗</span> Problemas de hosting o servicios externos</li>
+</ul>
+
+<h4>5.3 TARIFAS POST-ENTREGA:</h4>
+
+<table>
+<tr>
+<th>Servicio</th>
+<th>Tarifa</th>
+</tr>
+<tr>
+<td>Cambios menores (textos, imágenes, colores)</td>
+<td>S/ 50.00/hora (mín. 1h)</td>
+</tr>
+<tr>
+<td>Cambios técnicos (funcionalidades, scripts)</td>
+<td>S/ 80.00/hora (mín. 2h)</td>
+</tr>
+<tr>
+<td>Nuevas funcionalidades</td>
+<td>A cotizar según complejidad</td>
+</tr>
+<tr>
+<td>Mantenimiento mensual</td>
+<td>S/ 200.00/mes (incluye 4h de cambios)</td>
+</tr>
+<tr>
+<td>Soporte prioritario</td>
+<td>S/ 350.00/mes (incluye 8h + soporte 24/7)</td>
+</tr>
+<tr>
+<td>Capacitación adicional</td>
+<td>S/ 100.00/sesión (2 horas)</td>
+</tr>
+</table>
+
+<div class="separador"></div>
+
+<h3>6. ENTREGABLES FINALES</h3>
+
+<h4>6.1 CÓDIGO FUENTE COMPLETO:</h4>
+<ul>
+<li><span class="check">✓</span> Repositorio GitHub privado con todo el código</li>
+<li><span class="check">✓</span> Estructura de archivos organizada y documentada</li>
+<li><span class="check">✓</span> Historial completo de commits</li>
+<li><span class="check">✓</span> Acceso de administrador al repositorio</li>
+</ul>
+
+<h4>6.2 SISTEMA DESPLEGADO Y FUNCIONAL:</h4>
+<ul>
+<li><span class="check">✓</span> Sitio web 100% funcional en Netlify</li>
+<li><span class="check">✓</span> Dominio conectado (si el cliente lo provee)</li>
+<li><span class="check">✓</span> SSL/HTTPS configurado</li>
+<li><span class="check">✓</span> Google Sheets conectado y operativo</li>
+<li><span class="check">✓</span> Panel administrativo accesible</li>
+</ul>
+
+<h4>6.3 DOCUMENTACIÓN TÉCNICA:</h4>
+<ul>
+<li><span class="check">✓</span> Manual de usuario del panel administrativo (PDF)</li>
+<li><span class="check">✓</span> Guía de configuración técnica (Markdown)</li>
+<li><span class="check">✓</span> Documentación de APIs y scripts</li>
+<li><span class="check">✓</span> Guía de mantenimiento y actualización</li>
+<li><span class="check">✓</span> FAQ y solución de problemas comunes</li>
+</ul>
+
+<h4>6.4 CREDENCIALES Y ACCESOS:</h4>
+<ul>
+<li><span class="check">✓</span> Credenciales del panel administrativo</li>
+<li><span class="check">✓</span> Acceso a cuenta Netlify (o transferencia de ownership)</li>
+<li><span class="check">✓</span> Acceso al repositorio GitHub</li>
+<li><span class="check">✓</span> Enlace a Google Sheet con permisos de editor</li>
+<li><span class="check">✓</span> Documentación de todas las contraseñas (en documento seguro)</li>
+</ul>
+
+<h4>6.5 CAPACITACIÓN:</h4>
+<ul>
+<li><span class="check">✓</span> 2 sesiones de capacitación virtual (Zoom/Meet)
+    <ul>
+    <li>Sesión 1: Uso del panel administrativo (1.5 horas)</li>
+    <li>Sesión 2: Gestión de inscripciones y reportes (1.5 horas)</li>
+    </ul>
+</li>
+<li><span class="check">✓</span> Video tutorial grabado del sistema</li>
+<li><span class="check">✓</span> Soporte vía WhatsApp durante los primeros 7 días</li>
+</ul>
+
+<div class="separador"></div>
+
+<h3>7. PROPIEDAD INTELECTUAL Y DERECHOS</h3>
+
+<h4>7.1 TRANSFERENCIA DE DERECHOS:</h4>
+
+<p>Una vez completado el pago total (100%), el cliente adquiere:</p>
+
+<ul>
+<li><span class="check">✓</span> Propiedad total del código fuente desarrollado</li>
+<li><span class="check">✓</span> Licencia completa para usar, modificar y distribuir el código</li>
+<li><span class="check">✓</span> Derechos de autor sobre el sistema (excepto librerías de terceros)</li>
+<li><span class="check">✓</span> Libertad total para contratar a otro desarrollador para modificaciones futuras</li>
+</ul>
+
+<h4>7.2 EXCEPCIONES:</h4>
+
+<p>El desarrollador retiene el derecho de:</p>
+<ul>
+<li>Usar el proyecto en su portafolio profesional</li>
+<li>Mencionar al cliente como referencia (con autorización previa)</li>
+<li>Reutilizar componentes genéricos en otros proyectos</li>
+<li>Crear versiones "template" del sistema para otros clientes</li>
+</ul>
+
+<h4>7.3 CÓDIGO DE TERCEROS:</h4>
+
+<p>El sistema incluye librerías open-source con sus propias licencias:</p>
+<ul>
+<li>Ninguna librería con restricciones comerciales</li>
+<li>Todas las dependencias son gratuitas y de código abierto</li>
+<li>El cliente puede usar el sistema comercialmente sin restricciones</li>
+</ul>
+
+<div class="separador"></div>
+
+<h3>8. GARANTÍA Y SOPORTE TÉCNICO</h3>
+
+<h4>8.1 GARANTÍA ESTÁNDAR (30 DÍAS):</h4>
+
+<p><strong>COBERTURA:</strong></p>
+<ul>
+<li><span class="check">✓</span> Corrección de bugs y errores de programación</li>
+<li><span class="check">✓</span> Problemas de compatibilidad de navegadores</li>
+<li><span class="check">✓</span> Fallas en funcionalidades existentes</li>
+<li><span class="check">✓</span> Problemas de rendimiento (si son causados por el código)</li>
+<li><span class="check">✓</span> Errores en la integración con Google Sheets</li>
+<li><span class="check">✓</span> Problemas de seguridad en el código</li>
+</ul>
+
+<p><strong>TIEMPO DE RESPUESTA:</strong></p>
+<ul>
+<li>Errores críticos (sitio caído): 4-8 horas</li>
+<li>Errores importantes (funcionalidad no trabaja): 24-48 horas</li>
+<li>Errores menores (problemas visuales): 3-5 días</li>
+</ul>
+
+<p><strong>EXCLUSIONES:</strong></p>
+<ul>
+<li><span class="cross">✗</span> Problemas causados por modificaciones no autorizadas del cliente</li>
+<li><span class="cross">✗</span> Errores en servicios externos (Google Sheets caído, Netlify caído)</li>
+<li><span class="cross">✗</span> Cambios en requisitos o nuevas funcionalidades</li>
+<li><span class="cross">✗</span> Problemas de infraestructura (hosting, dominio)</li>
+<li><span class="cross">✗</span> Pérdida de datos por mal uso del sistema</li>
+</ul>
+
+<h4>8.2 SOPORTE POST-GARANTÍA:</h4>
+
+<p><strong>SOPORTE BÁSICO (Gratuito):</strong></p>
+<ul>
+<li><span class="check">✓</span> Consultas por email: respuesta en 48-72 horas</li>
+<li><span class="check">✓</span> Dudas sobre uso del sistema</li>
+<li><span class="check">✓</span> Recomendaciones de buenas prácticas</li>
+</ul>
+
+<p><strong>SOPORTE PREMIUM (De pago):</strong></p>
+<ul>
+<li>Plan Mensual: S/ 200/mes (4 horas de soporte)</li>
+<li>Plan Trimestral: S/ 500/trimestre (12 horas de soporte)</li>
+<li>Incluye: actualizaciones, cambios menores, soporte prioritario</li>
+</ul>
+
+<div class="separador"></div>
+
+<h3>9. CONFIDENCIALIDAD Y PROTECCIÓN DE DATOS</h3>
+
+<h4>9.1 CONFIDENCIALIDAD:</h4>
+
+<p>Ambas partes se comprometen a:</p>
+<ul>
+<li><span class="check">✓</span> Mantener confidencial toda información intercambiada</li>
+<li><span class="check">✓</span> No divulgar datos sensibles del proyecto</li>
+<li><span class="check">✓</span> No compartir credenciales con terceros</li>
+<li><span class="check">✓</span> Proteger la información de inscripciones de los clientes</li>
+</ul>
+
+<h4>9.2 PROTECCIÓN DE DATOS PERSONALES:</h4>
+
+<p><strong>LEY N° 29733 - Ley de Protección de Datos Personales (Perú):</strong></p>
+
+<p>El <strong>cliente</strong> es responsable de:</p>
+<ul>
+<li>Obtener consentimiento de padres/apoderados para recopilar datos</li>
+<li>Cumplir con la ley de protección de datos personales</li>
+<li>Implementar medidas de seguridad en Google Sheets</li>
+<li>Informar sobre el uso de datos personales</li>
+</ul>
+
+<p>El <strong>desarrollador</strong> implementa:</p>
+<ul>
+<li>Validaciones para prevenir inyección de código</li>
+<li>No almacena contraseñas en texto plano</li>
+<li>Usa HTTPS para todas las comunicaciones</li>
+<li>No comparte datos con terceros no autorizados</li>
+</ul>
+
+<h4>9.3 BACKUP Y RESPONSABILIDAD:</h4>
+
+<ul>
+<li><span class="check">✓</span> El cliente es responsable de realizar backups periódicos de Google Sheets</li>
+<li><span class="check">✓</span> El desarrollador no es responsable por pérdida de información</li>
+<li><span class="check">✓</span> Se recomienda exportar datos semanalmente</li>
+<li><span class="check">✓</span> Google Sheets tiene historial de versiones automático (30 días)</li>
+</ul>
+
+<div class="separador"></div>
+
+<h3>10. LIMITACIÓN DE RESPONSABILIDAD</h3>
+
+<h4>10.1 EXCLUSIONES DE RESPONSABILIDAD:</h4>
+
+<p>El desarrollador NO es responsable por:</p>
+
+<p><strong><span class="cross">✗</span> DISPONIBILIDAD DE SERVICIOS EXTERNOS:</strong></p>
+<ul>
+<li>Caídas de Netlify, Google Sheets, Gmail, etc.</li>
+<li>Cambios en APIs de terceros</li>
+</ul>
+
+<p><strong><span class="cross">✗</span> ACCIONES DEL CLIENTE:</strong></p>
+<ul>
+<li>Modificaciones no autorizadas del código</li>
+<li>Compartir credenciales con terceros</li>
+<li>Mal uso del sistema administrativo</li>
+</ul>
+
+<p><strong><span class="cross">✗</span> CASOS DE FUERZA MAYOR:</strong></p>
+<ul>
+<li>Desastres naturales</li>
+<li>Fallas de infraestructura de internet</li>
+<li>Cambios en legislación que afecten el sistema</li>
+</ul>
+
+<p><strong><span class="cross">✗</span> LÍMITES DE SERVICIOS GRATUITOS:</strong></p>
+<ul>
+<li>Netlify: 100GB ancho de banda/mes</li>
+<li>Google Sheets API: 500 requests/100 segundos</li>
+<li>Si se superan, el cliente debe actualizar planes</li>
+</ul>
+
+<h4>10.2 LÍMITE DE RESPONSABILIDAD:</h4>
+
+<p>La responsabilidad total del desarrollador está limitada al <strong>monto total pagado</strong> por el cliente (S/ 1,200.00). No se aceptan reclamaciones por daños indirectos, lucro cesante o pérdidas de negocio.</p>
+
+<div class="separador"></div>
+
+<h3>11. RESOLUCIÓN Y TERMINACIÓN DEL CONTRATO</h3>
+
+<h4>11.1 CAUSAS DE TERMINACIÓN:</h4>
+
+<p><strong>Por incumplimiento del cliente:</strong></p>
+<ul>
+<li>Falta de pago después de 15 días de vencimiento</li>
+<li>No proporcionar información necesaria después de 30 días de solicitada</li>
+<li>Modificación no autorizada del código durante desarrollo</li>
+<li>Conducta inapropiada o abusiva hacia el desarrollador</li>
+</ul>
+
+<p><strong>Por incumplimiento del desarrollador:</strong></p>
+<ul>
+<li>No entregar el proyecto en plazo acordado sin justificación (+ 30 días)</li>
+<li>Entrega de un producto que no cumple con el alcance mínimo</li>
+<li>Negligencia grave en el desarrollo</li>
+</ul>
+
+<p><strong>Por mutuo acuerdo:</strong></p>
+<ul>
+<li>Ambas partes deciden terminar el contrato por escrito</li>
+<li>Se liquidan pagos pendientes según avance</li>
+</ul>
+
+<h4>11.2 CONSECUENCIAS DE TERMINACIÓN ANTICIPADA:</h4>
+
+<p><strong>Si termina el CLIENTE (sin causa justificada):</strong></p>
+<ul>
+<li><span class="cross">✗</span> No se reembolsa el adelanto pagado</li>
+<li><span class="check">✓</span> Se entrega todo el trabajo realizado hasta la fecha</li>
+<li><span class="check">✓</span> El cliente paga el % correspondiente al avance (si aplica)</li>
+<li><span class="check">✓</span> No se entrega documentación completa (solo código actual)</li>
+</ul>
+
+<p><strong>Si termina el DESARROLLADOR (sin causa justificada):</strong></p>
+<ul>
+<li><span class="check">✓</span> Se reembolsa el 100% del adelanto</li>
+<li><span class="check">✓</span> Se entrega todo el trabajo realizado</li>
+<li><span class="check">✓</span> Se transfieren accesos parciales</li>
+</ul>
+
+<p><strong>Si hay causa justificada (de cualquiera):</strong></p>
+<ul>
+<li>Se evalúa caso por caso según el avance real</li>
+<li>Puede existir penalidad según la gravedad</li>
+<li>Se busca acuerdo justo para ambas partes</li>
+</ul>
+
+<div class="separador"></div>
+
+<h3>12. MODIFICACIONES AL CONTRATO</h3>
+
+<h4>12.1 CAMBIOS EN ALCANCE:</h4>
+
+<p>Cualquier cambio en el alcance del proyecto debe:</p>
+<ul>
+<li><span class="check">✓</span> Ser solicitado por escrito (email o WhatsApp)</li>
+<li><span class="check">✓</span> Ser evaluado y cotizado por el desarrollador</li>
+<li><span class="check">✓</span> Ser aprobado por ambas partes</li>
+<li><span class="check">✓</span> Generar un adendum a este contrato</li>
+<li><span class="check">✓</span> Puede ajustar precios y plazos</li>
+</ul>
+
+<h4>12.2 PROCESO DE CAMBIOS:</h4>
+
+<ol>
+<li>Cliente solicita cambio por escrito</li>
+<li>Desarrollador evalúa: impacto en tiempo y costo</li>
+<li>Desarrollador envía cotización del cambio</li>
+<li>Cliente aprueba o rechaza</li>
+<li>Si aprueba: se firma adendum y se procede</li>
+<li>Si rechaza: se continúa con alcance original</li>
+</ol>
+
+<div class="separador"></div>
+
+<h3>13. TÉRMINOS Y CONDICIONES GENERALES</h3>
+
+<h4>13.1 VIGENCIA:</h4>
+<ul>
+<li><span class="check">✓</span> Este contrato entra en vigencia desde la fecha de firma</li>
+<li><span class="check">✓</span> La validez de la cotización es de 15 días hábiles desde la fecha de emisión</li>
+<li><span class="check">✓</span> Después de 15 días, precios y plazos pueden ser reajustados</li>
+</ul>
+
+<h4>13.2 COMUNICACIÓN:</h4>
+<ul>
+<li><span class="check">✓</span> Toda comunicación oficial debe ser por email o WhatsApp</li>
+<li><span class="check">✓</span> Las llamadas telefónicas deben ser confirmadas por escrito</li>
+<li><span class="check">✓</span> Cambios o acuerdos verbales no tienen validez legal</li>
+<li><span class="check">✓</span> El desarrollador responde emails en máximo 48 horas hábiles</li>
+</ul>
+
+<h4>13.3 LEGISLACIÓN APLICABLE:</h4>
+<ul>
+<li><span class="check">✓</span> Este contrato se rige por las leyes de la República del Perú</li>
+<li><span class="check">✓</span> Jurisdicción: Cortes de Lima, Perú</li>
+<li><span class="check">✓</span> Idioma oficial del contrato: Español</li>
+</ul>
+
+<h4>13.4 RESOLUCIÓN DE CONFLICTOS:</h4>
+
+<p><strong>ETAPA 1 - Negociación directa:</strong></p>
+<ul>
+<li>Intentar resolver por comunicación entre las partes (15 días)</li>
+</ul>
+
+<p><strong>ETAPA 2 - Mediación:</strong></p>
+<ul>
+<li>Acudir a un mediador neutral (si es necesario)</li>
+</ul>
+
+<p><strong>ETAPA 3 - Arbitraje o vía judicial:</strong></p>
+<ul>
+<li>Como último recurso, según lo establecido por ley peruana</li>
+</ul>
+
+<h4>13.5 NOTIFICACIONES:</h4>
+
+<p>Todas las notificaciones deben enviarse a:</p>
+
+<p><strong>Para el Cliente:</strong><br>
+[Email del cliente]<br>
+[Dirección física si aplica]</p>
+
+<p><strong>Para el Desarrollador:</strong><br>
+cristhianmc84@gmail.com<br>
+WhatsApp: +51 955 195 324</p>
+
+<h4>13.6 INDEPENDENCIA CONTRACTUAL:</h4>
+<ul>
+<li><span class="check">✓</span> Este es un contrato de prestación de servicios independiente</li>
+<li><span class="check">✓</span> No existe relación laboral entre las partes</li>
+<li><span class="check">✓</span> El desarrollador trabaja de manera autónoma</li>
+<li><span class="check">✓</span> Cada parte es responsable de sus propios impuestos</li>
+</ul>
+
+<h4>13.7 CESIÓN DE DERECHOS:</h4>
+<ul>
+<li><span class="cross">✗</span> Ninguna parte puede ceder este contrato sin consentimiento escrito de la otra</li>
+<li><span class="cross">✗</span> El desarrollador no puede subcontratar sin autorización</li>
+<li><span class="check">✓</span> Ambas partes deben aprobar cualquier transferencia de obligaciones</li>
+</ul>
+
+<div class="separador"></div>
+
+<h3>14. FIRMAS Y ACEPTACIÓN</h3>
+
+<p>Al firmar este contrato, ambas partes declaran:</p>
+<ul>
+<li>Haber leído y comprendido todos los términos</li>
+<li>Aceptar todas las condiciones establecidas</li>
+<li>Tener capacidad legal para celebrar este contrato</li>
+<li>Que este documento constituye el acuerdo completo entre las partes</li>
+</ul>
+
+<div class="separador"></div>
+
+<div class="firma">
+<div class="firma-box">
+<h4>POR EL CLIENTE:</h4>
+
+<p><strong>Nombre completo:</strong> <span class="linea-firma"></span></p>
+
+<p><strong>DNI/RUC:</strong> <span class="linea-firma"></span></p>
+
+<p><strong>Cargo:</strong> <span class="linea-firma"></span></p>
+
+<p><strong>Firma:</strong></p>
+<div class="linea-firma" style="height: 2cm;"></div>
+
+<p><strong>Fecha:</strong> ____ / ____ / 2026</p>
+</div>
+
+<div class="firma-box">
+<h4>POR EL DESARROLLADOR:</h4>
+
+<p><strong>Nombre completo:</strong> Cristhian Arturo Medina Ccopa</p>
+
+<p><strong>DNI:</strong> <span class="linea-firma"></span></p>
+
+<p><strong>Firma:</strong></p>
+<div class="linea-firma" style="height: 2cm;"></div>
+
+<p><strong>Fecha:</strong> 02 / 01 / 2026</p>
+</div>
+</div>
+
+<div class="separador"></div>
+
+<h3>ANEXOS Y DOCUMENTOS COMPLEMENTARIOS</h3>
+
+<ul>
+<li>📎 ANEXO A: Lista detallada de funcionalidades del sistema</li>
+<li>📎 ANEXO B: Estructura de Google Sheets y campos de base de datos</li>
+<li>📎 ANEXO C: Mockups y diseños aprobados (si aplica)</li>
+<li>📎 ANEXO D: Cronograma detallado de entregas</li>
+<li>📎 ANEXO E: Manual de usuario del panel administrativo</li>
+</ul>
+
+<div class="separador"></div>
+
+<h3>NOTAS IMPORTANTES</h3>
+
+<div class="nota">
+<p><strong>⚠️ HOSTING Y SERVICIOS:</strong></p>
+<ul>
+<li>El sistema usa Netlify (plan gratuito) - SIN COSTO para el cliente</li>
+<li>Google Sheets como base de datos - SIN COSTO (incluido en Gmail gratuito)</li>
+<li>Dominio personalizado: Cliente debe adquirirlo (S/ 80-120/año)</li>
+<li>Cloudflare (CDN): Opcional, configuración incluida si cliente tiene dominio</li>
+</ul>
+</div>
+
+<div class="nota">
+<p><strong>⚠️ LÍMITES TÉCNICOS (PLANES GRATUITOS):</strong></p>
+<ul>
+<li>Netlify: 100GB ancho de banda/mes - Suficiente para ~50,000-100,000 visitas/mes</li>
+<li>Google Sheets API: 500 requests/100 segundos - Suficiente para uso normal</li>
+<li>Si se superan, requiere actualizar a planes de pago (costo del cliente)</li>
+</ul>
+</div>
+
+<div class="nota">
+<p><strong>⚠️ RECOMENDACIONES:</strong></p>
+<ul>
+<li>Realizar backup manual de Google Sheets semanalmente</li>
+<li>Cambiar contraseña del panel admin cada 3 meses</li>
+<li>Revisar inscripciones diariamente durante temporada alta</li>
+<li>Mantener registro de cambios realizados al sistema</li>
+</ul>
+</div>
+
+<div class="separador"></div>
+
+<p style="text-align: center; margin-top: 2cm; font-size: 10pt; color: #666;">
+<strong>VERSIÓN DEL CONTRATO:</strong> 1.0<br>
+<strong>FECHA DE ELABORACIÓN:</strong> 02 de enero de 2026<br>
+<strong>ELABORADO POR:</strong> Cristhian Arturo Medina Ccopa<br><br>
+<em>Este contrato ha sido redactado según las mejores prácticas del desarrollo web en Perú y se ajusta a la Ley N° 29733 de Protección de Datos Personales, Código Civil Peruano y normativas aplicables al comercio electrónico y servicios digitales.</em>
+</p>
+
+<p style="text-align: center; margin-top: 1cm; font-size: 10pt;">
+<strong>📧 Para consultas sobre este contrato:</strong><br>
+Email: cristhianmc84@gmail.com<br>
+WhatsApp: +51 955 195 324
+</p>
+
+</body>
+</html>

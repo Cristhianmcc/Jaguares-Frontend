@@ -265,6 +265,84 @@
                         </div>
                     </div>
 
+                    <!-- SECCIÓN DE DOCUMENTOS -->
+                    <div class="flex flex-col gap-8 p-6 bg-blue-50 dark:bg-blue-900/10 rounded-xl border border-blue-200 dark:border-blue-900/30">
+                        <div class="flex items-center gap-2 text-blue-800 dark:text-blue-500">
+                            <span class="material-symbols-outlined">upload_file</span>
+                            <p class="text-sm font-bold uppercase">Documentos Requeridos</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <!-- DNI Frontal -->
+                            <div class="flex flex-col gap-3">
+                                <label class="text-text-main dark:text-gray-300 text-xs font-bold uppercase tracking-wider">
+                                    DNI Frontal <span class="text-red-500">*</span>
+                                </label>
+                                <div class="relative">
+                                    <input type="file" id="dni_frontal" name="dni_frontal" accept="image/*" class="hidden" required/>
+                                    <button type="button" onclick="document.getElementById('dni_frontal').click()" class="w-full h-32 flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-700 hover:border-primary transition-all bg-white dark:bg-[#252525] cursor-pointer group">
+                                        <span class="material-symbols-outlined text-4xl text-gray-400 group-hover:text-primary transition-colors">add_photo_alternate</span>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400 font-semibold">Subir imagen</span>
+                                    </button>
+                                </div>
+                                <div id="preview_dni_frontal" class="hidden">
+                                    <img class="w-full h-32 object-cover rounded-lg border border-gray-300 dark:border-gray-700"/>
+                                    <p class="text-xs text-green-600 dark:text-green-400 mt-2 flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-sm">check_circle</span>
+                                        <span>Imagen cargada</span>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- DNI Reverso -->
+                            <div class="flex flex-col gap-3">
+                                <label class="text-text-main dark:text-gray-300 text-xs font-bold uppercase tracking-wider">
+                                    DNI Reverso <span class="text-red-500">*</span>
+                                </label>
+                                <div class="relative">
+                                    <input type="file" id="dni_reverso" name="dni_reverso" accept="image/*" class="hidden" required/>
+                                    <button type="button" onclick="document.getElementById('dni_reverso').click()" class="w-full h-32 flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-700 hover:border-primary transition-all bg-white dark:bg-[#252525] cursor-pointer group">
+                                        <span class="material-symbols-outlined text-4xl text-gray-400 group-hover:text-primary transition-colors">add_photo_alternate</span>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400 font-semibold">Subir imagen</span>
+                                    </button>
+                                </div>
+                                <div id="preview_dni_reverso" class="hidden">
+                                    <img class="w-full h-32 object-cover rounded-lg border border-gray-300 dark:border-gray-700"/>
+                                    <p class="text-xs text-green-600 dark:text-green-400 mt-2 flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-sm">check_circle</span>
+                                        <span>Imagen cargada</span>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Foto Carnet -->
+                            <div class="flex flex-col gap-3">
+                                <label class="text-text-main dark:text-gray-300 text-xs font-bold uppercase tracking-wider">
+                                    Foto Carnet <span class="text-red-500">*</span>
+                                </label>
+                                <div class="relative">
+                                    <input type="file" id="foto_carnet" name="foto_carnet" accept="image/*" class="hidden" required/>
+                                    <button type="button" onclick="document.getElementById('foto_carnet').click()" class="w-full h-32 flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-700 hover:border-primary transition-all bg-white dark:bg-[#252525] cursor-pointer group">
+                                        <span class="material-symbols-outlined text-4xl text-gray-400 group-hover:text-primary transition-colors">add_photo_alternate</span>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400 font-semibold">Subir imagen</span>
+                                    </button>
+                                </div>
+                                <div id="preview_foto_carnet" class="hidden">
+                                    <img class="w-full h-32 object-cover rounded-lg border border-gray-300 dark:border-gray-700"/>
+                                    <p class="text-xs text-green-600 dark:text-green-400 mt-2 flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-sm">check_circle</span>
+                                        <span>Imagen cargada</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p class="text-xs text-text-muted dark:text-gray-400">
+                            <span class="material-symbols-outlined text-sm align-middle">info</span>
+                            Las imágenes deben ser claras y legibles. Formatos aceptados: JPG, PNG. Tamaño máximo: 5MB por imagen.
+                        </p>
+                    </div>
+
                     <div class="flex justify-between items-center pt-6 border-t border-gray-200 dark:border-gray-800">
                         <button type="button" onclick="window.location.href='index.html'" class="flex items-center gap-2 px-6 py-3 rounded-lg border border-gray-300 dark:border-gray-700 text-text-main dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800 transition-all">
                             <span class="material-symbols-outlined">arrow_back</span>

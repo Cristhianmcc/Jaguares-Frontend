@@ -266,6 +266,43 @@ function renderizarExito(codigo, datosInscripcion) {
                         </div>
                     </div>
                     
+                    <!-- SECCIÓN PARA SUBIR COMPROBANTE -->
+                    <div class="w-full border-t border-gray-200 dark:border-white/10 pt-4 mt-2">
+                        <div class="bg-blue-50 dark:bg-blue-900/10 rounded-xl p-4 mb-3">
+                            <div class="flex items-start gap-2">
+                                <span class="material-symbols-outlined text-blue-600 dark:text-blue-400 text-lg flex-shrink-0 mt-0.5">upload_file</span>
+                                <div>
+                                    <p class="text-xs font-bold text-blue-900 dark:text-blue-200 mb-1">¿Ya realizaste el pago?</p>
+                                    <p class="text-[10px] text-blue-700 dark:text-blue-300">Sube tu captura de pantalla aquí para acelerar la validación</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Input de archivo (oculto) -->
+                        <input type="file" id="inputCapturaPago" accept="image/*" class="hidden" onchange="handleCapturaPago(event)">
+                        
+                        <!-- Botón para subir captura -->
+                        <button id="btnSubirCaptura" onclick="document.getElementById('inputCapturaPago').click()" class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl font-bold text-sm transition-all shadow-lg hover:scale-[1.02]">
+                            <span class="material-symbols-outlined text-xl">add_photo_alternate</span>
+                            <span>Subir Captura de Pago</span>
+                        </button>
+                        
+                        <!-- Preview de la imagen subida -->
+                        <div id="previewCaptura" class="hidden mt-3 bg-white dark:bg-white/5 rounded-xl p-3 border border-gray-200 dark:border-white/10">
+                            <div class="flex items-center justify-between mb-2">
+                                <p class="text-xs font-bold text-text-main dark:text-white flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-green-600 text-base">check_circle</span>
+                                    Captura cargada
+                                </p>
+                                <button onclick="eliminarCaptura()" class="text-red-600 hover:text-red-700 text-xs font-bold">
+                                    <span class="material-symbols-outlined text-base">delete</span>
+                                </button>
+                            </div>
+                            <img id="imagenPreview" src="" alt="Preview" class="w-full max-h-40 object-contain rounded-lg">
+                            <p class="text-[10px] text-text-main/50 dark:text-white/50 mt-2 text-center" id="nombreArchivo"></p>
+                        </div>
+                    </div>
+
                     <!-- BOTONES -->
                     <div class="grid grid-cols-2 gap-2 sm:gap-3 w-full">
                         <button id="modalDescargar" onclick="" class="flex items-center justify-center gap-1 sm:gap-2 px-3 sm:px-6 py-2.5 sm:py-3 bg-primary hover:bg-primary-dark text-white rounded-lg sm:rounded-xl font-bold text-xs sm:text-sm transition-all shadow-lg hover:scale-[1.02]">
@@ -481,3 +518,156 @@ document.addEventListener('keydown', (e) => {
         cerrarModalQR();
     }
 });
+
+// Variable global para almacenar la captura
+let capturaSeleccionada = null;
+
+/**
+ * Manejar la selección de archivo de captura
+ */
+function handleCapturaPago(event) {
+    const file = event.target.files[0];
+    
+    if (!file) return;
+    
+    // Validar que sea una imagen
+    if (!file.type.startsWith('image/')) {
+        Utils.mostrarNotificacion('Por favor selecciona una imagen válida', 'error');
+        return;
+    }
+    
+    // Validar tamaño (máximo 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+        Utils.mostrarNotificacion('La imagen no debe superar 5MB', 'error');
+        return;
+    }
+    
+    // Leer archivo y convertir a Base64
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        capturaSeleccionada = {
+            nombre: file.name,
+            tipo: file.type,
+            base64: e.target.result
+        };
+        
+        mostrarPreviewCaptura(e.target.result, file.name);
+        
+        // Intentar subir automáticamente
+        subirCapturaAlServidor();
+    };
+    
+    reader.onerror = function() {
+        Utils.mostrarNotificacion('Error al leer la imagen', 'error');
+    };
+    
+    reader.readAsDataURL(file);
+}
+
+/**
+ * Mostrar preview de la captura seleccionada
+ */
+function mostrarPreviewCaptura(base64, nombreArchivo) {
+    const preview = document.getElementById('previewCaptura');
+    const imagen = document.getElementById('imagenPreview');
+    const nombre = document.getElementById('nombreArchivo');
+    const btnSubir = document.getElementById('btnSubirCaptura');
+    
+    if (preview && imagen && nombre) {
+        imagen.src = base64;
+        nombre.textContent = nombreArchivo;
+        preview.classList.remove('hidden');
+        
+        // Cambiar texto del botón
+        btnSubir.innerHTML = `
+            <span class="material-symbols-outlined text-xl">check_circle</span>
+            <span>Captura Agregada</span>
+        `;
+        btnSubir.classList.remove('from-blue-600', 'to-blue-700');
+        btnSubir.classList.add('from-green-600', 'to-green-700');
+    }
+}
+
+/**
+ * Eliminar captura seleccionada
+ */
+function eliminarCaptura() {
+    capturaSeleccionada = null;
+    
+    const preview = document.getElementById('previewCaptura');
+    const input = document.getElementById('inputCapturaPago');
+    const btnSubir = document.getElementById('btnSubirCaptura');
+    
+    if (preview) preview.classList.add('hidden');
+    if (input) input.value = '';
+    
+    // Restaurar botón original
+    if (btnSubir) {
+        btnSubir.innerHTML = `
+            <span class="material-symbols-outlined text-xl">add_photo_alternate</span>
+            <span>Subir Captura de Pago</span>
+        `;
+        btnSubir.classList.remove('from-green-600', 'to-green-700');
+        btnSubir.classList.add('from-blue-600', 'to-blue-700');
+    }
+}
+
+/**
+ * Subir captura al servidor (Google Drive vía Apps Script)
+ */
+async function subirCapturaAlServidor() {
+    if (!capturaSeleccionada) return;
+    
+    const ultimaInscripcion = LocalStorage.get('ultimaInscripcion');
+    
+    if (!ultimaInscripcion || !ultimaInscripcion.codigo) {
+        Utils.mostrarNotificacion('No se encontró información de inscripción', 'error');
+        return;
+    }
+    
+    try {
+        // Mostrar loading
+        const btnSubir = document.getElementById('btnSubirCaptura');
+        const textoOriginal = btnSubir.innerHTML;
+        btnSubir.disabled = true;
+        btnSubir.innerHTML = `
+            <div class="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
+            <span>Subiendo...</span>
+        `;
+        
+        // Enviar al servidor
+        const resultado = await academiaAPI.subirComprobante({
+            codigo_operacion: ultimaInscripcion.codigo,
+            dni: ultimaInscripcion.dni,
+            alumno: ultimaInscripcion.alumno,
+            imagen: capturaSeleccionada.base64,
+            nombre_archivo: capturaSeleccionada.nombre
+        });
+        
+        if (resultado.success) {
+            Utils.mostrarNotificacion('✅ Comprobante subido correctamente', 'success');
+            
+            // Actualizar botón con éxito
+            btnSubir.innerHTML = `
+                <span class="material-symbols-outlined text-xl">cloud_done</span>
+                <span>Comprobante Guardado</span>
+            `;
+            btnSubir.classList.remove('from-blue-600', 'to-blue-700', 'from-green-600', 'to-green-700');
+            btnSubir.classList.add('from-emerald-600', 'to-emerald-700');
+        } else {
+            throw new Error(resultado.error || 'Error al subir comprobante');
+        }
+        
+    } catch (error) {
+        console.error('Error al subir captura:', error);
+        Utils.mostrarNotificacion(`Error: ${error.message}`, 'error');
+        
+        // Restaurar botón
+        const btnSubir = document.getElementById('btnSubirCaptura');
+        btnSubir.disabled = false;
+        btnSubir.innerHTML = `
+            <span class="material-symbols-outlined text-xl">check_circle</span>
+            <span>Captura Agregada</span>
+        `;
+    }
+}
