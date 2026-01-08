@@ -5,6 +5,90 @@
 let inscritosData = [];
 let dniAEliminar = null;
 
+/**
+ * Convierte URLs de Google Drive al formato de thumbnail/visualización
+ */
+function convertirURLDrive(url) {
+    if (!url) return '';
+    
+    console.log('🔄 Convirtiendo URL:', url);
+    
+    // Si ya es una URL de thumbnail, devolverla tal cual
+    if (url.includes('thumbnail?id=')) {
+        return url;
+    }
+    
+    // Extraer fileId de URLs de Drive
+    let fileId = null;
+    
+    // Formato: https://drive.google.com/uc?export=view&id=FILEID
+    if (url.includes('uc?export=view&id=') || url.includes('uc?id=')) {
+        const match = url.match(/[?&]id=([^&]+)/);
+        if (match) fileId = match[1];
+    }
+    
+    // Formato: https://drive.google.com/file/d/FILEID/view
+    if (url.includes('/file/d/')) {
+        const match = url.match(/\/file\/d\/([^\/\?]+)/);
+        if (match) fileId = match[1];
+    }
+    
+    // Formato: https://drive.google.com/open?id=FILEID
+    if (!fileId && url.includes('open?id=')) {
+        const match = url.match(/[?&]id=([^&]+)/);
+        if (match) fileId = match[1];
+    }
+    
+    // Si encontramos el fileId, devolver URL de thumbnail para visualización directa
+    if (fileId) {
+        // Usar formato thumbnail que funciona mejor para <img src="">
+        const urlConvertida = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
+        console.log('✅ URL convertida:', urlConvertida);
+        return urlConvertida;
+    }
+    
+    // Si no pudimos convertir, devolver la URL original
+    console.log('⚠️ No se pudo convertir, usando URL original');
+    return url;
+}
+
+/**
+ * Convierte URLs de Google Drive al formato de visualización estándar /file/d/ID/view
+ * Para usar en onclick y enlaces que abren en nueva pestaña
+ */
+function convertirURLDriveView(url) {
+    if (!url) return '';
+    
+    // Extraer fileId de URLs de Drive
+    let fileId = null;
+    
+    // Formato: https://drive.google.com/uc?export=view&id=FILEID
+    if (url.includes('uc?export=view&id=') || url.includes('uc?id=')) {
+        const match = url.match(/[?&]id=([^&]+)/);
+        if (match) fileId = match[1];
+    }
+    
+    // Formato: https://drive.google.com/file/d/FILEID/view
+    if (!fileId && url.includes('/file/d/')) {
+        const match = url.match(/\/file\/d\/([^\/\?]+)/);
+        if (match) fileId = match[1];
+    }
+    
+    // Formato: https://drive.google.com/open?id=FILEID
+    if (!fileId && url.includes('open?id=')) {
+        const match = url.match(/[?&]id=([^&]+)/);
+        if (match) fileId = match[1];
+    }
+    
+    // Si encontramos el fileId, devolver URL de visualización estándar
+    if (fileId) {
+        return `https://drive.google.com/file/d/${fileId}/view`;
+    }
+    
+    // Si no pudimos convertir, devolver la URL original
+    return url;
+}
+
 // Verificar autenticación al cargar
 document.addEventListener('DOMContentLoaded', () => {
     verificarSesion();
@@ -99,11 +183,20 @@ async function cargarInscritos(dia = null, deporte = null) {
         if (dia) params.append('dia', dia);
         if (deporte) params.append('deporte', deporte);
         
+        // ✅ Agregar timestamp para forzar actualización
+        params.append('t', new Date().getTime());
+        
         if (params.toString()) {
             url += '?' + params.toString();
         }
         
-        const response = await fetch(url);
+        const response = await fetch(url, {
+            cache: 'no-store', // Forzar no usar caché del navegador
+            headers: {
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache'
+            }
+        });
         const data = await response.json();
         
         if (data.success) {
@@ -305,7 +398,15 @@ async function buscarPorDNI(dni) {
             ? 'http://localhost:3002'
             : 'https://jaguares-backend.onrender.com';
         
-        const response = await fetch(`${API_BASE}/api/consultar/${dni}`);
+        // ✅ Agregar timestamp para evitar caché y forzar actualización
+        const timestamp = new Date().getTime();
+        const response = await fetch(`${API_BASE}/api/consultar/${dni}?t=${timestamp}`, {
+            cache: 'no-store', // Forzar no usar caché del navegador
+            headers: {
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache'
+            }
+        });
         const data = await response.json();
         
         console.log('📊 Respuesta completa del backend:', data);
@@ -329,7 +430,15 @@ async function buscarPorDNI(dni) {
 
 // Función para mostrar detalle del usuario
 function mostrarDetalleUsuario(data) {
-    console.log('👤 Datos alumno completos:', data.alumno);
+    console.log('========== DEBUG COMPLETO ==========');
+    console.log('👤 Objeto data completo:', JSON.stringify(data, null, 2));
+    console.log('👤 data.alumno:', data.alumno);
+    console.log('📄 URL DNI Frontal:', data.alumno.url_dni_frontal);
+    console.log('📄 URL DNI Reverso:', data.alumno.url_dni_reverso);
+    console.log('📸 URL Foto Carnet:', data.alumno.url_foto_carnet);
+    console.log('📄 Tipo de url_dni_frontal:', typeof data.alumno.url_dni_frontal);
+    console.log('📄 Longitud url_dni_frontal:', data.alumno.url_dni_frontal ? data.alumno.url_dni_frontal.length : 0);
+    console.log('====================================');
     
     // Datos personales
     document.getElementById('detalleDNI').textContent = data.alumno.dni;
@@ -357,60 +466,125 @@ function mostrarDetalleUsuario(data) {
     const estadoColor = estadoPago === 'confirmado' ? 'text-green-600' : 'text-yellow-600';
     document.getElementById('detalleEstadoPago').innerHTML = `<span class="${estadoColor}">${estadoTexto}</span>`;
     
-    // Comprobante de pago (si existe)
-    const comprobanteContainer = document.getElementById('detalleComprobante');
-    if (comprobanteContainer) {
+    // Generar grid 2x2 con todas las imágenes (Comprobante + 3 Documentos)
+    const seccionImagenes = document.getElementById('seccionImagenes');
+    if (seccionImagenes) {
+        let imagenesHTML = '';
+        
+        // 1. Comprobante de Pago
         if (data.pago.url_comprobante) {
-            console.log('📸 URL Comprobante original:', data.pago.url_comprobante);
-            
-            // Convertir URL de Drive si es necesario
-            let urlImagen = data.pago.url_comprobante;
-            if (urlImagen.includes('/file/d/')) {
-                const match = urlImagen.match(/\/file\/d\/([^\/]+)/);
-                if (match) {
-                    const fileId = match[1];
-                    // Probar con thumbnail primero, luego con uc
-                    urlImagen = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
-                    console.log('✅ URL convertida (thumbnail):', urlImagen);
-                }
-            }
-            
-            comprobanteContainer.innerHTML = `
-                <div class="bg-blue-50 dark:bg-blue-900/10 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
-                    <div class="flex items-center justify-between mb-3">
-                        <div class="flex items-center gap-2">
-                            <span class="material-symbols-outlined text-blue-600 dark:text-blue-400">receipt_long</span>
-                            <p class="font-bold text-sm text-blue-900 dark:text-blue-200">Comprobante de Pago</p>
-                        </div>
-                        <a href="${data.pago.url_comprobante}" target="_blank" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-all flex items-center gap-1">
-                            <span class="material-symbols-outlined text-sm">open_in_new</span>
-                            Ver original
-                        </a>
-                    </div>
-                    <div class="bg-white dark:bg-gray-800 rounded-lg p-2 overflow-auto" style="max-height: 80vh;">
-                        <img src="${urlImagen}" 
-                             alt="Comprobante" 
-                             class="w-full h-auto rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
-                             onclick="window.open('${data.pago.url_comprobante}', '_blank')"
-                             onerror="console.error('❌ Error cargando imagen desde:', this.src); this.src='https://via.placeholder.com/400x600/e3f2fd/1976d2?text=Error+al+cargar+imagen'; this.onclick=null;">
-                    </div>
-                    <p class="text-xs text-blue-700 dark:text-blue-300 mt-2 text-center">
-                        <span class="material-symbols-outlined text-xs align-middle">touch_app</span>
-                        Haz clic en la imagen para verla en nueva pestaña
+            const urlComprobante = convertirURLDrive(data.pago.url_comprobante);
+            const urlComprobanteView = convertirURLDriveView(data.pago.url_comprobante);
+            imagenesHTML += `
+                <div class="bg-blue-50 dark:bg-blue-900/10 rounded-lg p-3 border border-blue-200 dark:border-blue-800">
+                    <p class="text-xs font-bold text-blue-900 dark:text-blue-200 mb-2 flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">receipt_long</span>
+                        Comprobante de Pago
                     </p>
+                    <div class="w-full overflow-hidden rounded-lg border border-blue-200 dark:border-blue-700 bg-white dark:bg-gray-800" style="height: 220px;">
+                        <img src="${urlComprobante}" 
+                             alt="Comprobante" 
+                             class="w-full h-full cursor-pointer hover:opacity-90 transition-opacity" style="object-fit: contain;"
+                             onclick="window.open('${urlComprobanteView}', '_blank')"
+                             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22600%22%3E%3Crect fill=%22%23e3f2fd%22 width=%22400%22 height=%22600%22/%3E%3Ctext fill=%22%231976d2%22 x=%2250%25%22 y=%2250%25%22 font-family=%22Arial%22 font-size=%2218%22 text-anchor=%22middle%22 dy=%22.3em%22%3ESin comprobante%3C/text%3E%3C/svg%3E';">
+                    </div>
+                    <a href="${urlComprobanteView}" target="_blank" class="block text-xs text-center text-blue-600 hover:text-blue-700 mt-2">
+                        <span class="material-symbols-outlined text-xs">open_in_new</span> Abrir en Drive
+                    </a>
                 </div>
             `;
-        } else {
-            comprobanteContainer.innerHTML = `
-                <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
-                    <div class="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-                        <span class="material-symbols-outlined">image_not_supported</span>
-                        <p class="text-sm">No se ha subido comprobante</p>
+        }
+        
+        // 2. DNI Frontal
+        if (data.alumno.url_dni_frontal) {
+            const urlDNIFrontal = convertirURLDrive(data.alumno.url_dni_frontal);
+            const urlDNIFrontalView = convertirURLDriveView(data.alumno.url_dni_frontal);
+            imagenesHTML += `
+                <div class="bg-green-50 dark:bg-green-900/10 rounded-lg p-3 border border-green-200 dark:border-green-800">
+                    <p class="text-xs font-bold text-green-900 dark:text-green-200 mb-2 flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">credit_card</span>
+                        DNI Frontal
+                    </p>
+                    <div class="w-full overflow-hidden rounded-lg border border-green-200 dark:border-green-700 bg-white dark:bg-gray-800" style="height: 220px;">
+                        <img src="${urlDNIFrontal}" 
+                             alt="DNI Frontal" 
+                             class="w-full h-full cursor-pointer hover:opacity-90 transition-opacity" style="object-fit: contain;"
+                             onclick="window.open('${urlDNIFrontalView}', '_blank')"
+                             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22250%22%3E%3Crect fill=%22%23dcfce7%22 width=%22400%22 height=%22250%22/%3E%3Ctext fill=%22%2316a34a%22 x=%2250%25%22 y=%2250%25%22 font-family=%22Arial%22 font-size=%2216%22 text-anchor=%22middle%22 dy=%22.3em%22%3ESin DNI frontal%3C/text%3E%3C/svg%3E';">
                     </div>
+                    <a href="${urlDNIFrontalView}" target="_blank" class="block text-xs text-center text-green-600 hover:text-green-700 mt-2">
+                        <span class="material-symbols-outlined text-xs">open_in_new</span> Abrir en Drive
+                    </a>
+                </div>
+            `;
+        }
+        
+        // 3. DNI Reverso
+        if (data.alumno.url_dni_reverso) {
+            const urlDNIReverso = convertirURLDrive(data.alumno.url_dni_reverso);
+            const urlDNIReversoView = convertirURLDriveView(data.alumno.url_dni_reverso);
+            imagenesHTML += `
+                <div class="bg-green-50 dark:bg-green-900/10 rounded-lg p-3 border border-green-200 dark:border-green-800">
+                    <p class="text-xs font-bold text-green-900 dark:text-green-200 mb-2 flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">credit_card</span>
+                        DNI Reverso
+                    </p>
+                    <div class="w-full overflow-hidden rounded-lg border border-green-200 dark:border-green-700 bg-white dark:bg-gray-800" style="height: 220px;">
+                        <img src="${urlDNIReverso}" 
+                             alt="DNI Reverso" 
+                             class="w-full h-full cursor-pointer hover:opacity-90 transition-opacity" style="object-fit: contain;"
+                             onclick="window.open('${urlDNIReversoView}', '_blank')"
+                             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22250%22%3E%3Crect fill=%22%23dcfce7%22 width=%22400%22 height=%22250%22/%3E%3Ctext fill=%22%2316a34a%22 x=%2250%25%22 y=%2250%25%22 font-family=%22Arial%22 font-size=%2216%22 text-anchor=%22middle%22 dy=%22.3em%22%3ESin DNI reverso%3C/text%3E%3C/svg%3E';">
+                    </div>
+                    <a href="${urlDNIReversoView}" target="_blank" class="block text-xs text-center text-green-600 hover:text-green-700 mt-2">
+                        <span class="material-symbols-outlined text-xs">open_in_new</span> Abrir en Drive
+                    </a>
+                </div>
+            `;
+        }
+        
+        // 4. Foto Carnet
+        if (data.alumno.url_foto_carnet) {
+            const urlFotoCarnet = convertirURLDrive(data.alumno.url_foto_carnet);
+            const urlFotoCarnetView = convertirURLDriveView(data.alumno.url_foto_carnet);
+            imagenesHTML += `
+                <div class="bg-green-50 dark:bg-green-900/10 rounded-lg p-3 border border-green-200 dark:border-green-800">
+                    <p class="text-xs font-bold text-green-900 dark:text-green-200 mb-2 flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">portrait</span>
+                        Foto Tamaño Carnet
+                    </p>
+                    <div class="w-full overflow-hidden rounded-lg border border-green-200 dark:border-green-700 bg-white dark:bg-gray-800" style="height: 220px;">
+                        <img src="${urlFotoCarnet}" 
+                             alt="Foto Carnet" 
+                             class="w-full h-full cursor-pointer hover:opacity-90 transition-opacity" style="object-fit: contain;"
+                             onclick="window.open('${urlFotoCarnetView}', '_blank')"
+                             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22500%22%3E%3Crect fill=%22%23dcfce7%22 width=%22400%22 height=%22500%22/%3E%3Ctext fill=%22%2316a34a%22 x=%2250%25%22 y=%2250%25%22 font-family=%22Arial%22 font-size=%2216%22 text-anchor=%22middle%22 dy=%22.3em%22%3ESin foto carnet%3C/text%3E%3C/svg%3E';">
+                    </div>
+                    <a href="${urlFotoCarnetView}" target="_blank" class="block text-xs text-center text-green-600 hover:text-green-700 mt-2">
+                        <span class="material-symbols-outlined text-xs">open_in_new</span> Abrir en Drive
+                    </a>
+                </div>
+            `;
+        }
+        
+        if (imagenesHTML) {
+            seccionImagenes.innerHTML = imagenesHTML;
+        } else {
+            seccionImagenes.innerHTML = `
+                <div class="col-span-2 bg-gray-50 dark:bg-gray-900 rounded-lg p-6 border border-gray-200 dark:border-gray-700 text-center">
+                    <span class="material-symbols-outlined text-gray-400 text-4xl">image_not_supported</span>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">No se han subido documentos</p>
                 </div>
             `;
         }
     }
+    
+    // ✅ Eliminar las secciones antiguas de comprobante y documentos separadas (si existen)
+    const comprobanteContainer = document.getElementById('detalleComprobante');
+    if (comprobanteContainer) comprobanteContainer.remove();
+    
+    const documentosContainer = document.getElementById('detalleDocumentos');
+    if (documentosContainer) documentosContainer.remove();
     
     // Renderizar horarios
     const horariosContainer = document.getElementById('detalleHorarios');

@@ -47,6 +47,21 @@ async function consultarPorDNI(dni) {
         const resultado = await academiaAPI.consultarInscripcion(dni);
         
         if (resultado.success) {
+            // ✅ VALIDACIÓN: Verificar que el pago esté confirmado
+            const estadoPago = resultado.pago.estado ? resultado.pago.estado.toLowerCase().trim() : '';
+            
+            if (estadoPago !== 'confirmado' && estadoPago !== 'activo') {
+                // Pago no confirmado - mostrar mensaje y no permitir acceso
+                mostrarPagoNoConfirmado(resultado.pago);
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = `
+                    <span>Consultar Estado</span>
+                    <span class="material-symbols-outlined">search</span>
+                `;
+                return;
+            }
+            
+            // Pago confirmado - permitir acceso
             datosUsuario = resultado; // El resultado ya contiene alumno, pago, horarios
             mostrarResultados();
         } else {
@@ -105,6 +120,111 @@ function mostrarResultados() {
     
     // Renderizar horarios
     renderizarHorarios();
+}
+
+/**
+ * Mostrar mensaje cuando el pago no está confirmado
+ */
+function mostrarPagoNoConfirmado(datosPago) {
+    const vistaIngreso = document.getElementById('vistaIngreso');
+    
+    // Crear HTML del mensaje (sin ocultarlo del DOM, solo reemplazamos el contenido)
+    vistaIngreso.innerHTML = `
+        <div class="w-full max-w-[600px] flex flex-col gap-8">
+            <!-- Icono y título -->
+            <div class="flex flex-col gap-6 text-center">
+                <div class="flex justify-center">
+                    <div class="size-20 rounded-full bg-yellow-500/10 flex items-center justify-center text-yellow-600 border-2 border-yellow-500/30">
+                        <span class="material-symbols-outlined text-[48px]">pending</span>
+                    </div>
+                </div>
+                <div>
+                    <h1 class="text-black dark:text-white text-4xl md:text-5xl font-black italic uppercase tracking-tight mb-3">
+                        Pago <span class="text-yellow-600">Pendiente</span>
+                    </h1>
+                    <p class="text-text-muted dark:text-gray-400 text-lg font-medium">
+                        Tu inscripción aún no ha sido confirmada
+                    </p>
+                </div>
+            </div>
+
+            <!-- Tarjeta de información -->
+            <div class="bg-surface-light dark:bg-surface-dark rounded-xl p-8 shadow-xl border-l-4 border-yellow-500">
+                <div class="flex items-start gap-4 mb-6">
+                    <div class="size-12 rounded-full bg-yellow-50 dark:bg-yellow-900/10 text-yellow-600 flex items-center justify-center flex-shrink-0">
+                        <span class="material-symbols-outlined text-3xl">info</span>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-xl font-black text-black dark:text-white uppercase mb-2">Estado Actual</h3>
+                        <span class="inline-block px-3 py-1 rounded-full bg-yellow-50 dark:bg-yellow-900/10 text-yellow-600 text-xs font-black uppercase tracking-wider mb-3">
+                            ${datosPago.estado || 'PENDIENTE'}
+                        </span>
+                        <p class="text-text-muted dark:text-gray-400 text-sm leading-relaxed">
+                            Tu inscripción ha sido registrada correctamente, pero el pago aún no ha sido confirmado por nuestro equipo administrativo.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Información del pago -->
+                ${datosPago.codigo_operacion ? `
+                <div class="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 mb-6">
+                    <div class="flex items-center gap-3 mb-3">
+                        <span class="material-symbols-outlined text-primary">confirmation_number</span>
+                        <p class="text-xs text-text-muted dark:text-gray-400 font-bold uppercase">Código de Operación</p>
+                    </div>
+                    <p class="text-lg font-black text-black dark:text-white font-mono">${datosPago.codigo_operacion}</p>
+                </div>
+                ` : ''}
+
+                <!-- Qué hacer -->
+                <div class="bg-blue-50 dark:bg-blue-900/10 rounded-lg p-5 border border-blue-200 dark:border-blue-800">
+                    <div class="flex items-start gap-3">
+                        <span class="material-symbols-outlined text-blue-600 flex-shrink-0">lightbulb</span>
+                        <div>
+                            <h4 class="text-blue-900 dark:text-blue-300 font-bold text-sm uppercase mb-2">¿Qué puedo hacer?</h4>
+                            <ul class="space-y-2 text-text-muted dark:text-gray-400 text-sm">
+                                <li class="flex items-start gap-2">
+                                    <span class="text-primary">•</span>
+                                    <span>Si aún no subiste tu comprobante de pago, hazlo desde el enlace que recibiste al inscribirte.</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-primary">•</span>
+                                    <span>Si ya subiste el comprobante, espera a que el administrador verifique tu pago (puede tomar hasta 24 horas).</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-primary">•</span>
+                                    <span>Una vez confirmado, podrás ver toda tu información de inscripción aquí.</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botones de acción -->
+                <div class="flex flex-col gap-3 mt-6">
+                    ${datosPago.codigo_operacion ? `
+                    <a href="confirmacion.html?codigo=${datosPago.codigo_operacion}" 
+                       class="flex items-center justify-center gap-2 h-12 rounded-lg bg-gradient-to-r from-primary to-primary-dark text-black font-bold text-sm uppercase tracking-wider hover:brightness-110 transition-all shadow-lg shadow-primary/20">
+                        <span class="material-symbols-outlined">upload</span>
+                        <span>Subir Comprobante</span>
+                    </a>
+                    ` : ''}
+                    
+                    <button onclick="location.reload()" 
+                            class="flex items-center justify-center gap-2 h-12 rounded-lg border-2 border-gray-300 dark:border-gray-700 text-text-main dark:text-white font-bold text-sm uppercase tracking-wider hover:bg-gray-100 dark:hover:bg-gray-800 transition-all">
+                        <span class="material-symbols-outlined">refresh</span>
+                        <span>Volver a Consultar</span>
+                    </button>
+                    
+                    <a href="index.html" 
+                       class="text-text-main/60 dark:text-white/60 hover:text-primary dark:hover:text-primary text-sm font-bold flex items-center justify-center gap-2 transition-colors py-2 uppercase tracking-wide">
+                        <span class="material-symbols-outlined text-lg">arrow_back</span>
+                        Volver al Inicio
+                    </a>
+                </div>
+            </div>
+        </div>
+    `;
 }
 
 function renderizarEstado() {

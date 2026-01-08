@@ -728,36 +728,71 @@ function consultarInscripcion(dni) {
   
   if (sheetInscripciones) {
     const dataInscripciones = sheetInscripciones.getDataRange().getValues();
-    for (let i = 1; i < dataInscripciones.length; i++) {
+    
+    // Buscar TODAS las filas con el DNI y quedarnos con la que tenga URLs o la más reciente
+    let filaEncontrada = null;
+    let filaConURLs = null;
+    
+    // Primero buscar la fila que tiene URLs
+    for (let i = dataInscripciones.length - 1; i >= 1; i--) {
       const row = dataInscripciones[i];
       if (row[1] && row[1].toString() === dni.toString()) {
-        // Formatear fecha de nacimiento si existe
-        let fechaNac = '';
-        if (row[4]) {
-          if (row[4] instanceof Date) {
-            fechaNac = Utilities.formatDate(row[4], 'America/Lima', 'dd/MM/yyyy');
-          } else {
-            fechaNac = row[4].toString();
-          }
+        if (!filaEncontrada) {
+          filaEncontrada = row; // Guardar la primera encontrada (más reciente)
+          Logger.log('📍 Fila encontrada para DNI ' + dni + ' en posición: ' + (i + 1));
         }
         
-        datosAlumno = {
-          dni: row[1],                    // B: dni
-          nombres: row[2] || '',          // C: nombres
-          apellidos: row[3] || '',        // D: apellidos
-          fecha_nacimiento: fechaNac,     // E: fecha_nacimiento (formateada)
-          edad: row[5] || '',             // F: edad
-          sexo: row[6] || '',             // G: sexo
-          telefono: row[7] || '',         // H: telefono
-          email: row[8] || '',            // I: email
-          apoderado: row[9] || '',        // J: apoderado (índice 9)
-          direccion: row[10] || '',       // K: direccion (índice 10)
-          seguro_tipo: row[11] || '',     // L: seguro_tipo (índice 11)
-          condicion_medica: row[12] || '', // M: condicion_medica (índice 12)
-          telefono_apoderado: row[13] || '' // N: telefono_apoderado (índice 13)
-        };
-        break; // Encontrado, salir del loop
+        // Si esta fila tiene URLs, usarla
+        if (row[14] || row[15] || row[16]) {
+          filaConURLs = row;
+          Logger.log('✅ Fila con URLs encontrada en posición: ' + (i + 1));
+          Logger.log('   - URL DNI Frontal (col O): ' + row[14]);
+          Logger.log('   - URL DNI Reverso (col P): ' + row[15]);
+          Logger.log('   - URL Foto Carnet (col Q): ' + row[16]);
+          break; // Encontramos fila con URLs, usar esta
+        }
       }
+    }
+    
+    // Usar la fila con URLs si existe, sino usar la más reciente
+    const row = filaConURLs || filaEncontrada;
+    
+    if (row) {
+      // Formatear fecha de nacimiento si existe
+      let fechaNac = '';
+      if (row[4]) {
+        if (row[4] instanceof Date) {
+          fechaNac = Utilities.formatDate(row[4], 'America/Lima', 'dd/MM/yyyy');
+        } else {
+          fechaNac = row[4].toString();
+        }
+      }
+      
+      datosAlumno = {
+        dni: row[1],                    // B: dni
+        nombres: row[2] || '',          // C: nombres
+        apellidos: row[3] || '',        // D: apellidos
+        fecha_nacimiento: fechaNac,     // E: fecha_nacimiento (formateada)
+        edad: row[5] || '',             // F: edad
+        sexo: row[6] || '',             // G: sexo
+        telefono: row[7] || '',         // H: telefono
+        email: row[8] || '',            // I: email
+        apoderado: row[9] || '',        // J: apoderado (índice 9)
+        direccion: row[10] || '',       // K: direccion (índice 10)
+        seguro_tipo: row[11] || '',     // L: seguro_tipo (índice 11)
+        condicion_medica: row[12] || '', // M: condicion_medica (índice 12)
+        telefono_apoderado: row[13] || '', // N: telefono_apoderado (índice 13)
+        url_dni_frontal: row[14] || '',    // O: url_dni_frontal (índice 14)
+        url_dni_reverso: row[15] || '',    // P: url_dni_reverso (índice 15)
+        url_foto_carnet: row[16] || ''     // Q: url_foto_carnet (índice 16)
+      };
+      
+      Logger.log('📋 Datos alumno FINAL enviados:');
+      Logger.log('   - DNI: ' + datosAlumno.dni);
+      Logger.log('   - Nombre: ' + datosAlumno.nombres + ' ' + datosAlumno.apellidos);
+      Logger.log('   - URL DNI Frontal: ' + (datosAlumno.url_dni_frontal || 'NO TIENE'));
+      Logger.log('   - URL DNI Reverso: ' + (datosAlumno.url_dni_reverso || 'NO TIENE'));
+      Logger.log('   - URL Foto Carnet: ' + (datosAlumno.url_foto_carnet || 'NO TIENE'));
     }
   }
   
@@ -909,7 +944,10 @@ function consultarInscripcion(dni) {
       apoderado: datosAlumno.apoderado,
       telefono_apoderado: datosAlumno.telefono_apoderado,
       seguro_tipo: datosAlumno.seguro_tipo,
-      condicion_medica: datosAlumno.condicion_medica
+      condicion_medica: datosAlumno.condicion_medica,
+      url_dni_frontal: datosAlumno.url_dni_frontal || '',
+      url_dni_reverso: datosAlumno.url_dni_reverso || '',
+      url_foto_carnet: datosAlumno.url_foto_carnet || ''
     },
     pago: {
       codigo_operacion: registroPago.codigo_operacion,
