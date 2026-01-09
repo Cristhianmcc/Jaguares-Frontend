@@ -928,6 +928,25 @@ function consultarInscripcion(dni) {
     };
   }
   
+  // Eliminar horarios duplicados
+  // Un horario es único por: dia + deporte + hora_inicio + hora_fin
+  // Normalizar a mayúsculas para evitar duplicados por diferencias de capitalización
+  const horariosUnicos = [];
+  const horariosVistos = new Set();
+  
+  for (let horario of horarios) {
+    const diaUpper = horario.dia.toString().toUpperCase();
+    const deporteUpper = horario.deporte.toString().toUpperCase();
+    const clave = `${diaUpper}-${deporteUpper}-${horario.hora_inicio}-${horario.hora_fin}`;
+    if (!horariosVistos.has(clave)) {
+      horariosVistos.add(clave);
+      horariosUnicos.push(horario);
+    }
+  }
+  
+  Logger.log('📊 Total horarios encontrados: ' + horarios.length);
+  Logger.log('✅ Horarios únicos después de filtrar: ' + horariosUnicos.length);
+  
   // 3. Combinar datos en formato esperado por el frontend
   const resultado = {
     success: true,
@@ -958,7 +977,7 @@ function consultarInscripcion(dni) {
       url_comprobante: registroPago.url_comprobante,
       fecha_subida: registroPago.fecha_subida
     },
-    horarios: horarios
+    horarios: horariosUnicos
   };
   
   return resultado;
@@ -1158,6 +1177,23 @@ function listarInscritos(dia, deporte) {
     
     // Convertir el objeto a array y combinar con info de pagos
     const inscritos = Object.values(inscritosPorDNI).map(inscrito => {
+      // Eliminar horarios duplicados para este inscrito
+      // Normalizar a mayúsculas para evitar duplicados por diferencias de capitalización
+      const horariosUnicos = [];
+      const horariosVistos = new Set();
+      
+      for (let horario of inscrito.horarios) {
+        const diaUpper = horario.dia.toString().toUpperCase();
+        const deporteUpper = horario.deporte.toString().toUpperCase();
+        const clave = `${diaUpper}-${deporteUpper}-${horario.hora_inicio}-${horario.hora_fin}`;
+        if (!horariosVistos.has(clave)) {
+          horariosVistos.add(clave);
+          horariosUnicos.push(horario);
+        }
+      }
+      
+      inscrito.horarios = horariosUnicos;
+      
       if (pagosMap[inscrito.dni]) {
         inscrito.pago = pagosMap[inscrito.dni];
       }
