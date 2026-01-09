@@ -3,6 +3,108 @@
  * Conecta con el backend Express que se comunica con Google Sheets via Apps Script
  */
 
+// ============================================
+// SISTEMA DE CACHÉ
+// ============================================
+class CacheManager {
+    constructor() {
+        this.prefix = 'jaguares_cache_';
+    }
+
+    /**
+     * Guardar datos en caché con tiempo de vida
+     * @param {string} key - Clave única del caché
+     * @param {any} data - Datos a guardar
+     * @param {number} ttlMinutes - Tiempo de vida en minutos
+     */
+    set(key, data, ttlMinutes = 5) {
+        try {
+            const item = {
+                data: data,
+                timestamp: Date.now(),
+                ttl: ttlMinutes * 60 * 1000 // Convertir a milisegundos
+            };
+            localStorage.setItem(this.prefix + key, JSON.stringify(item));
+            console.log(`💾 Caché guardado: ${key} (TTL: ${ttlMinutes} min)`);
+        } catch (error) {
+            console.warn('⚠️ Error al guardar caché:', error);
+        }
+    }
+
+    /**
+     * Obtener datos del caché si son válidos
+     * @param {string} key - Clave del caché
+     * @returns {any|null} - Datos o null si expiró o no existe
+     */
+    get(key) {
+        try {
+            const itemStr = localStorage.getItem(this.prefix + key);
+            if (!itemStr) {
+                return null;
+            }
+
+            const item = JSON.parse(itemStr);
+            const now = Date.now();
+            const age = now - item.timestamp;
+
+            // Verificar si expiró
+            if (age > item.ttl) {
+                console.log(`🗑️ Caché expirado: ${key} (edad: ${Math.round(age / 1000)}s)`);
+                this.delete(key);
+                return null;
+            }
+
+            console.log(`✅ Caché válido: ${key} (edad: ${Math.round(age / 1000)}s)`);
+            return item.data;
+        } catch (error) {
+            console.warn('⚠️ Error al leer caché:', error);
+            return null;
+        }
+    }
+
+    /**
+     * Eliminar un item del caché
+     * @param {string} key - Clave del caché
+     */
+    delete(key) {
+        localStorage.removeItem(this.prefix + key);
+    }
+
+    /**
+     * Limpiar todo el caché de JAGUARES
+     */
+    clear() {
+        const keys = Object.keys(localStorage);
+        keys.forEach(key => {
+            if (key.startsWith(this.prefix)) {
+                localStorage.removeItem(key);
+            }
+        });
+        console.log('🧹 Caché limpiado completamente');
+    }
+
+    /**
+     * Obtener info del caché (debug)
+     */
+    getInfo() {
+        const keys = Object.keys(localStorage);
+        const cacheKeys = keys.filter(k => k.startsWith(this.prefix));
+        console.log(`📊 Items en caché: ${cacheKeys.length}`);
+        cacheKeys.forEach(key => {
+            const item = JSON.parse(localStorage.getItem(key));
+            const age = Math.round((Date.now() - item.timestamp) / 1000);
+            console.log(`  - ${key.replace(this.prefix, '')}: ${age}s de ${item.ttl / 1000}s`);
+        });
+    }
+}
+
+// Instancia global del caché
+const cache = new CacheManager();
+
+// ============================================
+// CONFIGURACIÓN DE LA API
+// ============================================
+
 // Configuración de la API
 const API_CONFIG = {
     // Detectar automáticamente el entorno
@@ -16,6 +118,12 @@ const API_CONFIG = {
         registrarPago: '/api/registrar-pago',
         verificarPago: '/api/verificar-pago',
         validarDni: '/api/validar-dni'
+    },
+    // Configuración de caché (en minutos)
+    cacheTTL: {
+        horarios: 5,        // 5 minutos
+        inscripciones: 2,   // 2 minutos
+        consultas: 1        // 1 minuto
     }
 };
 
@@ -54,9 +162,22 @@ class AcademiaAPI {
     /**
      * Obtiene todos los horarios disponibles
      * @param {number} añoNacimiento - Año de nacimiento del alumno para filtrar por edad (opcional)
+     * @param {boolean} forceRefresh - Forzar actualización ignorando caché
      */
-    async getHorarios(añoNacimiento = null) {
+    async getHorarios(añoNacimiento = null, forceRefresh = false) {
         try {
+            // Generar clave de caché única según los parámetros
+            const cacheKey = añoNacimiento ? `horarios_${añoNacimiento}` : 'horarios_all';
+            
+            // Intentar obtener del caché si no se fuerza refresh
+            if (!forceRefresh) {
+                const cachedData = cache.get(cacheKey);
+                if (cachedData) {
+                    console.log('⚡ Horarios cargados desde caché (instantáneo)');
+                    return cachedData;
+                }
+            }
+            
             let url = API_CONFIG.endpoints.horarios;
             
             console.log('🌐 URL base:', url);
@@ -84,6 +205,9 @@ class AcademiaAPI {
                 throw new Error('Respuesta inválida del servidor');
             }
 
+            // Guardar en caché
+            cache.set(cacheKey, data.horarios, API_CONFIG.cacheTTL.horarios);
+
             return data.horarios;
         } catch (error) {
             console.error('❌ Error al obtener horarios:', error);
@@ -108,6 +232,12 @@ class AcademiaAPI {
                 })
             });
 
+            // Invalidar caché de inscripciones de este DNI después de inscribir
+            if (alumno.dni) {
+                cache.delete(`inscripciones_${alumno.dni}`);
+                console.log('🗑️ Caché de inscripciones invalidado para DNI:', alumno.dni);
+            }
+
             return data;
         } catch (error) {
             console.error('Error al inscribir:', error);
@@ -117,15 +247,34 @@ class AcademiaAPI {
 
     /**
      * Obtiene las inscripciones de un alumno por DNI
+     * @param {string} dni - DNI del alumno
+     * @param {boolean} forceRefresh - Forzar actualización ignorando caché
      */
-    async getMisInscripciones(dni) {
+    async getMisInscripciones(dni, forceRefresh = false) {
         try {
             if (!dni || dni.length < 8) {
                 throw new Error('DNI inválido');
             }
 
+            // Generar clave de caché única por DNI
+            const cacheKey = `inscripciones_${dni}`;
+            
+            // Intentar obtener del caché si no se fuerza refresh
+            if (!forceRefresh) {
+                const cachedData = cache.get(cacheKey);
+                if (cachedData) {
+                    console.log('⚡ Inscripciones cargadas desde caché (instantáneo)');
+                    return cachedData;
+                }
+            }
+
             const data = await this.request(`${API_CONFIG.endpoints.misInscripciones}/${dni}`);
             
+            // Guardar en caché
+            if (data.success && data.inscripciones) {
+                cache.set(cacheKey, data, API_CONFIG.cacheTTL.inscripciones);
+            }
+
             return data;
         } catch (error) {
             console.error('Error al obtener inscripciones:', error);
@@ -135,15 +284,34 @@ class AcademiaAPI {
 
     /**
      * Consulta el estado de inscripción por DNI
+     * @param {string} dni - DNI del alumno
+     * @param {boolean} forceRefresh - Forzar actualización ignorando caché
      */
-    async consultarInscripcion(dni) {
+    async consultarInscripcion(dni, forceRefresh = false) {
         try {
             if (!dni || dni.length < 8) {
                 throw new Error('DNI inválido');
             }
 
+            // Generar clave de caché única por DNI
+            const cacheKey = `consulta_${dni}`;
+            
+            // Intentar obtener del caché si no se fuerza refresh
+            if (!forceRefresh) {
+                const cachedData = cache.get(cacheKey);
+                if (cachedData) {
+                    console.log('⚡ Consulta cargada desde caché (instantáneo)');
+                    return cachedData;
+                }
+            }
+
             const data = await this.request(`/api/consultar/${dni}`);
             
+            // Guardar en caché
+            if (data.success) {
+                cache.set(cacheKey, data, API_CONFIG.cacheTTL.consultas);
+            }
+
             return data;
         } catch (error) {
             console.error('Error al consultar inscripción:', error);
@@ -164,6 +332,13 @@ class AcademiaAPI {
                     horarios_seleccionados: horariosSeleccionados
                 })
             });
+
+            // Invalidar caché de inscripciones y consulta después de registrar pago
+            if (alumno.dni) {
+                cache.delete(`inscripciones_${alumno.dni}`);
+                cache.delete(`consulta_${alumno.dni}`);
+                console.log('🗑️ Caché invalidado tras registrar pago para DNI:', alumno.dni);
+            }
 
             return data;
         } catch (error) {
