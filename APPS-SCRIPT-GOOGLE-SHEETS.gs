@@ -105,12 +105,14 @@ function activarInscripcionesPorDNI(dni) {
     let activadas = 0;
     const hojasAfectadas = [];
     
+    // ⚠️ IMPORTANTE: Mantener sincronizado con la lista de deportes en consultarInscripcion()
     // Lista de hojas donde buscar inscripciones (DÍAS + DEPORTES)
     const hojasParaRevisar = [
       'LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES', 'SÁBADO', 'DOMINGO',
       'FÚTBOL', 'VÓLEY', 'BÁSQUET', 'FÚTBOL FEMENINO',
       'ENTRENAMIENTO FUNCIONAL ADULTOS', 'ENTRENAMIENTO FUNCIONAL MENORES',
-      'ENTRENAMIENTO DE FUERZA Y TONIFICACIÓN MUSCULAR'
+      'ENTRENAMIENTO DE FUERZA Y TONIFICACIÓN MUSCULAR',
+      'MAMAS FIT', 'GYM JUVENIL', 'ENTRENAMIENTO FUNCIONAL MIXTO'
     ];
     
     Logger.log('🔍 Buscando inscripciones para DNI: ' + dni);
@@ -239,12 +241,14 @@ function desactivarInscripcionesPorDNI(dni) {
     let desactivadas = 0;
     const hojasAfectadas = [];
     
+    // ⚠️ IMPORTANTE: Mantener sincronizado con la lista de deportes en consultarInscripcion()
     // Lista de hojas donde buscar inscripciones (DÍAS + DEPORTES)
     const hojasParaRevisar = [
       'LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES', 'SÁBADO', 'DOMINGO',
       'FÚTBOL', 'VÓLEY', 'BÁSQUET', 'FÚTBOL FEMENINO',
       'ENTRENAMIENTO FUNCIONAL ADULTOS', 'ENTRENAMIENTO FUNCIONAL MENORES',
-      'ENTRENAMIENTO DE FUERZA Y TONIFICACIÓN MUSCULAR'
+      'ENTRENAMIENTO DE FUERZA Y TONIFICACIÓN MUSCULAR',
+      'MAMAS FIT', 'GYM JUVENIL', 'ENTRENAMIENTO FUNCIONAL MIXTO'
     ];
     
     Logger.log('🔍 Buscando inscripciones activas para DNI: ' + dni);
@@ -798,12 +802,20 @@ function consultarInscripcion(dni) {
   
   // 3. Buscar horarios en todas las hojas de días y deportes
   const diasSemana = ['LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES', 'SÁBADO', 'DOMINGO'];
+  
+  // ⚠️ IMPORTANTE: Para AGREGAR un deporte nuevo:
+  // 1. Agregar aquí el nombre EXACTO de la pestaña (MAYÚSCULAS)
+  // 2. Actualizar también las listas en activarInscripciones() y desactivarInscripciones()
+  // 3. La hoja se creará automáticamente al inscribir al primer alumno
   const deportes = [
     'FÚTBOL', 'VÓLEY', 'BÁSQUET', 
     'FÚTBOL FEMENINO',
     'ENTRENAMIENTO FUNCIONAL ADULTOS',
     'ENTRENAMIENTO FUNCIONAL MENORES',
-    'ENTRENAMIENTO DE FUERZA Y TONIFICACIÓN MUSCULAR'
+    'ENTRENAMIENTO DE FUERZA Y TONIFICACIÓN MUSCULAR',
+    'MAMAS FIT',
+    'GYM JUVENIL',
+    'ENTRENAMIENTO FUNCIONAL MIXTO'
   ];
   
   const horarios = [];
