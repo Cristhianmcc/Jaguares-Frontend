@@ -2,11 +2,14 @@
  * Script para la página de confirmación
  */
 
+// Variable global para almacenar los deportes con matrícula
+let deportesConMatriculaGlobal = [];
+
 document.addEventListener('DOMContentLoaded', () => {
     cargarDatosConfirmacion();
 });
 
-function cargarDatosConfirmacion() {
+async function cargarDatosConfirmacion() {
     const datosInscripcion = LocalStorage.get('datosInscripcion');
     
     if (!datosInscripcion || !datosInscripcion.alumno || !datosInscripcion.horariosCompletos) {
@@ -23,14 +26,75 @@ function cargarDatosConfirmacion() {
         return;
     }
     
+    // Verificar qué deportes son nuevos para el alumno en el año actual
+    const deportesConMatricula = await verificarDeportesNuevos(alumno.dni, horariosCompletos);
+    
+    // Guardar en variable global para usar en confirmarInscripcion
+    deportesConMatriculaGlobal = deportesConMatricula;
+    
     // Renderizar
-    renderizarConfirmacion(alumno, horariosCompletos);
+    renderizarConfirmacion(alumno, horariosCompletos, deportesConMatricula);
 }
 
-function renderizarConfirmacion(alumno, horarios) {
+/**
+ * Verifica qué deportes del alumno son nuevos en el año actual
+ * Retorna array de deportes que requieren pago de matrícula
+ */
+async function verificarDeportesNuevos(dni, horariosSeleccionados) {
+    try {
+        const api = new AcademiaAPI();
+        const resultado = await api.getMisInscripciones(dni);
+        
+        if (!resultado.success || !resultado.inscripciones) {
+            // No hay inscripciones previas, todos los deportes son nuevos
+            const deportesUnicos = [...new Set(horariosSeleccionados.map(h => h.deporte))];
+            return deportesUnicos;
+        }
+        
+        const añoActual = new Date().getFullYear(); // 2026
+        
+        // Obtener deportes en los que ya se inscribió este año
+        const deportesYaInscritos = new Set();
+        resultado.inscripciones.forEach(inscripcion => {
+            // La fecha viene en formato DD/MM/YYYY
+            const fechaPartes = inscripcion.fecha_inscripcion.split('/');
+            const añoInscripcion = parseInt(fechaPartes[2]);
+            
+            if (añoInscripcion === añoActual) {
+                deportesYaInscritos.add(inscripcion.deporte);
+            }
+        });
+        
+        // Deportes seleccionados únicos
+        const deportesSeleccionados = [...new Set(horariosSeleccionados.map(h => h.deporte))];
+        
+        // Filtrar solo los deportes nuevos (que no están en deportesYaInscritos)
+        const deportesNuevos = deportesSeleccionados.filter(deporte => !deportesYaInscritos.has(deporte));
+        
+        return deportesNuevos;
+    } catch (error) {
+        console.error('Error al verificar deportes:', error);
+        // En caso de error, asumir que todos son nuevos por seguridad
+        const deportesUnicos = [...new Set(horariosSeleccionados.map(h => h.deporte))];
+        return deportesUnicos;
+    }
+}
+
+function renderizarConfirmacion(alumno, horarios, deportesConMatricula = []) {
     const container = document.getElementById('contenidoConfirmacion');
     
-    const precioTotal = horarios.reduce((sum, h) => sum + parseFloat(h.precio), 0);
+    // Calcular precio de deportes
+    const precioDeportes = horarios.reduce((sum, h) => sum + parseFloat(h.precio || 0), 0);
+    
+    // Matrícula: S/ 20 por cada deporte nuevo
+    const MATRICULA_POR_DEPORTE = 20;
+    const cantidadDeportesNuevos = deportesConMatricula.length;
+    const montoMatricula = cantidadDeportesNuevos * MATRICULA_POR_DEPORTE;
+    const cobraMatricula = cantidadDeportesNuevos > 0;
+    
+    // Precio total = deportes + matrícula (por deportes nuevos)
+    const precioTotal = precioDeportes + montoMatricula;
+    
     const edad = Utils.calcularEdad(alumno.fecha_nacimiento);
     
     container.innerHTML = `
@@ -101,18 +165,18 @@ function renderizarConfirmacion(alumno, horarios) {
                         <p class="text-xl font-black italic uppercase tracking-tight">Resumen de Inscripción</p>
                     </div>
 
-                    <div class="space-y-3 overflow-y-auto flex-1 pr-2 scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-white/5">
+                    <div class="space-y-2.5 overflow-y-auto flex-1 pr-2 scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-white/5">
                         ${horarios.map(h => `
-                            <div class="bg-white/10 rounded-lg p-3 backdrop-blur-sm border border-white/20 hover:bg-white/15 transition-colors">
+                            <div class="bg-white/10 rounded-lg p-3.5 backdrop-blur-sm border border-white/20 hover:bg-white/15 transition-colors">
                                 <div class="flex justify-between items-start mb-2">
                                     <div class="flex items-center gap-2.5">
-                                        <span class="material-symbols-outlined text-primary text-xl">${obtenerIconoDeporte(h.deporte)}</span>
+                                        <span class="material-symbols-outlined text-primary text-2xl">${obtenerIconoDeporte(h.deporte)}</span>
                                         <div>
-                                            <p class="font-bold text-sm leading-tight">${h.deporte}</p>
-                                            <p class="text-[11px] text-zinc-400">${h.dia}</p>
+                                            <p class="font-bold text-base leading-tight">${h.deporte}</p>
+                                            <p class="text-xs text-zinc-400 mt-0.5">${h.dia}</p>
                                         </div>
                                     </div>
-                                    <span class="text-primary font-black text-sm">${Utils.formatearPrecio(h.precio)}</span>
+                                    <span class="text-primary font-black text-lg">${Utils.formatearPrecio(h.precio)}</span>
                                 </div>
                                 <div class="flex items-center gap-2 text-xs text-zinc-300">
                                     <span class="material-symbols-outlined text-sm">schedule</span>
@@ -123,11 +187,51 @@ function renderizarConfirmacion(alumno, horarios) {
                     </div>
 
                     <div class="border-t border-white/20 pt-3 mt-auto flex-shrink-0">
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="text-zinc-400 text-xs uppercase font-bold tracking-wide">Total</span>
-                            <span class="text-2xl font-black text-primary">${Utils.formatearPrecio(precioTotal)}</span>
+                        <!-- Resumen de precios -->
+                        <div class="space-y-2 mb-3">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-zinc-300">Deportes:</span>
+                                <span class="font-bold text-base text-white">${Utils.formatearPrecio(precioDeportes)}</span>
+                            </div>
+                            
+                            ${cobraMatricula ? `
+                                <div class="flex justify-between items-center">
+                                    <span class="flex items-center gap-1.5 text-sm">
+                                        <span class="material-symbols-outlined text-base text-amber-400">card_membership</span>
+                                        <span class="text-amber-300 font-medium">Matrícula (${cantidadDeportesNuevos} ${cantidadDeportesNuevos === 1 ? 'deporte' : 'deportes'}):</span>
+                                    </span>
+                                    <span class="font-bold text-base text-amber-400">${Utils.formatearPrecio(montoMatricula)}</span>
+                                </div>
+                            ` : ''}
                         </div>
-                        <p class="text-[10px] text-zinc-500 text-right">Pago mensual</p>
+                        
+                        <!-- Mensaje informativo sobre matrícula (compacto) -->
+                        ${cobraMatricula ? `
+                            <div class="bg-amber-500/10 border border-amber-500/30 rounded-md p-2 mb-3">
+                                <div class="flex items-start gap-1.5">
+                                    <span class="material-symbols-outlined text-amber-400 text-sm mt-0.5 flex-shrink-0">info</span>
+                                    <div class="text-[10px] text-amber-200 leading-snug">
+                                        <p class="font-semibold">Deportes con matrícula: <span class="font-normal">${deportesConMatricula.join(', ')}</span></p>
+                                        <p class="text-amber-100/80 mt-0.5">S/ 20 por deporte nuevo. Si regresas al mismo deporte en el año, no pagas nuevamente.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        ` : `
+                            <div class="bg-green-500/10 border border-green-500/30 rounded-md p-2 mb-3">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="material-symbols-outlined text-green-400 text-sm flex-shrink-0">check_circle</span>
+                                    <p class="text-[10px] text-green-200 leading-snug">
+                                        <strong>Matrícula pagada:</strong> Ya te inscribiste en estos deportes este año.
+                                    </p>
+                                </div>
+                            </div>
+                        `}
+                        
+                        <div class="flex justify-between items-center border-t border-white/10 pt-2.5">
+                            <span class="text-zinc-400 text-sm uppercase font-bold tracking-wide">Total</span>
+                            <span class="text-3xl font-black text-primary">${Utils.formatearPrecio(precioTotal)}</span>
+                        </div>
+                        <p class="text-[10px] text-zinc-500 text-right mt-1">${cobraMatricula ? 'Mensualidad + matrícula de deportes nuevos' : 'Pago mensual'}</p>
                     </div>
                 </div>
             </div>
@@ -172,7 +276,12 @@ async function confirmarInscripcion() {
                 fecha: new Date().toISOString(),
                 alumno: `${alumno.nombres} ${alumno.apellidos}`,
                 dni: alumno.dni,
-                horarios: horariosCompletos // Guardar horarios completos para el WhatsApp
+                horarios: horariosCompletos, // Guardar horarios completos para el WhatsApp
+                matricula: {
+                    deportesNuevos: deportesConMatriculaGlobal,
+                    cantidad: deportesConMatriculaGlobal.length,
+                    monto: deportesConMatriculaGlobal.length * 20
+                }
             });
             
             // Limpiar datos temporales

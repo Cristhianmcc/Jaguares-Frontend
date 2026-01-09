@@ -178,14 +178,29 @@ function renderizarExito(codigo, datosInscripcion) {
                 <!-- MONTO A PAGAR -->
                 ${datosInscripcion && datosInscripcion.horarios ? `
                 <div class="bg-primary/5 dark:bg-primary/10 rounded-2xl p-4 border border-primary/20">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-xs text-text-main/50 dark:text-white/50 mb-1 font-medium uppercase tracking-wider">Monto Total</p>
-                            <p class="text-3xl font-black text-primary">S/. ${datosInscripcion.horarios.reduce((sum, h) => sum + parseFloat(h.precio || 0), 0).toFixed(2)}</p>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-text-main/70 dark:text-white/70">Deportes:</span>
+                            <span class="font-bold text-text-main dark:text-white">S/. ${datosInscripcion.horarios.reduce((sum, h) => sum + parseFloat(h.precio || 0), 0).toFixed(2)}</span>
+                        </div>
+                        ${datosInscripcion.matricula && datosInscripcion.matricula.monto > 0 ? `
+                            <div class="flex items-center justify-between text-sm">
+                                <span class="text-amber-600 dark:text-amber-400 flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-base">card_membership</span>
+                                    Matrícula (${datosInscripcion.matricula.cantidad} ${datosInscripcion.matricula.cantidad === 1 ? 'deporte' : 'deportes'}):
+                                </span>
+                                <span class="font-bold text-amber-600 dark:text-amber-400">S/. ${datosInscripcion.matricula.monto.toFixed(2)}</span>
+                            </div>
+                            <div class="text-[10px] text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 p-2 rounded">
+                                Deportes nuevos: ${datosInscripcion.matricula.deportesNuevos.join(', ')}
+                            </div>
+                        ` : ''}
+                        <div class="flex items-center justify-between pt-2 border-t border-primary/20">
+                            <p class="text-xs text-text-main/50 dark:text-white/50 font-medium uppercase tracking-wider">Monto Total</p>
+                            <p class="text-3xl font-black text-primary">S/. ${(datosInscripcion.horarios.reduce((sum, h) => sum + parseFloat(h.precio || 0), 0) + (datosInscripcion.matricula ? datosInscripcion.matricula.monto : 0)).toFixed(2)}</p>
                         </div>
                         <div class="text-right">
-                            <p class="text-xs text-text-main/50 dark:text-white/50 mb-1 font-medium uppercase tracking-wider">Clases</p>
-                            <p class="text-2xl font-bold text-text-main dark:text-white">${datosInscripcion.horarios.length}</p>
+                            <p class="text-xs text-text-main/50 dark:text-white/50 font-medium uppercase tracking-wider">Clases: ${datosInscripcion.horarios.length}</p>
                         </div>
                     </div>
                 </div>
@@ -333,16 +348,26 @@ function descargarComprobante() {
         return;
     }
     
-    // Calcular total
-    let total = 0;
+    // Calcular totales
+    let totalDeportes = 0;
     let horariosDetalle = '';
     if (ultimaInscripcion.horarios && ultimaInscripcion.horarios.length > 0) {
         horariosDetalle = '\n\nHORARIOS SELECCIONADOS:\n';
         ultimaInscripcion.horarios.forEach((horario, index) => {
             horariosDetalle += `${index + 1}. ${horario.deporte} - ${horario.dia} ${horario.hora_inicio} - S/. ${parseFloat(horario.precio).toFixed(2)}\n`;
-            total += parseFloat(horario.precio || 0);
+            totalDeportes += parseFloat(horario.precio || 0);
         });
     }
+    
+    // Agregar matrícula si existe
+    let matriculaDetalle = '';
+    let montoMatricula = 0;
+    if (ultimaInscripcion.matricula && ultimaInscripcion.matricula.monto > 0) {
+        montoMatricula = ultimaInscripcion.matricula.monto;
+        matriculaDetalle = `\n\nMATRÍCULA (${ultimaInscripcion.matricula.cantidad} ${ultimaInscripcion.matricula.cantidad === 1 ? 'deporte' : 'deportes'}): S/. ${montoMatricula.toFixed(2)}\nDeportes nuevos: ${ultimaInscripcion.matricula.deportesNuevos.join(', ')}\n`;
+    }
+    
+    const total = totalDeportes + montoMatricula;
     
     // Crear contenido del comprobante
     const contenido = `
@@ -355,8 +380,11 @@ Código: ${ultimaInscripcion.codigo}
 Fecha: ${Utils.formatearFecha(new Date().toISOString().split('T')[0])}
 
 Alumno: ${ultimaInscripcion.alumno}
-DNI: ${ultimaInscripcion.dni}${horariosDetalle}
+DNI: ${ultimaInscripcion.dni}${horariosDetalle}${matriculaDetalle}
 
+SUBTOTALES:
+- Deportes: S/. ${totalDeportes.toFixed(2)}
+${montoMatricula > 0 ? `- Matrícula: S/. ${montoMatricula.toFixed(2)}\n` : ''}
 Total a Pagar: S/. ${total.toFixed(2)}
 Clases: ${ultimaInscripcion.horarios ? ultimaInscripcion.horarios.length : 0}
 
@@ -395,14 +423,24 @@ function enviarWhatsApp() {
     
     // Construir lista de horarios
     let horariosTexto = '';
-    let total = 0;
+    let totalDeportes = 0;
     if (ultimaInscripcion.horarios && ultimaInscripcion.horarios.length > 0) {
         horariosTexto = '\n⚽ *Clases Seleccionadas:*\n';
         ultimaInscripcion.horarios.forEach((horario, index) => {
             horariosTexto += `${index + 1}. ${horario.deporte} - ${horario.dia} ${horario.hora_inicio}hs\n`;
-            total += parseFloat(horario.precio || 0);
+            totalDeportes += parseFloat(horario.precio || 0);
         });
     }
+    
+    // Agregar matrícula si existe
+    let matriculaTexto = '';
+    let montoMatricula = 0;
+    if (ultimaInscripcion.matricula && ultimaInscripcion.matricula.monto > 0) {
+        montoMatricula = ultimaInscripcion.matricula.monto;
+        matriculaTexto = `\n🎓 *Matrícula:* S/. ${montoMatricula.toFixed(2)}\n(${ultimaInscripcion.matricula.deportesNuevos.join(', ')})\n`;
+    }
+    
+    const total = totalDeportes + montoMatricula;
     
     const whatsappNumero = '51955195324'; // Cambiar por el número real
     const mensaje = `🐆 *JAGUARES - Inscripción*\n\n` +
@@ -410,7 +448,9 @@ function enviarWhatsApp() {
         `👤 *Alumno:* ${ultimaInscripcion.alumno}\n` +
         `DNI: ${ultimaInscripcion.dni}` +
         horariosTexto +
-        `\n💰 *Total a Pagar:* S/. ${total.toFixed(2)}\n\n` +
+        matriculaTexto +
+        `\n💰 *Total a Pagar:* S/. ${total.toFixed(2)}\n` +
+        `${montoMatricula > 0 ? `(Deportes: S/. ${totalDeportes.toFixed(2)} + Matrícula: S/. ${montoMatricula.toFixed(2)})\n` : ''}\n` +
         `Hola, he completado mi inscripción y estoy listo para enviar mi comprobante de pago.`;
     
     const url = `https://wa.me/${whatsappNumero}?text=${encodeURIComponent(mensaje)}`;
