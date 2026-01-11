@@ -409,6 +409,9 @@ function doGet(e) {
         
       case 'validar_dni':
         return respuestaJSON(validarDNI(params.dni));
+      
+      case 'obtener_estadisticas_financieras':
+        return respuestaJSON(obtenerEstadisticasFinancieras());
         
       default:
         return respuestaJSON({ success: false, error: 'Acción no válida' });
@@ -442,11 +445,152 @@ function doPost(e) {
       case 'subir_comprobante':
         return respuestaJSON(subirComprobanteDrive(data));
         
+      case 'desactivar_usuario':
+        return respuestaJSON(desactivarUsuario(data.dni));
+        
+      case 'reactivar_usuario':
+        return respuestaJSON(reactivarUsuario(data.dni));
+        
       default:
         return respuestaJSON({ success: false, error: 'Acción no válida' });
     }
   } catch (error) {
     return respuestaJSON({ success: false, error: error.toString() });
+  }
+}
+
+/**
+ * Desactivar usuario (soft delete)
+ */
+function desactivarUsuario(dni) {
+  try {
+    if (!dni) {
+      return { success: false, error: 'DNI requerido' };
+    }
+    
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheetInscripciones = ss.getSheetByName(SHEET_NAMES.INSCRIPCIONES);
+    
+    if (!sheetInscripciones) {
+      return { success: false, error: 'Hoja INSCRIPCIONES no encontrada' };
+    }
+    
+    const data = sheetInscripciones.getDataRange().getValues();
+    const headers = data[0];
+    
+    // Buscar o crear columna estado_usuario
+    let colEstadoUsuario = -1;
+    for (let j = 0; j < headers.length; j++) {
+      const header = headers[j].toString().toLowerCase().trim();
+      if (header === 'estado_usuario' || header === 'estado usuario') {
+        colEstadoUsuario = j;
+        break;
+      }
+    }
+    
+    // Si no existe la columna, agregarla
+    if (colEstadoUsuario === -1) {
+      Logger.log('📝 Creando columna estado_usuario en INSCRIPCIONES');
+      const lastCol = sheetInscripciones.getLastColumn();
+      sheetInscripciones.getRange(1, lastCol + 1).setValue('estado_usuario');
+      
+      // Llenar todas las filas existentes con "activo" por defecto
+      for (let i = 2; i <= sheetInscripciones.getLastRow(); i++) {
+        sheetInscripciones.getRange(i, lastCol + 1).setValue('activo');
+      }
+      
+      colEstadoUsuario = lastCol;
+    }
+    
+    // Buscar y desactivar todas las filas con ese DNI
+    let desactivados = 0;
+    for (let i = 1; i < data.length; i++) {
+      const row = data[i];
+      if (row[1] && row[1].toString() === dni.toString()) {
+        sheetInscripciones.getRange(i + 1, colEstadoUsuario + 1).setValue('inactivo');
+        desactivados++;
+        Logger.log('✅ Usuario desactivado en fila ' + (i + 1));
+      }
+    }
+    
+    if (desactivados === 0) {
+      return { success: false, error: 'No se encontró usuario con ese DNI' };
+    }
+    
+    return {
+      success: true,
+      mensaje: 'Usuario desactivado correctamente',
+      dni: dni,
+      registros_afectados: desactivados
+    };
+    
+  } catch (error) {
+    Logger.log('❌ Error al desactivar usuario: ' + error.toString());
+    return { success: false, error: error.toString() };
+  }
+}
+
+/**
+ * Reactivar usuario
+ */
+function reactivarUsuario(dni) {
+  try {
+    if (!dni) {
+      return { success: false, error: 'DNI requerido' };
+    }
+    
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheetInscripciones = ss.getSheetByName(SHEET_NAMES.INSCRIPCIONES);
+    
+    if (!sheetInscripciones) {
+      return { success: false, error: 'Hoja INSCRIPCIONES no encontrada' };
+    }
+    
+    const data = sheetInscripciones.getDataRange().getValues();
+    const headers = data[0];
+    
+    // Buscar columna estado_usuario
+    let colEstadoUsuario = -1;
+    for (let j = 0; j < headers.length; j++) {
+      const header = headers[j].toString().toLowerCase().trim();
+      if (header === 'estado_usuario' || header === 'estado usuario') {
+        colEstadoUsuario = j;
+        break;
+      }
+    }
+    
+    if (colEstadoUsuario === -1) {
+      return { success: false, error: 'Columna estado_usuario no existe' };
+    }
+    
+    // Buscar y reactivar todas las filas con ese DNI
+    let reactivados = 0;
+    for (let i = 1; i < data.length; i++) {
+      const row = data[i];
+      if (row[1] && row[1].toString() === dni.toString()) {
+        const estadoActual = row[colEstadoUsuario] ? row[colEstadoUsuario].toString().toLowerCase().trim() : '';
+        if (estadoActual === 'inactivo') {
+          sheetInscripciones.getRange(i + 1, colEstadoUsuario + 1).setValue('activo');
+          reactivados++;
+          Logger.log('✅ Usuario reactivado en fila ' + (i + 1));
+        }
+      }
+    }
+    
+    if (reactivados === 0) {
+      return { success: false, error: 'No se encontró usuario inactivo con ese DNI' };
+    }
+    
+    return {
+      success: true,
+      mensaje: 'Usuario reactivado correctamente',
+      dni: dni,
+      registros_afectados: reactivados
+    };
+    
+  } catch (error) {
+    Logger.log('❌ Error al reactivar usuario: ' + error.toString());
+    return { success: false, error: error.toString() };
   }
 }
 
@@ -518,6 +662,229 @@ function obtenerHorarios(añoNacimiento) {
 }
 
 /**
+ * Validar horarios antes de inscripción (duplicados y cruces)
+ */
+function validarHorariosInscripcion(dni, horariosNuevos) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const diasSemana = ['LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES', 'SÁBADO', 'DOMINGO'];
+  const deportes = [
+    'FÚTBOL', 'VÓLEY', 'BÁSQUET', 
+    'FÚTBOL FEMENINO',
+    'ENTRENAMIENTO FUNCIONAL ADULTOS',
+    'ENTRENAMIENTO FUNCIONAL MENORES',
+    'ENTRENAMIENTO DE FUERZA Y TONIFICACIÓN MUSCULAR',
+    'MAMAS FIT',
+    'GYM JUVENIL',
+    'ENTRENAMIENTO FUNCIONAL MIXTO'
+  ];
+  
+  // Array para capturar mensajes de debug que se enviarán al frontend
+  const debugMessages = [];
+  debugMessages.push('🔍 INICIANDO VALIDACIÓN PARA DNI: ' + dni);
+  debugMessages.push('📋 Horarios nuevos: ' + JSON.stringify(horariosNuevos));
+  
+  // Obtener todos los horarios existentes del DNI
+  const horariosExistentes = [];
+  
+  // Buscar en hojas de días
+  debugMessages.push('📂 Buscando en hojas de DÍAS...');
+  for (let dia of diasSemana) {
+    const sheet = ss.getSheetByName(dia);
+    if (!sheet) {
+      debugMessages.push('  ⚠️ Hoja ' + dia + ' no existe');
+      continue;
+    }
+    
+    debugMessages.push('  ✅ Hoja ' + dia + ' encontrada');
+    
+    const data = sheet.getDataRange().getValues();
+    debugMessages.push('    Total filas: ' + data.length);
+    
+    if (data.length <= 1) {
+      debugMessages.push('    ⚠️ Solo tiene encabezados');
+      continue;
+    }
+    
+    const headers = data[0];
+    debugMessages.push('    Encabezados: ' + headers.join(' | '));
+    
+    let colDNI = -1, colDeporte = -1, colHoraInicio = -1, colHoraFin = -1;
+    
+    for (let j = 0; j < headers.length; j++) {
+      const header = headers[j].toString().toLowerCase().trim();
+      if (header === 'dni' || header.includes('dni')) colDNI = j;
+      if (header === 'deporte') colDeporte = j;
+      if (header === 'hora inicio' || header.includes('hora inicio')) colHoraInicio = j;
+      if (header === 'hora fin' || header.includes('hora fin')) colHoraFin = j;
+    }
+    
+    debugMessages.push('    Columnas encontradas -> DNI: ' + colDNI + ', Deporte: ' + colDeporte + ', Hora Inicio: ' + colHoraInicio + ', Hora Fin: ' + colHoraFin);
+    
+    if (colDNI === -1) {
+      debugMessages.push('    ❌ No se encontró columna DNI en ' + dia);
+      continue;
+    }
+    
+    let encontradosEnEstaDia = 0;
+    for (let i = 1; i < data.length; i++) {
+      const row = data[i];
+      const dniEnFila = row[colDNI] ? row[colDNI].toString().trim() : '';
+      
+      if (i <= 3) {
+        debugMessages.push('    Fila ' + (i+1) + ' DNI: "' + dniEnFila + '" (buscando "' + dni.toString() + '")');
+      }
+      
+      if (dniEnFila === dni.toString()) {
+        encontradosEnEstaDia++;
+        const horario = {
+          dia: dia,
+          deporte: colDeporte !== -1 ? row[colDeporte].toString().toUpperCase().trim() : '',
+          hora_inicio: colHoraInicio !== -1 ? formatearHoraLima(row[colHoraInicio]) : '',
+          hora_fin: colHoraFin !== -1 ? formatearHoraLima(row[colHoraFin]) : ''
+        };
+        horariosExistentes.push(horario);
+        debugMessages.push('    🎯 ENCONTRADO: ' + horario.deporte + ' ' + horario.dia + ' ' + horario.hora_inicio + '-' + horario.hora_fin);
+      }
+    }
+    
+    debugMessages.push('    Total encontrados en ' + dia + ': ' + encontradosEnEstaDia);
+  }
+  
+  // Buscar en hojas de deportes
+  for (let deporte of deportes) {
+    const sheet = ss.getSheetByName(deporte);
+    if (!sheet) continue;
+    
+    const data = sheet.getDataRange().getValues();
+    if (data.length <= 1) continue;
+    
+    const headers = data[0];
+    let colDNI = -1, colDia = -1, colHoraInicio = -1, colHoraFin = -1;
+    
+    for (let j = 0; j < headers.length; j++) {
+      const header = headers[j].toString().toLowerCase().trim();
+      if (header === 'dni' || header.includes('dni')) colDNI = j;
+      if (header === 'día' || header === 'dia') colDia = j;
+      if (header === 'hora inicio' || header.includes('hora inicio')) colHoraInicio = j;
+      if (header === 'hora fin' || header.includes('hora fin')) colHoraFin = j;
+    }
+    
+    if (colDNI === -1) continue;
+    
+    for (let i = 1; i < data.length; i++) {
+      const row = data[i];
+      if (row[colDNI] && row[colDNI].toString() === dni.toString()) {
+        horariosExistentes.push({
+          dia: colDia !== -1 ? row[colDia].toString().toUpperCase().trim() : '',
+          deporte: deporte,
+          hora_inicio: colHoraInicio !== -1 ? formatearHoraLima(row[colHoraInicio]) : '',
+          hora_fin: colHoraFin !== -1 ? formatearHoraLima(row[colHoraFin]) : ''
+        });
+      }
+    }
+  }
+  
+  debugMessages.push('📊 RESUMEN: Total horarios existentes encontrados: ' + horariosExistentes.length);
+  
+  // Preparar información de debug
+  const debugInfo = {
+    dni: dni,
+    mensajesDebug: debugMessages,
+    horariosExistentesCount: horariosExistentes.length,
+    horariosExistentes: horariosExistentes.map(h => ({
+      deporte: h.deporte,
+      dia: h.dia,
+      hora: h.hora_inicio + '-' + h.hora_fin
+    })),
+    horariosNuevos: horariosNuevos.map(h => ({
+      deporte: h.deporte ? h.deporte.toUpperCase().trim() : 'SIN DEPORTE',
+      dia: h.dia ? h.dia.toUpperCase().trim() : 'SIN DIA',
+      hora: (h.hora_inicio || 'SIN HORA') + '-' + (h.hora_fin || 'SIN HORA')
+    }))
+  };
+  
+  // Validar cada horario nuevo
+  for (let horarioNuevo of horariosNuevos) {
+    const diaNuevo = horarioNuevo.dia ? horarioNuevo.dia.toUpperCase().trim() : '';
+    const deporteNuevo = horarioNuevo.deporte ? horarioNuevo.deporte.toUpperCase().trim() : '';
+    const horaInicioNueva = horarioNuevo.hora_inicio || '';
+    const horaFinNueva = horarioNuevo.hora_fin || '';
+    
+    for (let horarioExistente of horariosExistentes) {
+      // 1. VALIDAR DUPLICADO EXACTO (mismo deporte + mismo horario)
+      const mismoDeporte = horarioExistente.deporte === deporteNuevo;
+      const mismoDia = horarioExistente.dia === diaNuevo;
+      const mismaHoraInicio = horarioExistente.hora_inicio === horaInicioNueva;
+      const mismaHoraFin = horarioExistente.hora_fin === horaFinNueva;
+      
+      if (mismoDeporte && mismoDia && mismaHoraInicio && mismaHoraFin) {
+        
+        debugMessages.push('🚫 DUPLICADO detectado: ' + deporteNuevo + ' ' + diaNuevo + ' ' + horaInicioNueva);
+        debugInfo.mensajesDebug = debugMessages;
+        
+        return {
+          success: false,
+          error: `Ya estás inscrito en ${deporteNuevo} el ${diaNuevo} de ${horaInicioNueva} a ${horaFinNueva}. No puedes inscribirte nuevamente en el mismo horario.`,
+          debug: debugInfo
+        };
+      }
+      
+      // 2. VALIDAR CRUCE DE HORARIO (mismo día/hora pero diferente deporte)
+      if (horarioExistente.dia === diaNuevo &&
+          horarioExistente.deporte !== deporteNuevo) {
+        
+        // Verificar si hay solapamiento de horas
+        const inicioExistente = convertirHoraAMinutos(horarioExistente.hora_inicio);
+        const finExistente = convertirHoraAMinutos(horarioExistente.hora_fin);
+        const inicioNuevo = convertirHoraAMinutos(horaInicioNueva);
+        const finNuevo = convertirHoraAMinutos(horaFinNueva);
+        
+        // Hay conflicto si:
+        // - El nuevo empieza antes de que termine el existente Y
+        // - El nuevo termina después de que empiece el existente
+        const hayConflicto = (inicioNuevo < finExistente && finNuevo > inicioExistente);
+        
+        if (hayConflicto) {
+          debugMessages.push('🚫 CRUCE detectado: ' + deporteNuevo + ' vs ' + horarioExistente.deporte + ' el ' + diaNuevo);
+          debugInfo.mensajesDebug = debugMessages;
+          
+          return {
+            success: false,
+            error: `Conflicto de horario: Ya tienes ${horarioExistente.deporte} el ${diaNuevo} de ${horarioExistente.hora_inicio} a ${horarioExistente.hora_fin}. No puedes inscribirte en ${deporteNuevo} (${horaInicioNueva}-${horaFinNueva}) porque se cruzan los horarios.`,
+            debug: debugInfo
+          };
+        }
+      }
+    }
+  }
+  
+  debugMessages.push('✅ Validación exitosa: no hay duplicados ni cruces');
+  debugInfo.mensajesDebug = debugMessages;
+  
+  // TEMPORALMENTE: Retornar info de debug incluso si la validación es exitosa
+  return { 
+    success: true,
+    debug: debugInfo,
+    mensaje_debug: 'ATENCIÓN: La validación NO encontró duplicados. Revisa debug.mensajesDebug para ver qué pasó.'
+  };
+}
+
+/**
+ * Convertir hora formato HH:MM a minutos desde medianoche
+ */
+function convertirHoraAMinutos(horaStr) {
+  if (!horaStr || horaStr === '-') return 0;
+  
+  const partes = horaStr.toString().split(':');
+  if (partes.length !== 2) return 0;
+  
+  const horas = parseInt(partes[0]) || 0;
+  const minutos = parseInt(partes[1]) || 0;
+  
+  return (horas * 60) + minutos;
+}
+
+/**
  * Inscribir alumno en múltiples horarios
  */
 function inscribirMultiple(alumno, horarios) {
@@ -541,6 +908,17 @@ function inscribirMultiple(alumno, horarios) {
     Logger.log('❌ ERROR: Hoja PAGOS no encontrada');
     return { success: false, error: 'Hoja PAGOS no encontrada' };
   }
+  
+  // ===== VALIDACIONES ANTES DE GUARDAR =====
+  Logger.log('🔍 Validando duplicados y cruces de horario...');
+  
+  const validacion = validarHorariosInscripcion(alumno.dni, horarios);
+  if (!validacion.success) {
+    Logger.log('❌ VALIDACIÓN FALLIDA: ' + validacion.error);
+    return validacion;
+  }
+  
+  Logger.log('✅ Validación exitosa, procediendo con inscripción...');
   
   // Generar código de operación único
   const codigo = generarCodigoOperacion();
@@ -586,7 +964,8 @@ function inscribirMultiple(alumno, horarios) {
     alumno.telefono_apoderado || '',    // N: telefono_apoderado
     urlDNIFrontal,                      // O: url_dni_frontal
     urlDNIReverso,                      // P: url_dni_reverso
-    urlFotoCarnet                       // Q: url_foto_carnet
+    urlFotoCarnet,                      // Q: url_foto_carnet
+    'activo'                            // R: estado_usuario (por defecto activo)
   ]);
   
   // 2. REGISTRAR EN PAGOS (una sola fila con todos los datos)
@@ -732,28 +1111,75 @@ function consultarInscripcion(dni) {
   
   if (sheetInscripciones) {
     const dataInscripciones = sheetInscripciones.getDataRange().getValues();
+    const headers = dataInscripciones[0];
     
-    // Buscar TODAS las filas con el DNI y quedarnos con la que tenga URLs o la más reciente
-    let filaEncontrada = null;
-    let filaConURLs = null;
+    // Buscar columna estado_usuario
+    let colEstadoUsuario = -1;
+    for (let j = 0; j < headers.length; j++) {
+      const header = headers[j].toString().toLowerCase().trim();
+      if (header === 'estado_usuario' || header === 'estado usuario') {
+        colEstadoUsuario = j;
+        break;
+      }
+    }
     
-    // Primero buscar la fila que tiene URLs
+    // Buscar TODAS las filas con el DNI
+    let filasEncontradas = [];
+    let tieneAlgunaActiva = false;
+    
+    // Recopilar todas las filas del DNI y verificar si tiene alguna activa
     for (let i = dataInscripciones.length - 1; i >= 1; i--) {
       const row = dataInscripciones[i];
       if (row[1] && row[1].toString() === dni.toString()) {
+        const estadoUsuario = (colEstadoUsuario !== -1 && row[colEstadoUsuario]) 
+          ? row[colEstadoUsuario].toString().toLowerCase().trim() 
+          : 'activo';
+        
+        // Agregar la fila con su estado
+        filasEncontradas.push({ row, estadoUsuario, indice: i + 1 });
+        
+        if (estadoUsuario === 'activo') {
+          tieneAlgunaActiva = true;
+        }
+      }
+    }
+    
+    // Si no se encontraron filas
+    if (filasEncontradas.length === 0) {
+      return { success: false, error: 'No se encontró inscripción con ese DNI' };
+    }
+    
+    // Si TODAS las inscripciones están inactivas, retornar mensaje de inactivo
+    if (!tieneAlgunaActiva) {
+      Logger.log('⚠️ Usuario COMPLETAMENTE INACTIVO detectado para DNI: ' + dni);
+      return {
+        success: false,
+        inactivo: true,
+        mensaje: 'Tu inscripción está temporalmente suspendida. Contacta con la academia para reactivarla.',
+        dni: dni
+      };
+    }
+    
+    // Buscar la mejor fila ACTIVA (con URLs preferiblemente)
+    let filaEncontrada = null;
+    let filaConURLs = null;
+    
+    for (let item of filasEncontradas) {
+      // Solo considerar filas activas
+      if (item.estadoUsuario === 'activo') {
         if (!filaEncontrada) {
-          filaEncontrada = row; // Guardar la primera encontrada (más reciente)
-          Logger.log('📍 Fila encontrada para DNI ' + dni + ' en posición: ' + (i + 1));
+          filaEncontrada = item.row;
+          Logger.log('📍 Fila ACTIVA encontrada para DNI ' + dni + ' en posición: ' + item.indice);
         }
         
         // Si esta fila tiene URLs, usarla
-        if (row[14] || row[15] || row[16]) {
-          filaConURLs = row;
-          Logger.log('✅ Fila con URLs encontrada en posición: ' + (i + 1));
-          Logger.log('   - URL DNI Frontal (col O): ' + row[14]);
-          Logger.log('   - URL DNI Reverso (col P): ' + row[15]);
-          Logger.log('   - URL Foto Carnet (col Q): ' + row[16]);
-          break; // Encontramos fila con URLs, usar esta
+        if (item.row[14] || item.row[15] || item.row[16]) {
+          filaConURLs = item.row;
+          Logger.log('✅ Fila ACTIVA con URLs encontrada en posición: ' + item.indice);
+          Logger.log('   - URL DNI Frontal (col O): ' + item.row[14]);
+          Logger.log('   - URL DNI Reverso (col P): ' + item.row[15]);
+          Logger.log('   - URL Foto Carnet (col Q): ' + item.row[16]);
+          break;
         }
       }
     }
@@ -820,7 +1246,7 @@ function consultarInscripcion(dni) {
   
   const horarios = [];
   
-  // Buscar en hojas de días
+  // Buscar en hojas de días (solo horarios ACTIVOS)
   for (let dia of diasSemana) {
     const sheet = ss.getSheetByName(dia);
     if (!sheet) continue;
@@ -835,7 +1261,7 @@ function consultarInscripcion(dni) {
     let colEdad = -1, colSexo = -1, colTelefono = -1, colEmail = -1;
     let colDireccion = -1, colApoderado = -1, colTelApoderado = -1;
     let colSeguro = -1, colCondicion = -1, colDeporte = -1;
-    let colHoraInicio = -1, colHoraFin = -1, colEstado = -1;
+    let colHoraInicio = -1, colHoraFin = -1, colEstado = -1, colCodigo = -1;
     
     for (let j = 0; j < headers.length; j++) {
       const header = headers[j].toString().toLowerCase().trim();
@@ -856,6 +1282,7 @@ function consultarInscripcion(dni) {
       if (header === 'hora inicio' || header.includes('hora inicio')) colHoraInicio = j;
       if (header === 'hora fin' || header.includes('hora fin')) colHoraFin = j;
       if (header === 'estado') colEstado = j;
+      if (header === 'código registro' || header === 'codigo registro' || header === 'codigo') colCodigo = j;
     }
     
     for (let i = 1; i < data.length; i++) {
@@ -864,19 +1291,19 @@ function consultarInscripcion(dni) {
       
       const dniRow = row[colDNI].toString().trim();
       if (dniRow === dni.toString().trim()) {
-        // Solo agregar horario (ya tenemos datos del alumno de INSCRIPCIONES)
         horarios.push({
           dia: dia,
           deporte: colDeporte !== -1 ? row[colDeporte] : '-',
           hora_inicio: colHoraInicio !== -1 ? formatearHoraLima(row[colHoraInicio]) : '-',
           hora_fin: colHoraFin !== -1 ? formatearHoraLima(row[colHoraFin]) : '-',
-          estado: colEstado !== -1 ? row[colEstado] : 'pendiente_pago'
+          estado: colEstado !== -1 ? row[colEstado] : 'pendiente_pago',
+          codigo_registro: colCodigo !== -1 ? row[colCodigo] : ''
         });
       }
     }
   }
   
-  // Buscar en hojas de deportes
+  // Buscar en hojas de deportes (solo horarios ACTIVOS)
   for (let deporte of deportes) {
     const sheet = ss.getSheetByName(deporte);
     if (!sheet) continue;
@@ -920,13 +1347,23 @@ function consultarInscripcion(dni) {
       
       const dniRow = row[colDNI].toString().trim();
       if (dniRow === dni.toString().trim()) {
-        // Solo agregar horario (ya tenemos datos del alumno de INSCRIPCIONES)
+        // Buscar columna código_registro si existe
+        let colCodigo = -1;
+        for (let j = 0; j < headers.length; j++) {
+          const header = headers[j].toString().toLowerCase().trim();
+          if (header === 'código registro' || header === 'codigo registro' || header === 'codigo') {
+            colCodigo = j;
+            break;
+          }
+        }
+        
         horarios.push({
           dia: colDia !== -1 ? row[colDia] : '-',
           deporte: deporte,
           hora_inicio: colHoraInicio !== -1 ? formatearHoraLima(row[colHoraInicio]) : '-',
           hora_fin: colHoraFin !== -1 ? formatearHoraLima(row[colHoraFin]) : '-',
-          estado: colEstado !== -1 ? row[colEstado] : 'pendiente_pago'
+          estado: colEstado !== -1 ? row[colEstado] : 'pendiente_pago',
+          codigo_registro: colCodigo !== -1 ? row[colCodigo] : ''
         });
       }
     }
@@ -940,13 +1377,50 @@ function consultarInscripcion(dni) {
     };
   }
   
+  // ===== FILTRAR HORARIOS POR ESTADO DE PAGO =====
+  // Solo mostrar horarios cuyo pago esté confirmado
+  Logger.log('🔍 Filtrando horarios por estado de pago...');
+  Logger.log('📊 Horarios antes de filtrar: ' + horarios.length);
+  
+  const horariosFiltrados = [];
+  
+  for (let horario of horarios) {
+    const codigoReg = horario.codigo_registro;
+    
+    // Si no tiene código de registro, no podemos validar el pago (caso raro)
+    if (!codigoReg || codigoReg === '') {
+      Logger.log('⚠️ Horario sin código de registro: ' + JSON.stringify(horario));
+      continue;
+    }
+    
+    // Buscar el registro de pago con este código
+    let estadoPago = 'pendiente';
+    for (let i = 1; i < dataPagos.length; i++) {
+      const rowPago = dataPagos[i];
+      if (rowPago[0] && rowPago[0].toString() === codigoReg.toString()) {
+        estadoPago = (rowPago[7] || 'pendiente').toString().toLowerCase().trim();
+        Logger.log('💳 Código ' + codigoReg + ' -> Estado: ' + estadoPago);
+        break;
+      }
+    }
+    
+    // Solo incluir si el pago está confirmado
+    if (estadoPago === 'confirmado' || estadoPago === 'confirmada' || estadoPago === 'pagado') {
+      horariosFiltrados.push(horario);
+    } else {
+      Logger.log('🚫 Horario excluido (pago ' + estadoPago + '): ' + horario.deporte + ' ' + horario.dia);
+    }
+  }
+  
+  Logger.log('✅ Horarios después de filtrar por pago: ' + horariosFiltrados.length);
+  
   // Eliminar horarios duplicados
   // Un horario es único por: dia + deporte + hora_inicio + hora_fin
   // Normalizar a mayúsculas para evitar duplicados por diferencias de capitalización
   const horariosUnicos = [];
   const horariosVistos = new Set();
   
-  for (let horario of horarios) {
+  for (let horario of horariosFiltrados) {
     const diaUpper = horario.dia.toString().toUpperCase();
     const deporteUpper = horario.deporte.toString().toUpperCase();
     const clave = `${diaUpper}-${deporteUpper}-${horario.hora_inicio}-${horario.hora_fin}`;
@@ -1166,9 +1640,11 @@ function listarInscritos(dia, deporte) {
       }
     }
     
-    // Obtener info de pagos de la hoja PAGOS
+    // Obtener info de pagos Y estado_usuario de la hoja PAGOS e INSCRIPCIONES
     const sheetPagos = ss.getSheetByName(SHEET_NAMES.PAGOS);
+    const sheetInscripciones = ss.getSheetByName(SHEET_NAMES.INSCRIPCIONES);
     const pagosMap = {};
+    const estadosUsuarioMap = {}; // Mapa de DNI -> array de estados por timestamp
     
     if (sheetPagos) {
       const dataPagos = sheetPagos.getDataRange().getValues();
@@ -1187,6 +1663,39 @@ function listarInscritos(dia, deporte) {
       }
     }
     
+    // Obtener estado_usuario de cada inscripción
+    if (sheetInscripciones) {
+      const dataInscripciones = sheetInscripciones.getDataRange().getValues();
+      const headers = dataInscripciones[0];
+      
+      // Buscar columna estado_usuario
+      let colEstadoUsuario = -1;
+      for (let j = 0; j < headers.length; j++) {
+        const header = headers[j].toString().toLowerCase().trim();
+        if (header === 'estado_usuario' || header === 'estado usuario') {
+          colEstadoUsuario = j;
+          break;
+        }
+      }
+      
+      // Crear mapa de estados por DNI y timestamp
+      for (let i = 1; i < dataInscripciones.length; i++) {
+        const row = dataInscripciones[i];
+        const dni = row[1] ? row[1].toString().trim() : '';
+        const timestamp = row[0] ? row[0].toString() : '';
+        const estadoUsuario = (colEstadoUsuario !== -1 && row[colEstadoUsuario]) 
+          ? row[colEstadoUsuario].toString().toLowerCase().trim() 
+          : 'activo';
+        
+        if (dni) {
+          if (!estadosUsuarioMap[dni]) {
+            estadosUsuarioMap[dni] = [];
+          }
+          estadosUsuarioMap[dni].push({ timestamp, estado: estadoUsuario });
+        }
+      }
+    }
+    
     // Convertir el objeto a array y combinar con info de pagos
     const inscritos = Object.values(inscritosPorDNI).map(inscrito => {
       // Eliminar horarios duplicados para este inscrito
@@ -1200,6 +1709,15 @@ function listarInscritos(dia, deporte) {
         const clave = `${diaUpper}-${deporteUpper}-${horario.hora_inicio}-${horario.hora_fin}`;
         if (!horariosVistos.has(clave)) {
           horariosVistos.add(clave);
+          
+          // Asignar estado_usuario al horario (por defecto 'activo' si no se encuentra)
+          // Para simplicidad, usar el último estado del DNI
+          const estadosDelDNI = estadosUsuarioMap[inscrito.dni];
+          horario.estado_usuario = 'activo'; // Default
+          if (estadosDelDNI && estadosDelDNI.length > 0) {
+            horario.estado_usuario = estadosDelDNI[estadosDelDNI.length - 1].estado;
+          }
+          
           horariosUnicos.push(horario);
         }
       }
@@ -1217,6 +1735,7 @@ function listarInscritos(dia, deporte) {
         inscrito.hora_inicio = inscrito.horarios[0].hora_inicio;
         inscrito.hora_fin = inscrito.horarios[0].hora_fin;
         inscrito.estado = inscrito.horarios[0].estado;
+        inscrito.estado_usuario = inscrito.horarios[0].estado_usuario; // Estado del primer horario
       }
       
       return inscrito;
@@ -1757,3 +2276,268 @@ function validarDNI(dni) {
     valido: true
   };
 }
+
+/**
+ * Obtener estadísticas financieras detalladas
+ */
+function obtenerEstadisticasFinancieras() {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheetPagos = ss.getSheetByName(SHEET_NAMES.PAGOS);
+    const sheetHorarios = ss.getSheetByName(SHEET_NAMES.HORARIOS);
+    
+    if (!sheetPagos || !sheetHorarios) {
+      return { success: false, error: 'Hojas PAGOS o HORARIOS no encontradas' };
+    }
+    
+    const dataPagos = sheetPagos.getDataRange().getValues();
+    const dataHorarios = sheetHorarios.getDataRange().getValues();
+    
+    const now = new Date();
+    const mesActual = now.getMonth();
+    const añoActual = now.getFullYear();
+    const inicioMes = new Date(añoActual, mesActual, 1);
+    
+    // PASO 1: Crear mapeo de horarios con sus precios
+    const preciosPorHorario = {}; // {horario_id: {deporte, precio}}
+    const preciosPorDeporte = {}; // {deporte: precio_promedio}
+    
+    for (let i = 1; i < dataHorarios.length; i++) {
+      const row = dataHorarios[i];
+      const horarioId = row[0] ? row[0].toString().trim() : '';
+      const deporte = row[1] ? row[1].toString().trim().toUpperCase() : '';
+      const precio = parseFloat(row[8]) || 0; // Columna I: precio
+      
+      if (horarioId && deporte && precio > 0) {
+        preciosPorHorario[horarioId] = { deporte, precio };
+        
+        // Acumular para calcular promedio por deporte
+        if (!preciosPorDeporte[deporte]) {
+          preciosPorDeporte[deporte] = { total: 0, count: 0 };
+        }
+        preciosPorDeporte[deporte].total += precio;
+        preciosPorDeporte[deporte].count++;
+      }
+    }
+    
+    // Calcular precios promedio por deporte
+    Object.keys(preciosPorDeporte).forEach(deporte => {
+      const data = preciosPorDeporte[deporte];
+      preciosPorDeporte[deporte] = data.total / data.count;
+    });
+    
+    // Estructuras para acumular datos
+    const ingresosPorDeporte = {};
+    const ingresosPorAlumno = {};
+    
+    let totalMatriculas = 0;
+    let totalMensualidades = 0;
+    let totalIngresosPendientes = 0;
+    let ingresosHoy = 0;
+    let ingresosMes = 0;
+    
+    // PASO 2: Buscar en hojas de días/deportes para calcular matrículas e identificar horarios
+    const hojas = [
+      'LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES', 'SÁBADO', 'DOMINGO',
+      'FÚTBOL', 'VÓLEY', 'BÁSQUET', 'FÚTBOL FEMENINO',
+      'ENTRENAMIENTO FUNCIONAL ADULTOS', 'ENTRENAMIENTO FUNCIONAL MENORES',
+      'MAMAS FIT', 'GYM JUVENIL', 'ENTRENAMIENTO FUNCIONAL MIXTO'
+    ];
+    
+    const alumnosHorarios = {}; // {dni: [{deporte, horarioId, precio}]}
+    
+    hojas.forEach(nombreHoja => {
+      const sheet = ss.getSheetByName(nombreHoja);
+      if (!sheet) return;
+      
+      const data = sheet.getDataRange().getValues();
+      if (data.length <= 1) return;
+      
+      const headers = data[0];
+      
+      // Buscar índices de columnas
+      let colDNI = -1, colNombres = -1, colDeporte = -1, colEstado = -1, colHorarioId = -1;
+      
+      for (let j = 0; j < headers.length; j++) {
+        const header = headers[j].toString().toLowerCase().trim();
+        if (header === 'dni' || header.includes('dni')) colDNI = j;
+        if (header === 'nombres' || header.includes('nombres')) colNombres = j;
+        if (header === 'deporte') colDeporte = j;
+        if (header === 'estado') colEstado = j;
+        if (header.includes('horario') && header.includes('id')) colHorarioId = j;
+      }
+      
+      if (colDNI === -1) return;
+      
+      // Procesar cada fila
+      for (let i = 1; i < data.length; i++) {
+        const row = data[i];
+        const dni = row[colDNI] ? row[colDNI].toString().trim() : '';
+        const nombres = colNombres !== -1 && row[colNombres] ? row[colNombres].toString().trim() : '';
+        const deporte = colDeporte !== -1 && row[colDeporte] ? row[colDeporte].toString().trim().toUpperCase() : nombreHoja.toUpperCase();
+        const estado = colEstado !== -1 && row[colEstado] ? row[colEstado].toString().toLowerCase().trim() : 'pendiente_pago';
+        const horarioId = colHorarioId !== -1 && row[colHorarioId] ? row[colHorarioId].toString().trim() : '';
+        
+        if (!dni) continue;
+        
+        // Solo contar inscripciones activas o pendientes
+        if (estado !== 'activa' && estado !== 'pendiente_pago') continue;
+        
+        // Obtener precio del horario o usar promedio del deporte
+        let precio = 0;
+        if (horarioId && preciosPorHorario[horarioId]) {
+          precio = preciosPorHorario[horarioId].precio;
+        } else if (preciosPorDeporte[deporte]) {
+          precio = preciosPorDeporte[deporte];
+        }
+        
+        // Inicializar deporte si no existe
+        if (!ingresosPorDeporte[deporte]) {
+          ingresosPorDeporte[deporte] = {
+            deporte,
+            matriculas: 0,
+            mensualidades: 0,
+            total: 0,
+            alumnosSet: new Set()
+          };
+        }
+        
+        // Inicializar alumno si no existe
+        if (!ingresosPorAlumno[dni]) {
+          ingresosPorAlumno[dni] = {
+            dni,
+            nombres,
+            deportes: [],
+            matriculas: 0,
+            mensualidades: 0,
+            total: 0
+          };
+        }
+        
+        // Inicializar horarios del alumno
+        if (!alumnosHorarios[dni]) {
+          alumnosHorarios[dni] = [];
+        }
+        
+        // Verificar si ya contamos este deporte para este alumno
+        const key = `${dni}-${deporte}`;
+        if (!ingresosPorDeporte[deporte].alumnosSet.has(key)) {
+          // Agregar matrícula: S/ 20 por cada deporte único
+          totalMatriculas += 20;
+          ingresosPorDeporte[deporte].matriculas += 20;
+          ingresosPorAlumno[dni].matriculas += 20;
+          
+          if (!ingresosPorAlumno[dni].deportes.includes(deporte)) {
+            ingresosPorAlumno[dni].deportes.push(deporte);
+          }
+          
+          ingresosPorDeporte[deporte].alumnosSet.add(key);
+        }
+        
+        // Guardar info del horario con precio
+        alumnosHorarios[dni].push({ deporte, horarioId, precio });
+      }
+    });
+    
+    // PASO 3: Calcular mensualidades desde PAGOS (solo del mes actual)
+    for (let i = 1; i < dataPagos.length; i++) {
+      const row = dataPagos[i];
+      const dni = row[1] ? row[1].toString().trim() : '';
+      const monto = parseFloat(row[5]) || 0;
+      const estado = row[7] ? row[7].toString().toLowerCase().trim() : '';
+      const fechaPago = row[8] ? new Date(row[8]) : null;
+      
+      if (!dni || monto <= 0) continue;
+      
+      // Obtener deportes del alumno
+      const deportesAlumno = ingresosPorAlumno[dni] ? ingresosPorAlumno[dni].deportes : [];
+      
+      if (estado === 'confirmado') {
+        // Calcular ingresos por período
+        let esDeMesActual = false;
+        let esDeHoy = false;
+        
+        if (fechaPago) {
+          if (fechaPago >= inicioMes) {
+            ingresosMes += monto;
+            esDeMesActual = true;
+          }
+          
+          if (fechaPago.getDate() === now.getDate() && 
+              fechaPago.getMonth() === mesActual && 
+              fechaPago.getFullYear() === añoActual) {
+            ingresosHoy += monto;
+            esDeHoy = true;
+          }
+        }
+        
+        // Solo contar mensualidades del mes actual (sin proyección)
+        if (esDeMesActual) {
+          totalMensualidades += monto;
+          
+          // Asignar el monto completo a cada deporte (sin dividir)
+          deportesAlumno.forEach(deporte => {
+            if (ingresosPorDeporte[deporte]) {
+              ingresosPorDeporte[deporte].mensualidades += monto;
+            }
+          });
+          
+          // Sumar al alumno
+          if (ingresosPorAlumno[dni]) {
+            ingresosPorAlumno[dni].mensualidades += monto;
+          }
+        }
+        
+      } else if (estado === 'pendiente' || estado === 'pendiente_pago' || estado === '') {
+        totalIngresosPendientes += monto;
+      }
+    }
+    
+    // PASO 4: Calcular totales y limpiar datos
+    Object.keys(ingresosPorDeporte).forEach(key => {
+      const deporte = ingresosPorDeporte[key];
+      deporte.total = deporte.matriculas + deporte.mensualidades;
+      deporte.numAlumnos = deporte.alumnosSet.size;
+      delete deporte.alumnosSet;
+    });
+    
+    Object.keys(ingresosPorAlumno).forEach(key => {
+      const alumno = ingresosPorAlumno[key];
+      alumno.total = alumno.matriculas + alumno.mensualidades;
+    });
+    
+    // Convertir a arrays ordenados
+    const deportesArray = Object.values(ingresosPorDeporte).sort((a, b) => b.total - a.total);
+    const alumnosArray = Object.values(ingresosPorAlumno)
+      .filter(a => a.total > 0)
+      .sort((a, b) => b.total - a.total);
+    
+    // Total de ingresos activos (confirmados)
+    const totalIngresosActivos = totalMatriculas + totalMensualidades;
+    
+    return {
+      success: true,
+      estadisticas: {
+        resumen: {
+          totalMatriculas,
+          totalMensualidades,
+          totalIngresosActivos,
+          totalIngresosPendientes,
+          ingresosHoy,
+          ingresosMes
+        },
+        porDeporte: deportesArray,
+        porAlumno: alumnosArray,
+        timestamp: new Date().toISOString()
+      }
+    };
+    
+  } catch (error) {
+    Logger.log('❌ Error al obtener estadísticas: ' + error.toString());
+    return { 
+      success: false, 
+      error: 'Error al procesar estadísticas: ' + error.toString() 
+    };
+  }
+}
+

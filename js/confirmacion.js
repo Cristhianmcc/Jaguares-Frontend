@@ -56,8 +56,17 @@ async function verificarDeportesNuevos(dni, horariosSeleccionados) {
         // Obtener deportes en los que ya se inscribió este año
         const deportesYaInscritos = new Set();
         resultado.inscripciones.forEach(inscripcion => {
+            // Validar que exista fecha_inscripcion
+            if (!inscripcion.fecha_inscripcion) {
+                return; // Skip this inscription
+            }
+            
             // La fecha viene en formato DD/MM/YYYY
             const fechaPartes = inscripcion.fecha_inscripcion.split('/');
+            if (fechaPartes.length !== 3) {
+                return; // Skip if format is invalid
+            }
+            
             const añoInscripcion = parseInt(fechaPartes[2]);
             
             if (añoInscripcion === añoActual) {

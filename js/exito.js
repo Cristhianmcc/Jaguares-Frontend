@@ -91,86 +91,254 @@ function renderizarExito(codigo, datosInscripcion) {
 
         <!-- SECCIÓN DE PAGO CON QR -->
         <div class="w-full bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/10 rounded-3xl overflow-hidden shadow-xl shadow-black/5">
-            <div class="h-1.5 w-full bg-gradient-to-r from-purple-600 to-green-600"></div>
+            <div class="h-1.5 w-full bg-gradient-to-r from-green-600 via-blue-600 to-red-600"></div>
             <div class="p-6 md:p-8 flex flex-col gap-6">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-xs font-bold text-purple-600 dark:text-purple-400 uppercase tracking-widest mb-1.5">💳 DATOS DE PAGO</p>
-                        <h3 class="text-xl font-black text-text-main dark:text-white tracking-tight">Yape o Plin</h3>
+                        <p class="text-xs font-bold text-primary uppercase tracking-widest mb-1.5">💳 MÉTODOS DE PAGO</p>
+                        <h3 class="text-xl font-black text-text-main dark:text-white tracking-tight">Elige tu forma de pago</h3>
                     </div>
                     <div class="flex gap-2">
-                        <div class="size-12 rounded-2xl bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center">
-                            <span class="text-2xl">📱</span>
+                        <div class="size-12 rounded-2xl bg-primary/10 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-primary text-3xl">payments</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="w-full h-px border-t border-dashed border-gray-300 dark:border-white/10"></div>
 
-                <!-- QR CODE SECTION - BOTONES YAPE Y PLIN -->
-                <div class="flex flex-col items-center gap-4">
-                    <p class="text-sm text-text-main/60 dark:text-white/60 text-center max-w-sm font-medium">
-                        Elige tu método de pago preferido:
-                    </p>
-                    
-                    <!-- BOTONES GRANDES PARA ABRIR QR -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
-                        <!-- BOTÓN YAPE -->
-                        <button onclick="abrirModalQR('assets/yape.jpg', 'Yape')" class="flex flex-col items-center gap-3 p-6 bg-gradient-to-br from-purple-500 to-purple-700 hover:from-purple-600 hover:to-purple-800 rounded-2xl shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] group">
-                            <div class="size-16 bg-white rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <span class="material-symbols-outlined text-purple-600 text-5xl font-bold">account_balance_wallet</span>
-                            </div>
-                            <div class="text-center">
-                                <p class="text-2xl font-black text-white mb-1">YAPE</p>
-                                <p class="text-xs text-purple-100 font-medium">Toca para ver QR</p>
-                            </div>
-                            <div class="flex items-center gap-2 text-white/80 text-xs">
-                                <span class="material-symbols-outlined text-base">qr_code_2</span>
-                                <span>Escanear código</span>
-                            </div>
-                        </button>
-                        
-                        <!-- BOTÓN PLIN -->
-                        <button onclick="abrirModalQR('assets/plin.jpg', 'Plin')" class="flex flex-col items-center gap-3 p-6 bg-gradient-to-br from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 rounded-2xl shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] group">
-                            <div class="size-16 bg-white rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <span class="material-symbols-outlined text-green-600 text-5xl font-bold">account_balance_wallet</span>
-                            </div>
-                            <div class="text-center">
-                                <p class="text-2xl font-black text-white mb-1">PLIN</p>
-                                <p class="text-xs text-green-100 font-medium">Toca para ver QR</p>
-                            </div>
-                            <div class="flex items-center gap-2 text-white/80 text-xs">
-                                <span class="material-symbols-outlined text-base">qr_code_2</span>
-                                <span>Escanear código</span>
-                            </div>
-                        </button>
+                <!-- PLIN CON QR -->
+                <div class="flex flex-col gap-4">
+                    <div class="flex items-center gap-2">
+                        <img src="assets/plinlogo.png" alt="Plin" class="h-8 object-contain">
+                        <span class="text-xs font-bold text-text-main/50 dark:text-white/50 uppercase tracking-wider">Pago Inmediato</span>
                     </div>
-
+                    
+                    <button onclick="abrirModalQR('assets/qrplin.jpeg', 'Plin')" class="flex flex-col items-center gap-3 p-6 bg-gradient-to-br from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 rounded-2xl shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] group w-full">
+                        <div class="size-16 bg-white rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <span class="material-symbols-outlined text-green-600 text-5xl font-bold">qr_code_scanner</span>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-2xl font-black text-white mb-1">PAGAR CON PLIN</p>
+                            <p class="text-xs text-green-100 font-medium">Toca para ver QR</p>
+                        </div>
+                        <div class="flex items-center gap-2 text-white/80 text-xs">
+                            <span class="material-symbols-outlined text-base">qr_code_2</span>
+                            <span>Escanear código QR</span>
+                        </div>
+                    </button>
+                    
                     <!-- INFORMACIÓN DEL DESTINATARIO -->
-                    <div class="bg-gray-50 dark:bg-white/5 rounded-2xl p-4 border border-gray-200 dark:border-white/10 w-full">
+                    <div class="bg-gray-50 dark:bg-white/5 rounded-2xl p-4 border border-gray-200 dark:border-white/10">
                         <div class="flex items-center gap-3">
-                            <div class="size-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                                <span class="material-symbols-outlined text-primary text-2xl">person</span>
+                            <div class="size-12 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center flex-shrink-0">
+                                <span class="material-symbols-outlined text-green-600 text-2xl">person</span>
                             </div>
                             <div class="flex-1 min-w-0">
-                                <p class="text-xs text-text-main/50 dark:text-white/50 mb-1 font-medium uppercase tracking-wider">Destinatario del pago</p>
-                                <p class="text-sm sm:text-base font-black text-text-main dark:text-white truncate">JAGUARES CENTRO DEPORTIVO</p>
-                                <p class="text-xs text-text-main/60 dark:text-white/60 font-medium mt-0.5">RUC: 20123456789</p>
+                                <p class="text-xs text-text-main/50 dark:text-white/50 mb-1 font-medium uppercase tracking-wider">Destinatario Plin</p>
+                                <p class="text-sm sm:text-base font-black text-text-main dark:text-white">Oscar Orosco</p>
+                                <p class="text-xs text-text-main/60 dark:text-white/60 font-medium mt-0.5">955 195 324</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- NÚMERO PARA COPIAR -->
-                <div class="bg-gray-50 dark:bg-white/5 rounded-2xl p-4 border border-gray-200 dark:border-white/10">
-                    <div class="flex items-center justify-between gap-4">
-                        <div class="flex-1">
-                            <p class="text-xs text-text-main/50 dark:text-white/50 mb-1 font-medium uppercase tracking-wider">Número de celular</p>
-                            <p class="text-2xl font-black text-text-main dark:text-white font-mono tracking-tight" id="numeroPago">955 195 324</p>
+                <!-- YAPE (COMENTADO - NO ACTIVO) -->
+                <!--
+                <div class="flex flex-col gap-4">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-text-main/50 dark:text-white/50 uppercase tracking-wider">Yape (No disponible)</span>
+                    </div>
+                    
+                    <button disabled class="flex flex-col items-center gap-3 p-6 bg-gray-300 dark:bg-gray-700 rounded-2xl opacity-50 cursor-not-allowed w-full">
+                        <div class="size-16 bg-white rounded-2xl flex items-center justify-center">
+                            <span class="material-symbols-outlined text-purple-600 text-5xl font-bold">account_balance_wallet</span>
                         </div>
-                        <button onclick="copiarNumero(event)" class="flex items-center gap-2 px-4 py-3 bg-primary hover:bg-primary-dark text-white rounded-xl font-bold text-sm transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5">
-                            <span class="material-symbols-outlined text-xl">content_copy</span>
-                            Copiar
+                        <div class="text-center">
+                            <p class="text-2xl font-black text-gray-600 dark:text-gray-400 mb-1">YAPE</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-500 font-medium">Temporalmente no disponible</p>
+                        </div>
+                    </button>
+                </div>
+                -->
+
+                <div class="w-full h-px border-t border-dashed border-gray-300 dark:border-white/10"></div>
+
+                <!-- TRANSFERENCIAS BANCARIAS -->
+                <div class="flex flex-col gap-4">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-blue-600 dark:text-blue-400 text-2xl">account_balance</span>
+                        <span class="text-xs font-bold text-text-main/50 dark:text-white/50 uppercase tracking-wider">Transferencia Bancaria</span>
+                    </div>
+
+                    <!-- BBVA -->
+                    <div class="bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl p-6 shadow-lg">
+                        <div class="flex items-center justify-center mb-4">
+                            <img src="assets/banner-BBVA.jpg" alt="BBVA" class="h-10 object-contain">
+                        </div>
+                        
+                        <div class="space-y-3">
+                            <!-- Cuenta BBVA -->
+                            <div class="bg-white/95 rounded-xl p-4">
+                                <p class="text-xs text-gray-600 mb-1 font-medium uppercase tracking-wider">Cuenta de Ahorros</p>
+                                <div class="flex items-center justify-between gap-3">
+                                    <p class="text-xl font-black text-gray-900 font-mono tracking-tight">001108140277791167</p>
+                                    <button onclick="copiarCuenta('001108140277791167', event)" class="flex items-center gap-1 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-xs transition-all shadow-md hover:shadow-lg flex-shrink-0">
+                                        <span class="material-symbols-outlined text-base">content_copy</span>
+                                        <span class="hidden sm:inline">Copiar</span>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- CCI BBVA -->
+                            <div class="bg-white/95 rounded-xl p-4">
+                                <p class="text-xs text-gray-600 mb-1 font-medium uppercase tracking-wider">CCI Interbancario</p>
+                                <div class="flex items-center justify-between gap-3">
+                                    <p class="text-xl font-black text-gray-900 font-mono tracking-tight">01181400027779116714</p>
+                                    <button onclick="copiarCuenta('01181400027779116714', event)" class="flex items-center gap-1 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-xs transition-all shadow-md hover:shadow-lg flex-shrink-0">
+                                        <span class="material-symbols-outlined text-base">content_copy</span>
+                                        <span class="hidden sm:inline">Copiar</span>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Titular BBVA -->
+                            <div class="bg-white/20 rounded-xl p-3 border border-white/30">
+                                <div class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-white text-lg">person</span>
+                                    <div>
+                                        <p class="text-xs text-blue-100 font-medium">Titular</p>
+                                        <p class="text-sm font-bold text-white">Oscar Orosco</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Subir Comprobante BBVA -->
+                            <div class="bg-white/20 rounded-xl p-3 border border-white/30">
+                                <div class="flex flex-col gap-2">
+                                    <p class="text-xs text-blue-100 font-medium flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-sm">upload_file</span>
+                                        ¿Ya realizaste la transferencia?
+                                    </p>
+                                    <input type="file" id="inputComprobanteBBVA" accept="image/*" class="hidden" onchange="handleComprobanteBanco(event, 'BBVA')">
+                                    <button onclick="document.getElementById('inputComprobanteBBVA').click()" class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white hover:bg-blue-50 text-blue-600 rounded-lg font-bold text-xs transition-all shadow-md hover:shadow-lg">
+                                        <span class="material-symbols-outlined text-base">add_photo_alternate</span>
+                                        <span>Adjuntar Comprobante</span>
+                                    </button>
+                                    <div id="previewBBVA" class="hidden mt-2 bg-white/90 rounded-lg p-2">
+                                        <div class="flex items-center justify-between mb-1">
+                                            <p class="text-[10px] font-bold text-blue-600 flex items-center gap-1">
+                                                <span class="material-symbols-outlined text-xs">check_circle</span>
+                                                Comprobante adjunto
+                                            </p>
+                                            <button onclick="eliminarComprobanteBanco('BBVA')" class="text-red-600 hover:text-red-700">
+                                                <span class="material-symbols-outlined text-sm">delete</span>
+                                            </button>
+                                        </div>
+                                        <img id="imagenPreviewBBVA" src="" alt="Preview" class="w-full max-h-24 object-contain rounded">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BCP -->
+                    <div class="bg-gradient-to-br from-red-600 to-orange-700 rounded-2xl p-6 shadow-lg">
+                        <div class="flex items-center justify-center mb-4">
+                            <img src="assets/banner-bcp.jpg" alt="BCP" class="h-10 object-contain">
+                        </div>
+                        
+                        <div class="space-y-3">
+                            <!-- Cuenta BCP -->
+                            <div class="bg-white/95 rounded-xl p-4">
+                                <p class="text-xs text-gray-600 mb-1 font-medium uppercase tracking-wider">Cuenta de Ahorros</p>
+                                <div class="flex items-center justify-between gap-3">
+                                    <p class="text-xl font-black text-gray-900 font-mono tracking-tight">19407824258089</p>
+                                    <button onclick="copiarCuenta('19407824258089', event)" class="flex items-center gap-1 px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold text-xs transition-all shadow-md hover:shadow-lg flex-shrink-0">
+                                        <span class="material-symbols-outlined text-base">content_copy</span>
+                                        <span class="hidden sm:inline">Copiar</span>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- CCI BCP -->
+                            <div class="bg-white/95 rounded-xl p-4">
+                                <p class="text-xs text-gray-600 mb-1 font-medium uppercase tracking-wider">CCI Interbancario</p>
+                                <div class="flex items-center justify-between gap-3">
+                                    <p class="text-xl font-black text-gray-900 font-mono tracking-tight">00219410782425808997</p>
+                                    <button onclick="copiarCuenta('00219410782425808997', event)" class="flex items-center gap-1 px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold text-xs transition-all shadow-md hover:shadow-lg flex-shrink-0">
+                                        <span class="material-symbols-outlined text-base">content_copy</span>
+                                        <span class="hidden sm:inline">Copiar</span>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Titular BCP -->
+                            <div class="bg-white/20 rounded-xl p-3 border border-white/30">
+                                <div class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-white text-lg">person</span>
+                                    <div>
+                                        <p class="text-xs text-orange-100 font-medium">Titular</p>
+                                        <p class="text-sm font-bold text-white">Oscar Orosco Aldonate</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Subir Comprobante BCP -->
+                            <div class="bg-white/20 rounded-xl p-3 border border-white/30">
+                                <div class="flex flex-col gap-2">
+                                    <p class="text-xs text-orange-100 font-medium flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-sm">upload_file</span>
+                                        ¿Ya realizaste la transferencia?
+                                    </p>
+                                    <input type="file" id="inputComprobanteBCP" accept="image/*" class="hidden" onchange="handleComprobanteBanco(event, 'BCP')">
+                                    <button onclick="document.getElementById('inputComprobanteBCP').click()" class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white hover:bg-orange-50 text-red-600 rounded-lg font-bold text-xs transition-all shadow-md hover:shadow-lg">
+                                        <span class="material-symbols-outlined text-base">add_photo_alternate</span>
+                                        <span>Adjuntar Comprobante</span>
+                                    </button>
+                                    <div id="previewBCP" class="hidden mt-2 bg-white/90 rounded-lg p-2">
+                                        <div class="flex items-center justify-between mb-1">
+                                            <p class="text-[10px] font-bold text-red-600 flex items-center gap-1">
+                                                <span class="material-symbols-outlined text-xs">check_circle</span>
+                                                Comprobante adjunto
+                                            </p>
+                                            <button onclick="eliminarComprobanteBanco('BCP')" class="text-red-600 hover:text-red-700">
+                                                <span class="material-symbols-outlined text-sm">delete</span>
+                                            </button>
+                                        </div>
+                                        <img id="imagenPreviewBCP" src="" alt="Preview" class="w-full max-h-24 object-contain rounded">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="w-full h-px border-t border-dashed border-gray-300 dark:border-white/10"></div>
+
+                <!-- PAGO EN EFECTIVO -->
+                <div class="flex flex-col gap-4">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-amber-600 dark:text-amber-400 text-2xl">payments</span>
+                        <span class="text-xs font-bold text-text-main/50 dark:text-white/50 uppercase tracking-wider">Pago en Efectivo</span>
+                    </div>
+
+                    <div class="bg-amber-50 dark:bg-amber-900/10 border-2 border-amber-400 dark:border-amber-600 rounded-2xl p-6">
+                        <div class="flex items-start gap-4 mb-4">
+                            <div class="size-12 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center flex-shrink-0">
+                                <span class="material-symbols-outlined text-amber-600 dark:text-amber-400 text-2xl">warning</span>
+                            </div>
+                            <div>
+                                <p class="text-sm font-black text-amber-900 dark:text-amber-200 mb-2">⚠️ Importante sobre pagos en efectivo</p>
+                                <p class="text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
+                                    Las clases <strong>NO serán activadas</strong> hasta que se confirme el pago en efectivo. Debes coordinar previamente por WhatsApp para agendar tu pago presencial.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <button onclick="contactarWhatsAppEfectivo()" class="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-xl font-bold text-base transition-all shadow-lg hover:shadow-xl hover:scale-[1.02]">
+                            <span class="text-2xl">💬</span>
+                            <span>Coordinar Pago en Efectivo por WhatsApp</span>
                         </button>
                     </div>
                 </div>
@@ -213,10 +381,11 @@ function renderizarExito(codigo, datosInscripcion) {
                         <div class="flex-1">
                             <p class="text-sm font-bold text-blue-900 dark:text-blue-200 mb-2">Pasos para completar tu pago:</p>
                             <ol class="text-xs text-blue-800 dark:text-blue-300 space-y-1 list-decimal list-inside">
-                                <li>Escanea el QR con Yape o Plin, o copia el número</li>
-                                <li>Realiza el pago del monto indicado</li>
-                                <li>Toma una captura de pantalla del comprobante</li>
-                                <li>Envía la captura por WhatsApp usando el botón de abajo</li>
+                                <li>Elige tu método de pago: Plin, Transferencia o Efectivo</li>
+                                <li>Si pagas con Plin: escanea el QR y realiza el pago</li>
+                                <li>Si pagas con transferencia: copia el número de cuenta</li>
+                                <li>Si pagas en efectivo: contacta por WhatsApp primero</li>
+                                <li>Toma captura del comprobante y envíala por WhatsApp</li>
                             </ol>
                         </div>
                     </div>
@@ -276,7 +445,7 @@ function renderizarExito(codigo, datosInscripcion) {
                             <span class="material-symbols-outlined text-primary text-lg sm:text-xl flex-shrink-0">account_balance</span>
                             <div class="flex-1 min-w-0">
                                 <p class="text-xs text-text-main/50 dark:text-white/50 font-medium">Destinatario</p>
-                                <p class="text-xs sm:text-sm font-bold text-text-main dark:text-white truncate">JAGUARES CENTRO DEPORTIVO</p>
+                                <p class="text-xs sm:text-sm font-bold text-text-main dark:text-white truncate">Oscar Orosco</p>
                             </div>
                         </div>
                     </div>
@@ -442,7 +611,7 @@ function enviarWhatsApp() {
     
     const total = totalDeportes + montoMatricula;
     
-    const whatsappNumero = '51955195324'; // Cambiar por el número real
+    const whatsappNumero = '51997621348';
     const mensaje = `🐆 *JAGUARES - Inscripción*\n\n` +
         `📋 *Código:* ${ultimaInscripcion.codigo}\n\n` +
         `👤 *Alumno:* ${ultimaInscripcion.alumno}\n` +
@@ -496,6 +665,83 @@ function copiarNumero(event) {
         console.error('Error al copiar:', err);
         Utils.mostrarNotificacion('No se pudo copiar. Usa: 955 195 324', 'warning');
     });
+}
+
+/**
+ * Copiar número de cuenta bancaria
+ */
+function copiarCuenta(numeroCuenta, event) {
+    navigator.clipboard.writeText(numeroCuenta).then(() => {
+        Utils.mostrarNotificacion(`Cuenta copiada: ${numeroCuenta}`, 'success');
+        
+        // Cambiar temporalmente el texto del botón
+        if (event) {
+            const btn = event.target.closest('button');
+            if (btn) {
+                const originalHTML = btn.innerHTML;
+                const colorOriginal = btn.className;
+                
+                btn.innerHTML = '<span class="material-symbols-outlined text-base">check</span> <span>Copiado</span>';
+                btn.classList.remove('bg-blue-600', 'hover:bg-blue-700', 'bg-red-600', 'hover:bg-red-700');
+                btn.classList.add('bg-green-600', 'hover:bg-green-700');
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.className = colorOriginal;
+                }, 2000);
+            }
+        }
+    }).catch(err => {
+        console.error('Error al copiar cuenta:', err);
+        Utils.mostrarNotificacion('No se pudo copiar. Intenta manualmente', 'warning');
+    });
+}
+
+/**
+ * Contactar por WhatsApp para pago en efectivo
+ */
+function contactarWhatsAppEfectivo() {
+    const ultimaInscripcion = LocalStorage.get('ultimaInscripcion');
+    
+    if (!ultimaInscripcion) {
+        Utils.mostrarNotificacion('No se encontró información de inscripción', 'error');
+        return;
+    }
+    
+    // Construir lista de horarios
+    let horariosTexto = '';
+    let totalDeportes = 0;
+    if (ultimaInscripcion.horarios && ultimaInscripcion.horarios.length > 0) {
+        horariosTexto = '\n⚽ *Clases Seleccionadas:*\n';
+        ultimaInscripcion.horarios.forEach((horario, index) => {
+            horariosTexto += `${index + 1}. ${horario.deporte} - ${horario.dia} ${horario.hora_inicio}hs\n`;
+            totalDeportes += parseFloat(horario.precio || 0);
+        });
+    }
+    
+    // Agregar matrícula si existe
+    let matriculaTexto = '';
+    let montoMatricula = 0;
+    if (ultimaInscripcion.matricula && ultimaInscripcion.matricula.monto > 0) {
+        montoMatricula = ultimaInscripcion.matricula.monto;
+        matriculaTexto = `\n🎓 *Matrícula:* S/. ${montoMatricula.toFixed(2)}\n(${ultimaInscripcion.matricula.deportesNuevos.join(', ')})\n`;
+    }
+    
+    const total = totalDeportes + montoMatricula;
+    
+    const whatsappNumero = '51997621348';
+    const mensaje = `🐆 *JAGUARES - Pago en Efectivo*\n\n` +
+        `📋 *Código:* ${ultimaInscripcion.codigo}\n\n` +
+        `👤 *Alumno:* ${ultimaInscripcion.alumno}\n` +
+        `DNI: ${ultimaInscripcion.dni}` +
+        horariosTexto +
+        matriculaTexto +
+        `\n💵 *Total a Pagar en Efectivo:* S/. ${total.toFixed(2)}\n` +
+        `${montoMatricula > 0 ? `(Deportes: S/. ${totalDeportes.toFixed(2)} + Matrícula: S/. ${montoMatricula.toFixed(2)})\n` : ''}\n` +
+        `Hola, quiero coordinar un pago en efectivo para mi inscripción. ¿Cuándo puedo acercarme a realizar el pago?`;
+    
+    const url = `https://wa.me/${whatsappNumero}?text=${encodeURIComponent(mensaje)}`;
+    window.open(url, '_blank');
 }
 
 function abrirModalQR(urlImagen, tipo) {
@@ -709,5 +955,137 @@ async function subirCapturaAlServidor() {
             <span class="material-symbols-outlined text-xl">check_circle</span>
             <span>Captura Agregada</span>
         `;
+    }
+}
+
+// Variables globales para almacenar comprobantes de bancos
+let comprobanteBBVA = null;
+let comprobanteBCP = null;
+
+/**
+ * Manejar la selección de comprobante bancario
+ */
+function handleComprobanteBanco(event, banco) {
+    const file = event.target.files[0];
+    
+    if (!file) return;
+    
+    // Validar que sea una imagen
+    if (!file.type.startsWith('image/')) {
+        Utils.mostrarNotificacion('Por favor selecciona una imagen válida', 'error');
+        return;
+    }
+    
+    // Validar tamaño (máximo 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+        Utils.mostrarNotificacion('La imagen no debe superar 5MB', 'error');
+        return;
+    }
+    
+    // Leer archivo y convertir a Base64
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const comprobante = {
+            nombre: file.name,
+            tipo: file.type,
+            base64: e.target.result,
+            banco: banco
+        };
+        
+        // Guardar según el banco
+        if (banco === 'BBVA') {
+            comprobanteBBVA = comprobante;
+        } else if (banco === 'BCP') {
+            comprobanteBCP = comprobante;
+        }
+        
+        mostrarPreviewComprobanteBanco(e.target.result, banco);
+        
+        // Intentar subir automáticamente
+        subirComprobanteBancoAlServidor(comprobante);
+    };
+    
+    reader.onerror = function() {
+        Utils.mostrarNotificacion('Error al leer la imagen', 'error');
+    };
+    
+    reader.readAsDataURL(file);
+}
+
+/**
+ * Mostrar preview del comprobante bancario
+ */
+function mostrarPreviewComprobanteBanco(base64, banco) {
+    const previewId = `preview${banco}`;
+    const imagenId = `imagenPreview${banco}`;
+    
+    const preview = document.getElementById(previewId);
+    const imagen = document.getElementById(imagenId);
+    
+    if (preview && imagen) {
+        imagen.src = base64;
+        preview.classList.remove('hidden');
+        
+        Utils.mostrarNotificacion(`Comprobante ${banco} agregado`, 'success');
+    }
+}
+
+/**
+ * Eliminar comprobante bancario
+ */
+function eliminarComprobanteBanco(banco) {
+    const previewId = `preview${banco}`;
+    const inputId = `inputComprobante${banco}`;
+    
+    const preview = document.getElementById(previewId);
+    const input = document.getElementById(inputId);
+    
+    if (preview) preview.classList.add('hidden');
+    if (input) input.value = '';
+    
+    // Limpiar variable global
+    if (banco === 'BBVA') {
+        comprobanteBBVA = null;
+    } else if (banco === 'BCP') {
+        comprobanteBCP = null;
+    }
+    
+    Utils.mostrarNotificacion(`Comprobante ${banco} eliminado`, 'info');
+}
+
+/**
+ * Subir comprobante bancario al servidor
+ */
+async function subirComprobanteBancoAlServidor(comprobante) {
+    const ultimaInscripcion = LocalStorage.get('ultimaInscripcion');
+    
+    if (!ultimaInscripcion || !ultimaInscripcion.codigo) {
+        Utils.mostrarNotificacion('No se encontró información de inscripción', 'error');
+        return;
+    }
+    
+    try {
+        // Mostrar loading
+        Utils.mostrarNotificacion(`Subiendo comprobante ${comprobante.banco}...`, 'info');
+        
+        // Enviar al servidor
+        const resultado = await academiaAPI.subirComprobante({
+            codigo_operacion: ultimaInscripcion.codigo,
+            dni: ultimaInscripcion.dni,
+            alumno: ultimaInscripcion.alumno,
+            imagen: comprobante.base64,
+            nombre_archivo: `${comprobante.banco}_${comprobante.nombre}`,
+            metodo_pago: `Transferencia ${comprobante.banco}`
+        });
+        
+        if (resultado.success) {
+            Utils.mostrarNotificacion(`✅ Comprobante ${comprobante.banco} subido correctamente`, 'success');
+        } else {
+            throw new Error(resultado.error || 'Error al subir comprobante');
+        }
+        
+    } catch (error) {
+        console.error('Error al subir comprobante bancario:', error);
+        Utils.mostrarNotificacion(`Error al subir comprobante ${comprobante.banco}: ${error.message}`, 'error');
     }
 }

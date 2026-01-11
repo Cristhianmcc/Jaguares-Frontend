@@ -3,7 +3,8 @@
  */
 
 let inscritosData = [];
-let dniAEliminar = null;
+let dniSeleccionado = null;
+let accionModal = null; // 'desactivar' o 'reactivar'
 
 /**
  * Convierte URLs de Google Drive al formato de thumbnail/visualización
@@ -134,8 +135,14 @@ function inicializarEventos() {
     
     document.getElementById('btnFiltrar').addEventListener('click', aplicarFiltros);
     document.getElementById('btnLimpiarFiltros').addEventListener('click', limpiarFiltros);
-    document.getElementById('btnCancelarEliminar').addEventListener('click', cerrarModal);
-    document.getElementById('btnConfirmarEliminar').addEventListener('click', confirmarEliminar);
+    
+    // Eventos para desactivar
+    document.getElementById('btnCancelarDesactivar').addEventListener('click', cerrarModales);
+    document.getElementById('btnConfirmarDesactivar').addEventListener('click', confirmarDesactivar);
+    
+    // Eventos para reactivar
+    document.getElementById('btnCancelarReactivar').addEventListener('click', cerrarModales);
+    document.getElementById('btnConfirmarReactivar').addEventListener('click', confirmarReactivar);
     
     // Evento para buscar por DNI al presionar Enter (solo si el elemento existe)
     const filtroDNI = document.getElementById('filtroDNI');
@@ -229,9 +236,15 @@ function renderizarTabla(inscritos) {
     
     inscritos.forEach(inscrito => {
         const row = document.createElement('tr');
-        row.className = 'border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors';
         
-        const estadoClass = inscrito.estado === 'activa' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800';
+        // Verificar estado del usuario (activo/inactivo)
+        const estadoUsuario = inscrito.estado_usuario ? inscrito.estado_usuario.toLowerCase() : 'activo';
+        const esInactivo = estadoUsuario === 'inactivo';
+        
+        // Aplicar estilo especial si está inactivo
+        row.className = `border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors ${esInactivo ? 'opacity-60 bg-gray-50 dark:bg-gray-900/50' : ''}`;
+        
+        const estadoClass = inscrito.estado === 'activa' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400';
         const estadoTexto = inscrito.estado === 'activa' ? 'Activo' : 'Pendiente';
         
         const horario = inscrito.hora_inicio && inscrito.hora_fin 
@@ -240,10 +253,24 @@ function renderizarTabla(inscritos) {
         
         const deporte = inscrito.deporte || inscrito.dia || '-';
         
+        // Botón según estado del usuario
+        const botonAccion = esInactivo 
+            ? `<button onclick="reactivarUsuario('${inscrito.dni}')" class="p-2 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors" title="Reactivar todas las inscripciones de este usuario">
+                    <span class="material-symbols-outlined text-xl">check_circle</span>
+               </button>`
+            : `<button onclick="desactivarUsuario('${inscrito.dni}')" class="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors" title="Desactivar todas las inscripciones de este usuario">
+                    <span class="material-symbols-outlined text-xl">person_off</span>
+               </button>`;
+        
+        // Badge de usuario inactivo
+        const badgeInactivo = esInactivo 
+            ? `<span class="px-2 py-1 bg-gray-300 text-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded text-[10px] font-black uppercase tracking-wider ml-2">INACTIVO</span>`
+            : '';
+        
         row.innerHTML = `
-            <td class="px-4 py-3 font-mono text-sm font-semibold">${inscrito.dni}</td>
-            <td class="px-4 py-3">${inscrito.nombres}</td>
-            <td class="px-4 py-3">${inscrito.apellidos}</td>
+            <td class="px-4 py-3 font-mono text-sm font-semibold">${inscrito.dni}${badgeInactivo}</td>
+            <td class="px-4 py-3 ${esInactivo ? 'line-through' : ''}">${inscrito.nombres}</td>
+            <td class="px-4 py-3 ${esInactivo ? 'line-through' : ''}">${inscrito.apellidos}</td>
             <td class="px-4 py-3 font-mono text-sm">${inscrito.telefono || '-'}</td>
             <td class="px-4 py-3">
                 <span class="px-2 py-1 bg-primary/10 text-primary rounded text-xs font-semibold">${deporte}</span>
@@ -253,9 +280,7 @@ function renderizarTabla(inscritos) {
                 <span class="px-2 py-1 ${estadoClass} rounded text-xs font-semibold">${estadoTexto}</span>
             </td>
             <td class="px-4 py-3 text-center">
-                <button onclick="eliminarUsuario('${inscrito.dni}')" class="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors" title="Eliminar de TODAS las hojas del Sheet">
-                    <span class="material-symbols-outlined text-xl">delete</span>
-                </button>
+                ${botonAccion}
             </td>
         `;
         
@@ -268,14 +293,14 @@ function renderizarTabla(inscritos) {
 
 function actualizarEstadisticas(inscritos) {
     const total = inscritos.length;
-    const activos = inscritos.filter(i => i.estado === 'activa').length;
-    const pendientes = inscritos.filter(i => i.estado === 'pendiente_pago').length;
-    const ingresos = activos * 50;
+    const activos = inscritos.filter(i => i.estado === 'activa' && (!i.estado_usuario || i.estado_usuario.toLowerCase() === 'activo')).length;
+    const pendientes = inscritos.filter(i => i.estado === 'pendiente_pago' && (!i.estado_usuario || i.estado_usuario.toLowerCase() === 'activo')).length;
+    const inactivos = inscritos.filter(i => i.estado_usuario && i.estado_usuario.toLowerCase() === 'inactivo').length;
     
     document.getElementById('totalInscritos').textContent = total;
     document.getElementById('totalActivos').textContent = activos;
     document.getElementById('totalPendientes').textContent = pendientes;
-    document.getElementById('totalIngresos').textContent = 'S/ ' + ingresos.toFixed(2);
+    document.getElementById('totalInactivos').textContent = inactivos;
 }
 
 function aplicarFiltros() {
@@ -303,51 +328,106 @@ function limpiarFiltros() {
     cargarInscritos();
 }
 
-function eliminarUsuario(dni) {
-    dniAEliminar = dni;
-    document.getElementById('dniEliminar').textContent = dni;
-    document.getElementById('modalEliminar').classList.remove('hidden');
+function desactivarUsuario(dni) {
+    dniSeleccionado = dni;
+    accionModal = 'desactivar';
+    document.getElementById('dniDesactivar').textContent = dni;
+    document.getElementById('modalDesactivar').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
 }
 
-function cerrarModal() {
-    dniAEliminar = null;
-    document.getElementById('modalEliminar').classList.add('hidden');
+function reactivarUsuario(dni) {
+    dniSeleccionado = dni;
+    accionModal = 'reactivar';
+    document.getElementById('dniReactivar').textContent = dni;
+    document.getElementById('modalReactivar').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
 }
 
-async function confirmarEliminar() {
-    if (!dniAEliminar) return;
+function cerrarModales() {
+    dniSeleccionado = null;
+    accionModal = null;
+    document.getElementById('modalDesactivar').classList.add('hidden');
+    document.getElementById('modalReactivar').classList.add('hidden');
+    document.body.style.overflow = '';
+}
+
+async function confirmarDesactivar() {
+    if (!dniSeleccionado) return;
     
-    const btnConfirmar = document.getElementById('btnConfirmarEliminar');
+    const btnConfirmar = document.getElementById('btnConfirmarDesactivar');
     const textoOriginal = btnConfirmar.innerHTML;
     
     btnConfirmar.disabled = true;
-    btnConfirmar.innerHTML = '<span class="material-symbols-outlined animate-spin">progress_activity</span> Eliminando...';
+    btnConfirmar.innerHTML = '<span class="material-symbols-outlined animate-spin">progress_activity</span> Procesando...';
     
     try {
         const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
             ? 'http://localhost:3002'
             : 'https://jaguares-backend.onrender.com';
         
-        const response = await fetch(`${API_BASE}/api/eliminar-usuario/${dniAEliminar}`, {
-            method: 'DELETE',
+        const response = await fetch(`${API_BASE}/api/desactivar-usuario`, {
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
-            }
+            },
+            body: JSON.stringify({ dni: dniSeleccionado })
         });
         
         const data = await response.json();
         
         if (data.success) {
-            cerrarModal();
+            cerrarModales();
             cargarInscritos();
-            mostrarNotificacion('Usuario eliminado correctamente', 'success');
+            mostrarNotificacion('Usuario desactivado correctamente', 'success');
         } else {
             mostrarNotificacion('Error: ' + data.error, 'error');
             btnConfirmar.disabled = false;
             btnConfirmar.innerHTML = textoOriginal;
         }
     } catch (error) {
-        console.error('Error al eliminar:', error);
+        console.error('Error al desactivar:', error);
+        mostrarNotificacion('Error de conexión', 'error');
+        btnConfirmar.disabled = false;
+        btnConfirmar.innerHTML = textoOriginal;
+    }
+}
+
+async function confirmarReactivar() {
+    if (!dniSeleccionado) return;
+    
+    const btnConfirmar = document.getElementById('btnConfirmarReactivar');
+    const textoOriginal = btnConfirmar.innerHTML;
+    
+    btnConfirmar.disabled = true;
+    btnConfirmar.innerHTML = '<span class="material-symbols-outlined animate-spin">progress_activity</span> Procesando...';
+    
+    try {
+        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:3002'
+            : 'https://jaguares-backend.onrender.com';
+        
+        const response = await fetch(`${API_BASE}/api/reactivar-usuario`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ dni: dniSeleccionado })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            cerrarModales();
+            cargarInscritos();
+            mostrarNotificacion('Usuario reactivado correctamente', 'success');
+        } else {
+            mostrarNotificacion('Error: ' + data.error, 'error');
+            btnConfirmar.disabled = false;
+            btnConfirmar.innerHTML = textoOriginal;
+        }
+    } catch (error) {
+        console.error('Error al reactivar:', error);
         mostrarNotificacion('Error de conexión', 'error');
         btnConfirmar.disabled = false;
         btnConfirmar.innerHTML = textoOriginal;

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html class="light" lang="es">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>JAGUARES - Dashboard Financiero</title>
+    <link rel="icon" type="image/x-icon" href="assets/logo.ico"/>
+    <link rel="apple-touch-icon" href="assets/logo.ico"/>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;700;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: { DEFAULT: '#C59D5F', dark: '#B08546', light: '#E3C58E' },
+                        'background-light': '#FFFFFF',
+                        'background-dark': '#0A0A0A',
+                        'surface-light': '#F9F9F9',
+                        'surface-dark': '#1A1A1A',
+                        'text-main': '#1A1A1A',
+                        'text-muted': '#6B6B6B',
+                        'border-color': '#E5E5E5'
+                    },
+                    fontFamily: {
+                        display: ['Lexend', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-text-main font-display min-h-screen flex flex-col">
+    <header class="sticky top-0 z-50 border-b border-solid border-border-color bg-surface-light/95 dark:bg-surface-dark/95 backdrop-blur-sm shadow-sm">
+        <div class="px-4 py-4 lg:px-10">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3 text-text-main dark:text-white">
+                    <img src="assets/logo.ico" alt="Logo Jaguares" class="h-10 w-auto object-contain">
+                    <h2 class="text-xl lg:text-2xl font-black italic uppercase tracking-wider text-black dark:text-white">JAGUARES</h2>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <a href="admin-panel.html" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 text-black dark:text-white rounded-lg font-semibold text-sm transition-colors flex items-center gap-2">
+                        <span class="material-symbols-outlined text-lg">arrow_back</span>
+                        <span class="hidden sm:inline">Volver al Panel</span>
+                    </a>
+                    <div class="text-right hidden lg:block">
+                        <p class="text-xs text-text-muted dark:text-gray-400 uppercase tracking-wide">Administrador</p>
+                        <p id="adminEmail" class="text-sm font-semibold text-black dark:text-white"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow px-4 sm:px-6 lg:px-10 py-8">
+        <div class="max-w-screen-2xl mx-auto">
+            <div class="mb-8">
+                <h1 class="text-3xl md:text-4xl font-black italic uppercase tracking-tight text-black dark:text-white">
+                    Dashboard <span class="text-primary">Financiero</span>
+                </h1>
+                <p class="text-text-muted dark:text-gray-400 mt-2">Análisis de ingresos y métricas económicas</p>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingContainer" class="text-center py-20">
+                <span class="material-symbols-outlined animate-spin text-6xl text-primary">progress_activity</span>
+                <p class="text-text-muted mt-4">Cargando estadísticas...</p>
+            </div>
+
+            <!-- Dashboard Content -->
+            <div id="dashboardContainer" class="hidden space-y-8">
+                
+                <!-- Resumen de Ingresos -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-white dark:bg-surface-dark p-6 rounded-xl shadow-md border-l-4 border-primary">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <p class="text-sm font-semibold text-text-muted dark:text-gray-400 uppercase">Ingresos Totales</p>
+                                <p id="totalIngresos" class="text-4xl font-black text-black dark:text-white mt-2">S/ 0</p>
+                                <p class="text-xs text-text-muted mt-2">Matrículas + Mensualidades</p>
+                            </div>
+                            <span class="material-symbols-outlined text-5xl text-primary">account_balance_wallet</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-surface-dark p-6 rounded-xl shadow-md border-l-4 border-green-600">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <p class="text-sm font-semibold text-text-muted dark:text-gray-400 uppercase">Ingresos del Mes</p>
+                                <p id="ingresosMes" class="text-4xl font-black text-black dark:text-white mt-2">S/ 0</p>
+                                <p class="text-xs text-text-muted mt-2">Confirmados en periodo actual</p>
+                            </div>
+                            <span class="material-symbols-outlined text-5xl text-green-600">trending_up</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-surface-dark p-6 rounded-xl shadow-md border-l-4 border-blue-600">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <p class="text-sm font-semibold text-text-muted dark:text-gray-400 uppercase">Ingresos Hoy</p>
+                                <p id="ingresosHoy" class="text-4xl font-black text-black dark:text-white mt-2">S/ 0</p>
+                                <p class="text-xs text-text-muted mt-2">Pagos recibidos hoy</p>
+                            </div>
+                            <span class="material-symbols-outlined text-5xl text-blue-600">today</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white dark:bg-surface-dark p-6 rounded-xl shadow-md border-l-4 border-amber-600">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <p class="text-sm font-semibold text-text-muted dark:text-gray-400 uppercase">Total Matrículas</p>
+                                <p id="totalMatriculas" class="text-4xl font-black text-black dark:text-white mt-2">S/ 0</p>
+                                <p class="text-xs text-text-muted mt-2">Cobro único por deporte</p>
+                            </div>
+                            <span class="material-symbols-outlined text-5xl text-amber-600">badge</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-surface-dark p-6 rounded-xl shadow-md border-l-4 border-purple-600">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <p class="text-sm font-semibold text-text-muted dark:text-gray-400 uppercase">Total Mensualidades</p>
+                                <p id="totalMensualidades" class="text-4xl font-black text-black dark:text-white mt-2">S/ 0</p>
+                                <p class="text-xs text-text-muted mt-2">Pagos mensuales confirmados</p>
+                            </div>
+                            <span class="material-symbols-outlined text-5xl text-purple-600">payments</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gráficas -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white dark:bg-surface-dark p-6 rounded-xl shadow-md">
+                        <h3 class="text-xl font-bold text-black dark:text-white mb-6 uppercase tracking-tight">Ingresos por Deporte</h3>
+                        <div class="h-96">
+                            <canvas id="chartDeportes"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-surface-dark p-6 rounded-xl shadow-md">
+                        <h3 class="text-xl font-bold text-black dark:text-white mb-6 uppercase tracking-tight">Distribución de Ingresos</h3>
+                        <div class="h-96 flex items-center justify-center">
+                            <canvas id="chartDistribucion"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabla Ingresos por Deporte -->
+                <div class="bg-white dark:bg-surface-dark rounded-xl p-6 shadow-xl">
+                    <h3 class="text-xl font-bold text-black dark:text-white mb-6 uppercase tracking-tight">Detalle por Deporte</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full">
+                            <thead>
+                                <tr class="border-b-2 border-primary">
+                                    <th class="px-4 py-3 text-left text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-wider">Deporte</th>
+                                    <th class="px-4 py-3 text-right text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-wider">Matrículas</th>
+                                    <th class="px-4 py-3 text-right text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-wider">Mensualidades</th>
+                                    <th class="px-4 py-3 text-right text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-wider">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaDeportes">
+                                <!-- Filas dinámicas -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tabla Top Alumnos -->
+                <div class="bg-white dark:bg-surface-dark rounded-xl p-6 shadow-xl">
+                    <h3 class="text-xl font-bold text-black dark:text-white mb-6 uppercase tracking-tight">Top 10 Alumnos por Ingresos</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full">
+                            <thead>
+                                <tr class="border-b-2 border-primary">
+                                    <th class="px-4 py-3 text-left text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-wider">DNI</th>
+                                    <th class="px-4 py-3 text-left text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-wider">Nombres</th>
+                                    <th class="px-4 py-3 text-left text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-wider">Deportes</th>
+                                    <th class="px-4 py-3 text-right text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-wider">Matrículas</th>
+                                    <th class="px-4 py-3 text-right text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-wider">Mensualidades</th>
+                                    <th class="px-4 py-3 text-right text-xs font-bold text-text-muted dark:text-gray-400 uppercase tracking-wider">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaAlumnos">
+                                <!-- Filas dinámicas -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="bg-surface-light dark:bg-surface-dark border-t border-border-color py-6 mt-12">
+        <div class="text-center">
+            <p class="text-sm text-text-muted dark:text-gray-400">
+                JAGUARES - Dashboard Financiero
+            </p>
+            <p class="text-xs text-text-muted dark:text-gray-500 mt-1">
+                Última actualización: <span id="timestampActualizacion">-</span>
+            </p>
+        </div>
+    </footer>
+
+    <script src="js/admin-dashboard.js"></script>
+</body>
+</html>

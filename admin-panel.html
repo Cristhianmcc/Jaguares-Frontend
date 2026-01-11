@@ -85,6 +85,12 @@
                     Panel de <span class="text-primary">Control</span>
                 </h1>
                 <p class="text-text-muted dark:text-gray-400 mt-2">Gestión de inscripciones y usuarios</p>
+                <div class="mt-4">
+                    <a href="admin-dashboard.html" class="inline-flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg font-semibold text-sm transition-colors">
+                        <span class="material-symbols-outlined">analytics</span>
+                        Ver Dashboard Financiero
+                    </a>
+                </div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
@@ -118,13 +124,25 @@
                     </div>
                 </div>
 
+                <div class="bg-white dark:bg-surface-dark p-6 rounded-xl shadow-md border-l-4 border-gray-400">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-semibold text-text-muted dark:text-gray-400 uppercase">Inactivos</p>
+                            <p id="totalInactivos" class="text-3xl font-black text-black dark:text-white mt-1">0</p>
+                        </div>
+                        <span class="material-symbols-outlined text-5xl text-gray-400">person_off</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 gap-6 mb-8">
                 <div class="bg-white dark:bg-surface-dark p-6 rounded-xl shadow-md border-l-4 border-primary">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-sm font-semibold text-text-muted dark:text-gray-400 uppercase">Ingresos</p>
-                            <p id="totalIngresos" class="text-3xl font-black text-black dark:text-white mt-1">S/ 0</p>
+                            <p class="text-sm font-semibold text-text-muted dark:text-gray-400 uppercase">Estadísticas</p>
+                            <p class="text-lg font-black text-black dark:text-white mt-1">Dashboard</p>
                         </div>
-                        <span class="material-symbols-outlined text-5xl text-primary">payments</span>
+                        <a href="admin-dashboard.html" class="material-symbols-outlined text-5xl text-primary hover:text-primary-dark transition-colors cursor-pointer">analytics</a>
                     </div>
                 </div>
             </div>
@@ -349,24 +367,75 @@
         </div>
     </main>
 
-    <div id="modalEliminar" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-surface-dark rounded-xl p-8 max-w-md w-full shadow-2xl">
+    <!-- Modal Desactivar Usuario -->
+    <div id="modalDesactivar" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-surface-dark rounded-xl p-8 max-w-md w-full shadow-2xl border-2 border-red-500/30">
             <div class="text-center mb-6">
-                <span class="material-symbols-outlined text-6xl text-red-500">warning</span>
-                <h3 class="text-2xl font-bold text-black dark:text-white mt-4 uppercase">Confirmar Eliminación</h3>
+                <div class="w-16 h-16 mx-auto rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-4xl text-red-600 dark:text-red-400">person_off</span>
+                </div>
+                <h3 class="text-2xl font-bold text-black dark:text-white mt-4 uppercase tracking-tight">Desactivar Usuario</h3>
             </div>
             <p class="text-text-muted dark:text-gray-400 text-center mb-2">
-                Se eliminarán TODOS los registros del usuario con DNI <span id="dniEliminar" class="font-bold text-black dark:text-white"></span>
+                ¿Estás seguro de desactivar al usuario con DNI <span id="dniDesactivar" class="font-bold text-black dark:text-white font-mono"></span>?
             </p>
-            <p class="text-sm text-red-600 font-bold text-center mb-6">
-                (Incluye: días, deportes, inscripciones y pagos - No se puede deshacer)
-            </p>
+            <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-3">
+                <p class="text-sm text-red-800 dark:text-red-300 font-bold mb-2">
+                    <span class="material-symbols-outlined text-base align-middle mr-1">warning</span>
+                    Se desactivarán TODAS las inscripciones de este DNI
+                </p>
+                <p class="text-xs text-red-700 dark:text-red-400">
+                    El usuario no podrá consultar sus datos ni asistir a ninguno de sus deportes/horarios registrados.
+                </p>
+            </div>
+            <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 mb-6">
+                <p class="text-xs text-blue-800 dark:text-blue-300">
+                    <strong>💡 Control granular:</strong> Para desactivar solo una inscripción específica (1 deporte/horario), hazlo manualmente desde la hoja <span class="font-mono bg-blue-100 dark:bg-blue-900/40 px-1 rounded">INSCRIPCIONES</span> en Google Sheets cambiando el campo <span class="font-mono">estado_usuario</span> a <span class="font-mono">inactivo</span>.
+                </p>
+            </div>
             <div class="flex gap-3">
-                <button id="btnCancelarEliminar" class="flex-1 px-4 py-3 bg-gray-200 hover:bg-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 text-black dark:text-white rounded-lg font-semibold transition-colors">
+                <button id="btnCancelarDesactivar" class="flex-1 px-4 py-3 bg-gray-200 hover:bg-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 text-black dark:text-white rounded-lg font-bold uppercase tracking-wide transition-colors">
                     Cancelar
                 </button>
-                <button id="btnConfirmarEliminar" class="flex-1 px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold transition-colors">
-                    Eliminar
+                <button id="btnConfirmarDesactivar" class="flex-1 px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold uppercase tracking-wide transition-colors shadow-lg">
+                    Desactivar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Reactivar Usuario -->
+    <div id="modalReactivar" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-surface-dark rounded-xl p-8 max-w-md w-full shadow-2xl border-2 border-green-500/30">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 mx-auto rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-4xl text-green-600 dark:text-green-400">check_circle</span>
+                </div>
+                <h3 class="text-2xl font-bold text-black dark:text-white mt-4 uppercase tracking-tight">Reactivar Usuario</h3>
+            </div>
+            <p class="text-text-muted dark:text-gray-400 text-center mb-2">
+                ¿Confirmas reactivar al usuario con DNI <span id="dniReactivar" class="font-bold text-black dark:text-white font-mono"></span>?
+            </p>
+            <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 mb-3">
+                <p class="text-sm text-green-800 dark:text-green-300 font-bold mb-2">
+                    <span class="material-symbols-outlined text-base align-middle mr-1">check_circle</span>
+                    Se reactivarán TODAS las inscripciones de este DNI
+                </p>
+                <p class="text-xs text-green-700 dark:text-green-400">
+                    El usuario podrá volver a consultar sus datos y asistir a todos sus deportes/horarios registrados.
+                </p>
+            </div>
+            <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 mb-6">
+                <p class="text-xs text-blue-800 dark:text-blue-300">
+                    <strong>💡 Control granular:</strong> Para reactivar solo una inscripción específica, hazlo manualmente desde la hoja <span class="font-mono bg-blue-100 dark:bg-blue-900/40 px-1 rounded">INSCRIPCIONES</span> en Google Sheets.
+                </p>
+            </div>
+            <div class="flex gap-3">
+                <button id="btnCancelarReactivar" class="flex-1 px-4 py-3 bg-gray-200 hover:bg-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 text-black dark:text-white rounded-lg font-bold uppercase tracking-wide transition-colors">
+                    Cancelar
+                </button>
+                <button id="btnConfirmarReactivar" class="flex-1 px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-bold uppercase tracking-wide transition-colors shadow-lg">
+                    Reactivar
                 </button>
             </div>
         </div>

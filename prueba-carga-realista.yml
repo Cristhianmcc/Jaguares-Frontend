@@ -1,0 +1,114 @@
+# PRUEBAS DE CARGA - ACADEMIA JAGUARES
+# =======================================
+#
+# Simula tráfico real de usuarios consultando horarios e inscripciones
+# 
+# Ejecutar: artillery run prueba-carga-realista.yml
+#
+# Escenarios:
+# - Fase 1: Warm-up (10 usuarios/seg por 30s)
+# - Fase 2: Tráfico normal (25 usuarios/seg por 1 min)
+# - Fase 3: Hora pico (50 usuarios/seg por 1 min)
+# - Fase 4: Stress test (100 usuarios/seg por 30s)
+
+config:
+  target: "https://jaguares-backend.onrender.com"
+  phases:
+    # Fase 1: Warm-up
+    - duration: 30
+      arrivalRate: 10
+      name: "Warm-up - 10 usuarios/seg"
+    
+    # Fase 2: Tráfico normal
+    - duration: 60
+      arrivalRate: 25
+      name: "Tráfico normal - 25 usuarios/seg"
+    
+    # Fase 3: Hora pico (después de escuela)
+    - duration: 60
+      arrivalRate: 50
+      name: "Hora pico - 50 usuarios/seg"
+    
+    # Fase 4: Stress test
+    - duration: 30
+      arrivalRate: 100
+      name: "Stress test - 100 usuarios/seg"
+  
+  # Configuración de timeouts
+  timeout: 30
+  
+  # Variables globales
+  variables:
+    dnis:
+      - "72506545"
+      - "74625021"
+      - "12345678"
+      - "36541225"
+      - "66516549"
+      - "64516349"
+      - "98648949"
+      - "99999999"
+    
+    anos_nacimiento:
+      - "2015"
+      - "2014"
+      - "2016"
+      - "2013"
+      - "2017"
+  
+  # Plugins para métricas detalladas
+  plugins:
+    expect: {}
+    metrics-by-endpoint:
+      stripQueryString: true
+
+scenarios:
+  # Escenario 1: Usuario consulta horarios disponibles (70% del tráfico)
+  - name: "Consultar horarios disponibles"
+    weight: 70
+    flow:
+      - get:
+          url: "/api/horarios"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: horarios
+      
+      # Consultar horarios filtrados por edad
+      - get:
+          url: "/api/horarios?año_nacimiento={{ $randomNumber(2010, 2020) }}"
+          expect:
+            - statusCode: 200
+  
+  # Escenario 2: Usuario consulta su inscripción (20% del tráfico)
+  - name: "Consultar inscripción por DNI"
+    weight: 20
+    flow:
+      - get:
+          url: "/api/consultar/{{ $randomString() }}"
+          beforeRequest: "generateRandomDNI"
+          expect:
+            - statusCode: [200, 400]
+  
+  # Escenario 3: Verificar caché (5% del tráfico)
+  - name: "Estadísticas de caché"
+    weight: 5
+    flow:
+      - get:
+          url: "/api/cache/stats"
+          expect:
+            - statusCode: 200
+            - hasProperty: cache
+  
+  # Escenario 4: Health check (5% del tráfico)
+  - name: "Health check"
+    weight: 5
+    flow:
+      - get:
+          url: "/api/health"
+          expect:
+            - statusCode: 200
+            - hasProperty: status
+
+# Funciones personalizadas
+processor: "./artillery-helpers.js"

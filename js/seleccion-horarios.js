@@ -289,6 +289,10 @@ function crearCardHorario(horario) {
     const iconoDeporte = obtenerIconoDeporte(horario.deporte);
     const cuposRestantes = horario.cupos_restantes !== undefined ? horario.cupos_restantes : (horario.cupo_maximo || 20) - (horario.cupos_ocupados || 0);
     const lleno = cuposRestantes <= 0;
+    const precioTexto = horario.precio ? Utils.formatearPrecio(horario.precio) : 'Consultar';
+    
+    // Obtener colores del plan
+    const planInfo = obtenerEstiloPlan(horario.plan);
     
     // Card para horario lleno
     if (lleno) {
@@ -308,7 +312,10 @@ function crearCardHorario(horario) {
                             <p class="text-xs font-bold text-gray-500 dark:text-gray-500 uppercase tracking-wider">${horario.sede || 'Sede Principal'}</p>
                         </div>
                     </div>
-                    <span class="px-2.5 py-1 rounded-md bg-gray-300 text-gray-600 dark:bg-gray-700 dark:text-gray-400 text-[10px] font-black uppercase tracking-wider border-2 border-gray-400 dark:border-gray-600">Lleno</span>
+                    <div class="flex flex-col items-end gap-1">
+                        ${planInfo.badge}
+                        <span class="px-2.5 py-1 rounded-md bg-gray-300 text-gray-600 dark:bg-gray-700 dark:text-gray-400 text-[10px] font-black uppercase tracking-wider border-2 border-gray-400 dark:border-gray-600">Lleno</span>
+                    </div>
                 </div>
                 <div class="flex flex-col gap-3 my-2 pl-1 z-10 grayscale opacity-50">
                     <div class="flex items-center gap-3 text-gray-700 dark:text-gray-400">
@@ -318,6 +325,10 @@ function crearCardHorario(horario) {
                     <div class="flex items-center gap-3 text-gray-600 dark:text-gray-500 text-sm">
                         <span class="material-symbols-outlined text-xl">diversity_3</span>
                         <span class="font-medium">${horario.categoria || 'Juveniles'}</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-gray-600 dark:text-gray-500 text-sm">
+                        <span class="material-symbols-outlined text-xl">payments</span>
+                        <span class="font-bold">${precioTexto}</span>
                     </div>
                 </div>
                 <div class="h-px w-full bg-gray-300 dark:bg-gray-700 z-10"></div>
@@ -349,7 +360,10 @@ function crearCardHorario(horario) {
                             <p class="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider">${horario.sede || 'Sede Principal'}</p>
                         </div>
                     </div>
-                    <span class="px-2.5 py-1 rounded-md bg-primary text-black text-[10px] font-black uppercase tracking-wider shadow-sm">Seleccionado</span>
+                    <div class="flex flex-col items-end gap-1">
+                        ${planInfo.badge}
+                        <span class="px-2.5 py-1 rounded-md bg-primary text-black text-[10px] font-black uppercase tracking-wider shadow-sm">Seleccionado</span>
+                    </div>
                 </div>
                 <div class="flex flex-col gap-3 my-2 pl-1">
                     <div class="flex items-center gap-3 text-gray-900 dark:text-gray-100">
@@ -359,6 +373,10 @@ function crearCardHorario(horario) {
                     <div class="flex items-center gap-3 text-gray-700 dark:text-gray-300 text-sm">
                         <span class="material-symbols-outlined text-xl">diversity_3</span>
                         <span class="font-medium">${horario.categoria || 'Nivel Intermedio'}</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-gray-900 dark:text-gray-100 text-sm">
+                        <span class="material-symbols-outlined text-xl text-primary">payments</span>
+                        <span class="font-bold">${precioTexto}</span>
                     </div>
                 </div>
                 <div class="h-px w-full bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
@@ -393,7 +411,10 @@ function crearCardHorario(horario) {
                         <p class="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider">${horario.sede || 'Sede Principal'}</p>
                     </div>
                 </div>
-                <span class="px-2.5 py-1 rounded-md bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-400 text-[10px] font-black uppercase tracking-wider border-2 border-green-200 dark:border-green-800">Disponible</span>
+                <div class="flex flex-col items-end gap-1">
+                    ${planInfo.badge}
+                    <span class="px-2.5 py-1 rounded-md bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-400 text-[10px] font-black uppercase tracking-wider border-2 border-green-200 dark:border-green-800">Disponible</span>
+                </div>
             </div>
             <div class="flex flex-col gap-3 my-2 pl-1">
                 <div class="flex items-center gap-3 text-gray-900 dark:text-gray-100">
@@ -403,6 +424,10 @@ function crearCardHorario(horario) {
                 <div class="flex items-center gap-3 text-gray-700 dark:text-gray-300 text-sm">
                     <span class="material-symbols-outlined text-xl">diversity_3</span>
                     <span class="font-medium">${horario.categoria || horario.dia}</span>
+                </div>
+                <div class="flex items-center gap-3 text-gray-700 dark:text-gray-300 text-sm">
+                    <span class="material-symbols-outlined text-xl">payments</span>
+                    <span class="font-bold">${precioTexto}</span>
                 </div>
             </div>
             <div class="h-px w-full bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-700 to-transparent"></div>
@@ -433,7 +458,68 @@ function obtenerIconoDeporte(deporte) {
     return iconos[deporte] || 'sports';
 }
 
-function toggleHorario(horarioId) {
+/**
+ * Obtener estilo visual para el plan (Económico, Avanzado, Premium)
+ */
+function obtenerEstiloPlan(plan) {
+    if (!plan) {
+        return { badge: '', color: '', bgColor: '', borderColor: '' };
+    }
+    
+    const planNormalizado = plan.toString().toLowerCase().trim();
+    
+    const estilos = {
+        'economico': {
+            color: 'text-blue-700 dark:text-blue-400',
+            bgColor: 'bg-blue-100 dark:bg-blue-900/30',
+            borderColor: 'border-blue-300 dark:border-blue-700',
+            icon: 'savings'
+        },
+        'económico': {
+            color: 'text-blue-700 dark:text-blue-400',
+            bgColor: 'bg-blue-100 dark:bg-blue-900/30',
+            borderColor: 'border-blue-300 dark:border-blue-700',
+            icon: 'savings'
+        },
+        'estandar': {
+            color: 'text-orange-700 dark:text-orange-400',
+            bgColor: 'bg-orange-100 dark:bg-orange-900/30',
+            borderColor: 'border-orange-300 dark:border-orange-700',
+            icon: 'star'
+        },
+        'estándar': {
+            color: 'text-orange-700 dark:text-orange-400',
+            bgColor: 'bg-orange-100 dark:bg-orange-900/30',
+            borderColor: 'border-orange-300 dark:border-orange-700',
+            icon: 'star'
+        },
+        'avanzado': {
+            color: 'text-orange-700 dark:text-orange-400',
+            bgColor: 'bg-orange-100 dark:bg-orange-900/30',
+            borderColor: 'border-orange-300 dark:border-orange-700',
+            icon: 'star'
+        },
+        'premium': {
+            color: 'text-purple-700 dark:text-purple-400',
+            bgColor: 'bg-purple-100 dark:bg-purple-900/30',
+            borderColor: 'border-purple-300 dark:border-purple-700',
+            icon: 'crown'
+        }
+    };
+    
+    const estilo = estilos[planNormalizado] || estilos['economico'];
+    
+    estilo.badge = `
+        <span class="px-2 py-0.5 rounded-md ${estilo.bgColor} ${estilo.color} ${estilo.borderColor} text-[9px] font-black uppercase tracking-wider border flex items-center gap-1">
+            <span class="material-symbols-outlined text-[12px]">${estilo.icon}</span>
+            ${plan}
+        </span>
+    `;
+    
+    return estilo;
+}
+
+async function toggleHorario(horarioId) {
     // Convertir a número para comparación (los IDs vienen como números del backend)
     const idNumerico = parseInt(horarioId);
     
@@ -507,6 +593,35 @@ function toggleHorario(horarioId) {
                 'warning'
             );
             return;
+        }
+        
+        // VALIDAR SI YA ESTÁ INSCRITO EN ESTE HORARIO (consultar backend)
+        const datosInscripcion = LocalStorage.get('datosInscripcion');
+        if (datosInscripcion && datosInscripcion.alumno && datosInscripcion.alumno.dni) {
+            try {
+                const resultado = await academiaAPI.consultarInscripcion(datosInscripcion.alumno.dni);
+                
+                if (resultado.success && resultado.horarios && resultado.horarios.length > 0) {
+                    const yaInscrito = resultado.horarios.some(h => {
+                        return h.deporte.toUpperCase() === horario.deporte.toUpperCase() &&
+                               h.dia.toUpperCase() === horario.dia.toUpperCase() &&
+                               h.hora_inicio === horario.hora_inicio &&
+                               h.hora_fin === horario.hora_fin;
+                    });
+                    
+                    if (yaInscrito) {
+                        mostrarModal(
+                            `Ya estás inscrito en ${horario.deporte} el ${horario.dia} de ${horario.hora_inicio} a ${horario.hora_fin}.\n\n` +
+                            `No puedes inscribirte nuevamente en el mismo horario.`,
+                            'error'
+                        );
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.error('Error al validar inscripción previa:', error);
+                // Continuar si falla la consulta
+            }
         }
         
         // Seleccionar

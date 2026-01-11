@@ -65,6 +65,17 @@ async function consultarPorDNI(dni) {
             datosUsuario = resultado; // El resultado ya contiene alumno, pago, horarios
             mostrarResultados();
         } else {
+            // Verificar si el usuario está inactivo
+            if (resultado.inactivo) {
+                mostrarModalInactivo(dni);
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = `
+                    <span>Consultar Estado</span>
+                    <span class="material-symbols-outlined">search</span>
+                `;
+                return;
+            }
+            
             mostrarNotificacion(resultado.error || 'No se encontró ninguna inscripción con ese DNI', 'error');
             btnSubmit.disabled = false;
             btnSubmit.innerHTML = `
@@ -429,6 +440,52 @@ function cerrarSesion() {
         <span class="material-symbols-outlined">search</span>
     `;
 }
+
+/**
+ * Mostrar modal para usuario inactivo
+ */
+function mostrarModalInactivo(dni) {
+    const modal = document.getElementById('modalInactivo');
+    const modalDni = document.getElementById('modalInactivoDni');
+    
+    modalDni.textContent = dni;
+    
+    // Actualizar link de WhatsApp con DNI
+    const whatsappBtn = modal.querySelector('a[href*="wa.me"]');
+    const mensajeWhatsApp = `Hola, quiero reactivar mi membresía. Mi DNI es: ${dni}`;
+    whatsappBtn.href = `https://wa.me/51997621348?text=${encodeURIComponent(mensajeWhatsApp)}`;
+    
+    // Mostrar modal
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    
+    // Prevenir scroll del body
+    document.body.style.overflow = 'hidden';
+}
+
+/**
+ * Cerrar modal de usuario inactivo
+ */
+function cerrarModalInactivo() {
+    const modal = document.getElementById('modalInactivo');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    
+    // Restaurar scroll del body
+    document.body.style.overflow = '';
+}
+
+// Cerrar modal al hacer clic fuera de él
+document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('modalInactivo');
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                cerrarModalInactivo();
+            }
+        });
+    }
+});
 
 function mostrarNotificacion(mensaje, tipo = 'info') {
     // Usar siempre el sistema de notificaciones de Utils
