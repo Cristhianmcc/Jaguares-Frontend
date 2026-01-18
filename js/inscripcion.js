@@ -97,12 +97,48 @@ function manejarImagenSeleccionada(event, tipo) {
  */
 function mostrarPreview(base64, tipo) {
     const previewDiv = document.getElementById(`preview_${tipo}`);
+    const uploadBtn = document.getElementById(`upload_btn_${tipo}`);
     const img = previewDiv.querySelector('img');
     
-    if (img && previewDiv) {
+    if (img && previewDiv && uploadBtn) {
         img.src = base64;
         previewDiv.classList.remove('hidden');
+        uploadBtn.classList.add('hidden'); // Ocultar botón de subir
     }
+}
+
+/**
+ * Eliminar imagen seleccionada
+ */
+function eliminarImagen(tipo) {
+    // Limpiar la variable correspondiente
+    if (tipo === 'dni_frontal') {
+        imagenDNIFrontal = null;
+    } else if (tipo === 'dni_reverso') {
+        imagenDNIReverso = null;
+    } else if (tipo === 'foto_carnet') {
+        imagenFotoCarnet = null;
+    }
+    
+    // Limpiar el input file
+    const input = document.getElementById(tipo);
+    if (input) {
+        input.value = '';
+    }
+    
+    // Ocultar preview y mostrar botón de subir
+    const previewDiv = document.getElementById(`preview_${tipo}`);
+    const uploadBtn = document.getElementById(`upload_btn_${tipo}`);
+    
+    if (previewDiv) {
+        previewDiv.classList.add('hidden');
+    }
+    
+    if (uploadBtn) {
+        uploadBtn.classList.remove('hidden');
+    }
+    
+    Utils.mostrarNotificacion('Imagen eliminada correctamente', 'success');
 }
 
 function cargarDatosGuardados() {
@@ -305,6 +341,6 @@ async function handleSubmit(e) {
         fecha: new Date().toISOString()
     });
     
-    // Ir al siguiente paso
-    window.location.href = 'seleccion-horarios.html';
+    // Ir al siguiente paso - CRONOGRAMA NUEVO
+    window.location.href = 'seleccion-horarios-new.html';
 }

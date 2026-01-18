@@ -52,7 +52,10 @@ async function consultarPorDNI(dni) {
             
             if (estadoPago !== 'confirmado' && estadoPago !== 'activo') {
                 // Pago no confirmado - mostrar mensaje y no permitir acceso
-                mostrarPagoNoConfirmado(resultado.pago);
+                console.log('📋 Datos completos recibidos:', resultado);
+                console.log('🔍 Comprobante URL:', resultado.pago.comprobante_url);
+                console.log('👤 DNI:', resultado.alumno.dni);
+                mostrarPagoNoConfirmado(resultado);
                 btnSubmit.disabled = false;
                 btnSubmit.innerHTML = `
                     <span>Consultar Estado</span>
@@ -84,6 +87,18 @@ async function consultarPorDNI(dni) {
             `;
         }
     } catch (error) {
+        // Si es un error 403, es un usuario inactivo (esperado, no es error real)
+        if (error.response && error.response.status === 403) {
+            mostrarModalInactivo(dni);
+            btnSubmit.disabled = false;
+            btnSubmit.innerHTML = `
+                <span>Consultar Estado</span>
+                <span class="material-symbols-outlined">search</span>
+            `;
+            return;
+        }
+        
+        // Solo mostrar error en consola si NO es 403
         console.error('Error al consultar:', error);
         mostrarNotificacion('Error al consultar. Intente nuevamente.', 'error');
         btnSubmit.disabled = false;
@@ -136,8 +151,13 @@ function mostrarResultados() {
 /**
  * Mostrar mensaje cuando el pago no está confirmado
  */
-function mostrarPagoNoConfirmado(datosPago) {
+function mostrarPagoNoConfirmado(resultado) {
     const vistaIngreso = document.getElementById('vistaIngreso');
+    const datosPago = resultado.pago;
+    const dni = resultado.alumno.dni;
+    
+    // Guardar DNI globalmente para usarlo en el modal de subida tardía
+    window.dniUsuarioActual = dni;
     
     // Crear HTML del mensaje (sin ocultarlo del DOM, solo reemplazamos el contenido)
     vistaIngreso.innerHTML = `
@@ -213,7 +233,13 @@ function mostrarPagoNoConfirmado(datosPago) {
 
                 <!-- Botones de acción -->
                 <div class="flex flex-col gap-3 mt-6">
-                    ${datosPago.codigo_operacion ? `
+                    ${!datosPago.comprobante_url ? `
+                    <button onclick="abrirModalSubirComprobante()" 
+                       class="flex items-center justify-center gap-2 h-12 rounded-lg bg-gradient-to-r from-primary to-primary-dark text-black font-bold text-sm uppercase tracking-wider hover:brightness-110 transition-all shadow-lg shadow-primary/20">
+                        <span class="material-symbols-outlined">upload</span>
+                        <span>Subir Comprobante de Pago</span>
+                    </button>
+                    ` : datosPago.codigo_operacion ? `
                     <a href="confirmacion.html?codigo=${datosPago.codigo_operacion}" 
                        class="flex items-center justify-center gap-2 h-12 rounded-lg bg-gradient-to-r from-primary to-primary-dark text-black font-bold text-sm uppercase tracking-wider hover:brightness-110 transition-all shadow-lg shadow-primary/20">
                         <span class="material-symbols-outlined">upload</span>
@@ -281,6 +307,22 @@ function renderizarEstado() {
                         <p class="text-xs text-text-muted dark:text-gray-400 font-bold uppercase">Código de Operación</p>
                         <p class="text-sm font-black text-black dark:text-white font-mono">${datosUsuario.pago.codigo}</p>
                     </div>
+                </div>
+                ` : ''}
+                
+                ${!datosUsuario.pago.comprobante_url || datosUsuario.pago.comprobante_url === '' ? `
+                <div class="mt-4 p-4 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800 rounded-lg">
+                    <div class="flex items-start gap-3 mb-3">
+                        <span class="material-symbols-outlined text-amber-600">upload_file</span>
+                        <div class="flex-1">
+                            <p class="text-sm font-bold text-amber-900 dark:text-amber-200 mb-1">¿No subiste tu comprobante?</p>
+                            <p class="text-xs text-amber-700 dark:text-amber-300">Si cambiaste de opinión sobre el pago en efectivo, puedes subir tu comprobante de Plin o transferencia aquí.</p>
+                        </div>
+                    </div>
+                    <button onclick="abrirModalSubirComprobante()" class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-primary to-primary-dark hover:brightness-110 text-black font-bold rounded-lg transition-all shadow-lg">
+                        <span class="material-symbols-outlined">add_photo_alternate</span>
+                        <span>Subir Comprobante de Pago</span>
+                    </button>
                 </div>
                 ` : ''}
             </div>
@@ -452,7 +494,7 @@ function mostrarModalInactivo(dni) {
     
     // Actualizar link de WhatsApp con DNI
     const whatsappBtn = modal.querySelector('a[href*="wa.me"]');
-    const mensajeWhatsApp = `Hola, quiero reactivar mi membresía. Mi DNI es: ${dni}`;
+    const mensajeWhatsApp = `Hola, mi membresía fue suspendida por falta de pago. Quiero reactivar mi cuenta enviando mi comprobante. Mi DNI es: ${dni}`;
     whatsappBtn.href = `https://wa.me/51997621348?text=${encodeURIComponent(mensajeWhatsApp)}`;
     
     // Mostrar modal
@@ -476,6 +518,125 @@ function cerrarModalInactivo() {
 }
 
 // Cerrar modal al hacer clic fuera de él
+document.addEventListener('click', (e) => {
+    const modal = document.getElementById('modalInactivo');
+    if (modal && e.target === modal) {
+        cerrarModalInactivo();
+    }
+});
+
+/**
+ * Abrir modal para subir comprobante tardío
+ */
+function abrirModalSubirComprobante() {
+    const modalHTML = `
+        <div id="modalSubirComprobante" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+            <div class="bg-white dark:bg-surface-dark rounded-2xl shadow-2xl max-w-md w-full p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-2xl font-black text-black dark:text-white">Subir Comprobante</h3>
+                    <button onclick="cerrarModalSubirComprobante()" class="size-10 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center justify-center transition-colors">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+                
+                <div class="space-y-4">
+                    <div class="bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                        <div class="flex items-start gap-3">
+                            <span class="material-symbols-outlined text-blue-600">info</span>
+                            <div class="flex-1">
+                                <p class="text-sm text-blue-900 dark:text-blue-200 font-semibold mb-1">Importante</p>
+                                <p class="text-xs text-blue-700 dark:text-blue-300">Asegúrate de que el comprobante sea legible y muestre claramente el código de operación.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-bold text-text-main dark:text-white mb-2">Seleccionar Comprobante</label>
+                        <input type="file" id="inputComprobanteTardio" accept="image/*" class="hidden" onchange="previsualizarComprobante(event)">
+                        <button onclick="document.getElementById('inputComprobanteTardio').click()" class="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg hover:border-primary dark:hover:border-primary transition-colors">
+                            <span class="material-symbols-outlined">add_photo_alternate</span>
+                            <span class="text-sm font-semibold">Seleccionar Imagen</span>
+                        </button>
+                    </div>
+                    
+                    <div id="previsualizacionComprobante" class="hidden">
+                        <img id="imgPreview" class="w-full rounded-lg border-2 border-gray-200 dark:border-gray-700" alt="Vista previa">
+                        <p id="nombreArchivo" class="text-xs text-text-muted dark:text-gray-400 mt-2 text-center"></p>
+                    </div>
+                    
+                    <button id="btnSubirComprobanteTardio" onclick="subirComprobanteTardio()" disabled class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-primary hover:brightness-110 text-black font-bold rounded-lg transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span class="material-symbols-outlined">upload</span>
+                        <span>Subir Comprobante</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+/**
+ * Cerrar modal de subir comprobante
+ */
+function cerrarModalSubirComprobante() {
+    const modal = document.getElementById('modalSubirComprobante');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+/**
+ * Previsualizar comprobante seleccionado
+ */
+function previsualizarComprobante(event) {
+    const file = event.target.files[0];
+    const btnSubir = document.getElementById('btnSubirComprobanteTardio');
+    const preview = document.getElementById('previsualizacionComprobante');
+    const img = document.getElementById('imgPreview');
+    const nombreArchivo = document.getElementById('nombreArchivo');
+    
+    if (file) {
+        // Validar tipo de archivo
+        if (!file.type.startsWith('image/')) {
+            mostrarNotificacion('Por favor selecciona una imagen válida', 'error');
+            return;
+        }
+        
+        // Validar tamaño (máximo 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            mostrarNotificacion('La imagen no debe superar los 5MB', 'error');
+            return;
+        }
+        
+        // Mostrar preview
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            img.src = e.target.result;
+            nombreArchivo.textContent = file.name;
+            preview.classList.remove('hidden');
+            btnSubir.disabled = false;
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+/**
+ * Subir comprobante tardío (PENDIENTE: implementar endpoint)
+ */
+async function subirComprobanteTardio() {
+    const input = document.getElementById('inputComprobanteTardio');
+    const file = input.files[0];
+    
+    if (!file) {
+        mostrarNotificacion('Por favor selecciona un comprobante', 'error');
+        return;
+    }
+    
+    // TODO: Implementar en Parte 2
+    mostrarNotificacion('⚙️ Funcionalidad en desarrollo. Próximamente podrás subir tu comprobante aquí.', 'info');
+    cerrarModalSubirComprobante();
+}
 document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('modalInactivo');
     if (modal) {

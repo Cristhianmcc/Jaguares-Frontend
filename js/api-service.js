@@ -123,7 +123,7 @@ const API_CONFIG = {
     cacheTTL: {
         horarios: 5,        // 5 minutos
         inscripciones: 2,   // 2 minutos
-        consultas: 1        // 1 minuto
+        consultas: 0        // 0 = NO cachear (siempre datos frescos)
     }
 };
 
@@ -149,12 +149,21 @@ class AcademiaAPI {
             const data = await response.json();
 
             if (!response.ok) {
-                throw new Error(data.error || 'Error en la petición');
+                // Crear error con información completa
+                const error = new Error(data.error || 'Error en la petición');
+                error.response = {
+                    status: response.status,
+                    data: data
+                };
+                throw error;
             }
 
             return data;
         } catch (error) {
-            console.error('Error en petición:', error);
+            // Solo mostrar error en consola si NO es un 403 (usuario inactivo esperado)
+            if (!error.response || error.response.status !== 403) {
+                console.error('Error en petición:', error);
+            }
             throw error;
         }
     }
@@ -296,8 +305,9 @@ class AcademiaAPI {
             // Generar clave de caché única por DNI
             const cacheKey = `consulta_${dni}`;
             
-            // Intentar obtener del caché si no se fuerza refresh
-            if (!forceRefresh) {
+            // NO usar caché para consultas (siempre datos frescos del servidor)
+            // Intentar obtener del caché solo si no se fuerza refresh Y el TTL > 0
+            if (!forceRefresh && API_CONFIG.cacheTTL.consultas > 0) {
                 const cachedData = cache.get(cacheKey);
                 if (cachedData) {
                     console.log('⚡ Consulta cargada desde caché (instantáneo)');
@@ -305,10 +315,11 @@ class AcademiaAPI {
                 }
             }
 
+            console.log('🔄 Consultando datos frescos del servidor...');
             const data = await this.request(`/api/consultar/${dni}`);
             
-            // Guardar en caché
-            if (data.success) {
+            // Solo guardar en caché si el TTL > 0
+            if (data.success && API_CONFIG.cacheTTL.consultas > 0) {
                 cache.set(cacheKey, data, API_CONFIG.cacheTTL.consultas);
             }
 

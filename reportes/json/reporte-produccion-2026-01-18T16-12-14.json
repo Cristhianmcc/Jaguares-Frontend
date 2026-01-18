@@ -1,0 +1,240 @@
+{
+  "fecha": "2026-01-18T16:12:14.642Z",
+  "configuracion": {
+    "baseURL": "http://localhost:3002",
+    "usuariosConcurrentes": 50,
+    "timeout": 30000
+  },
+  "resumen": {
+    "totalTests": 25,
+    "exitosos": 11,
+    "fallidos": 14,
+    "tasaExito": "44.00%"
+  },
+  "endpoints": {
+    "Health Check": {
+      "estado": "OK",
+      "tiempo": "33.29ms",
+      "statusCode": 200
+    },
+    "API Health": {
+      "estado": "OK",
+      "tiempo": "22.70ms",
+      "statusCode": 200
+    },
+    "Cache Stats": {
+      "estado": "OK",
+      "tiempo": "1.92ms",
+      "statusCode": 200
+    },
+    "Obtener Horarios": {
+      "estado": "OK",
+      "tiempo": "3.65ms",
+      "statusCode": 200
+    },
+    "Debug Horarios": {
+      "estado": "FALLO",
+      "error": "pool is not defined",
+      "statusCode": 500
+    },
+    "Validar DNI": {
+      "estado": "OK",
+      "tiempo": "3305.03ms",
+      "statusCode": 200
+    },
+    "Verificar DNI": {
+      "estado": "FALLO",
+      "error": "La ruta GET /api/verificar-dni/69560801 no existe",
+      "statusCode": 404
+    },
+    "Verificar Pago": {
+      "estado": "OK",
+      "tiempo": "3573.50ms",
+      "statusCode": 200
+    },
+    "Verificar Taller": {
+      "estado": "FALLO",
+      "error": "La ruta GET /api/verificar-taller/69560801 no existe",
+      "statusCode": 404
+    },
+    "Consultar DNI": {
+      "estado": "FALLO",
+      "error": "No se encontró ninguna inscripción con ese DNI",
+      "statusCode": 404
+    },
+    "Mis Inscripciones": {
+      "estado": "OK",
+      "tiempo": "9.25ms",
+      "statusCode": 200
+    },
+    "Cupos Talleres": {
+      "estado": "FALLO",
+      "error": "La ruta GET /api/cupos-talleres no existe",
+      "statusCode": 404
+    },
+    "Estadísticas Talleres": {
+      "estado": "FALLO",
+      "error": "sheets is not defined",
+      "statusCode": 500
+    },
+    "Inscripción Simple": {
+      "estado": "FALLO",
+      "error": "No se pudo completar la inscripción. Intente nuevamente.",
+      "statusCode": 500
+    },
+    "Verificar DNI Post-Inscripción": {
+      "estado": "FALLO",
+      "error": "La ruta GET /api/verificar-dni/45428429 no existe",
+      "statusCode": 404
+    },
+    "Consultar Post-Inscripción": {
+      "estado": "FALLO",
+      "error": "No se encontró ninguna inscripción con ese DNI",
+      "statusCode": 404
+    },
+    "Mis Inscripciones Post-Inscripción": {
+      "estado": "OK",
+      "tiempo": "4.35ms",
+      "statusCode": 200
+    },
+    "Inscripción Múltiple": {
+      "estado": "FALLO",
+      "error": "No se pudo completar la inscripción. Intente nuevamente.",
+      "statusCode": 500
+    },
+    "Admin Login": {
+      "estado": "FALLO",
+      "error": "Usuario/Email y contraseña son requeridos",
+      "statusCode": 400
+    },
+    "Admin - Lista de Inscritos": {
+      "estado": "FALLO",
+      "error": "El token de autenticación no es válido.",
+      "statusCode": 401
+    },
+    "Admin - Usuarios": {
+      "estado": "FALLO",
+      "error": "El token de autenticación no es válido.",
+      "statusCode": 401
+    },
+    "Admin - Estadísticas Financieras": {
+      "estado": "FALLO",
+      "error": "El token de autenticación no es válido.",
+      "statusCode": 401
+    },
+    "Admin - Deportes": {
+      "estado": "OK",
+      "tiempo": "5.37ms",
+      "statusCode": 200
+    },
+    "Admin - Horarios": {
+      "estado": "OK",
+      "tiempo": "11.18ms",
+      "statusCode": 200
+    },
+    "Admin - Categorías": {
+      "estado": "OK",
+      "tiempo": "12.61ms",
+      "statusCode": 200
+    }
+  },
+  "carga": {
+    "usuariosConcurrentes": 50,
+    "inscripcionesExitosas": 0,
+    "inscripcionesFallidas": 50,
+    "tiempoPromedio": 0,
+    "tiempoMaximo": 0,
+    "tiempoMinimo": 999999
+  },
+  "errores": [
+    {
+      "endpoint": "Debug Horarios",
+      "error": "pool is not defined",
+      "statusCode": 500,
+      "tiempo": 3.202200000000005
+    },
+    {
+      "endpoint": "Verificar DNI",
+      "error": "La ruta GET /api/verificar-dni/69560801 no existe",
+      "statusCode": 404,
+      "tiempo": 2.34270000000015
+    },
+    {
+      "endpoint": "Verificar Taller",
+      "error": "La ruta GET /api/verificar-taller/69560801 no existe",
+      "statusCode": 404,
+      "tiempo": 4.430000000000291
+    },
+    {
+      "endpoint": "Consultar DNI",
+      "error": "No se encontró ninguna inscripción con ese DNI",
+      "statusCode": 404,
+      "tiempo": 8.491700000000492
+    },
+    {
+      "endpoint": "Cupos Talleres",
+      "error": "La ruta GET /api/cupos-talleres no existe",
+      "statusCode": 404,
+      "tiempo": 1.6994999999997162
+    },
+    {
+      "endpoint": "Estadísticas Talleres",
+      "error": "sheets is not defined",
+      "statusCode": 500,
+      "tiempo": 2.676300000000083
+    },
+    {
+      "endpoint": "Inscripción Simple",
+      "error": "No se pudo completar la inscripción. Intente nuevamente.",
+      "statusCode": 500,
+      "tiempo": 34.820700000000215
+    },
+    {
+      "endpoint": "Verificar DNI Post-Inscripción",
+      "error": "La ruta GET /api/verificar-dni/45428429 no existe",
+      "statusCode": 404,
+      "tiempo": 1.8704999999999927
+    },
+    {
+      "endpoint": "Consultar Post-Inscripción",
+      "error": "No se encontró ninguna inscripción con ese DNI",
+      "statusCode": 404,
+      "tiempo": 3.2664999999997235
+    },
+    {
+      "endpoint": "Inscripción Múltiple",
+      "error": "No se pudo completar la inscripción. Intente nuevamente.",
+      "statusCode": 500,
+      "tiempo": 6.130300000000716
+    },
+    {
+      "endpoint": "Admin Login",
+      "error": "Usuario/Email y contraseña son requeridos",
+      "statusCode": 400,
+      "tiempo": 6.908600000000661
+    },
+    {
+      "endpoint": "Admin - Lista de Inscritos",
+      "error": "El token de autenticación no es válido.",
+      "statusCode": 401,
+      "tiempo": 3.1009000000012747
+    },
+    {
+      "endpoint": "Admin - Usuarios",
+      "error": "El token de autenticación no es válido.",
+      "statusCode": 401,
+      "tiempo": 3.168600000000879
+    },
+    {
+      "endpoint": "Admin - Estadísticas Financieras",
+      "error": "El token de autenticación no es válido.",
+      "statusCode": 401,
+      "tiempo": 2.08679999999913
+    }
+  ],
+  "tiempos": {
+    "promedio": "282.68ms",
+    "minimo": "1.70ms",
+    "maximo": "3573.50ms"
+  }
+}

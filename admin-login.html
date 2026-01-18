@@ -144,8 +144,12 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    // Guardar sesión
+                    // Guardar token para autenticación
+                    localStorage.setItem('admin_token', data.token);
+                    
+                    // Guardar sesión completa (legacy)
                     localStorage.setItem('adminSession', JSON.stringify({
+                        token: data.token,
                         admin: data.admin,
                         timestamp: new Date().toISOString()
                     }));

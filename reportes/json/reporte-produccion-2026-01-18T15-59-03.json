@@ -1,0 +1,175 @@
+{
+  "fecha": "2026-01-18T15:59:03.944Z",
+  "configuracion": {
+    "baseURL": "http://localhost:3002",
+    "usuariosConcurrentes": 50,
+    "timeout": 30000
+  },
+  "resumen": {
+    "totalTests": 16,
+    "exitosos": 0,
+    "fallidos": 16,
+    "tasaExito": "0.00%"
+  },
+  "endpoints": {
+    "Health Check": {
+      "estado": "FALLO",
+      "error": "Error"
+    },
+    "API Health": {
+      "estado": "FALLO",
+      "error": "Error"
+    },
+    "Cache Stats": {
+      "estado": "FALLO",
+      "error": "Error"
+    },
+    "Obtener Horarios": {
+      "estado": "FALLO",
+      "error": "Error"
+    },
+    "Debug Horarios": {
+      "estado": "FALLO",
+      "error": "Error"
+    },
+    "Validar DNI": {
+      "estado": "FALLO",
+      "error": "Error"
+    },
+    "Verificar DNI": {
+      "estado": "FALLO",
+      "error": "Error"
+    },
+    "Verificar Pago": {
+      "estado": "FALLO",
+      "error": "Error"
+    },
+    "Verificar Taller": {
+      "estado": "FALLO",
+      "error": "Error"
+    },
+    "Consultar DNI": {
+      "estado": "FALLO",
+      "error": "Error"
+    },
+    "Mis Inscripciones": {
+      "estado": "FALLO",
+      "error": "Error"
+    },
+    "Cupos Talleres": {
+      "estado": "FALLO",
+      "error": "Error"
+    },
+    "Estadísticas Talleres": {
+      "estado": "FALLO",
+      "error": "Error"
+    },
+    "Inscripción Simple": {
+      "estado": "FALLO",
+      "error": "Error"
+    },
+    "Inscripción Múltiple": {
+      "estado": "FALLO",
+      "error": "Error"
+    },
+    "Admin Login": {
+      "estado": "FALLO",
+      "error": "Error"
+    }
+  },
+  "carga": {
+    "usuariosConcurrentes": 50,
+    "inscripcionesExitosas": 0,
+    "inscripcionesFallidas": 50,
+    "tiempoPromedio": 0,
+    "tiempoMaximo": 0,
+    "tiempoMinimo": 999999
+  },
+  "errores": [
+    {
+      "endpoint": "Health Check",
+      "error": "Error",
+      "tiempo": 36.004099999999994
+    },
+    {
+      "endpoint": "API Health",
+      "error": "Error",
+      "tiempo": 4.092700000000036
+    },
+    {
+      "endpoint": "Cache Stats",
+      "error": "Error",
+      "tiempo": 2.283399999999972
+    },
+    {
+      "endpoint": "Obtener Horarios",
+      "error": "Error",
+      "tiempo": 2.0500000000000114
+    },
+    {
+      "endpoint": "Debug Horarios",
+      "error": "Error",
+      "tiempo": 2.6761000000000195
+    },
+    {
+      "endpoint": "Validar DNI",
+      "error": "Error",
+      "tiempo": 1.8274999999999864
+    },
+    {
+      "endpoint": "Verificar DNI",
+      "error": "Error",
+      "tiempo": 2.2445000000000164
+    },
+    {
+      "endpoint": "Verificar Pago",
+      "error": "Error",
+      "tiempo": 2.5212000000000216
+    },
+    {
+      "endpoint": "Verificar Taller",
+      "error": "Error",
+      "tiempo": 2.873800000000017
+    },
+    {
+      "endpoint": "Consultar DNI",
+      "error": "Error",
+      "tiempo": 2.1444000000000187
+    },
+    {
+      "endpoint": "Mis Inscripciones",
+      "error": "Error",
+      "tiempo": 1.49249999999995
+    },
+    {
+      "endpoint": "Cupos Talleres",
+      "error": "Error",
+      "tiempo": 1.7794000000000096
+    },
+    {
+      "endpoint": "Estadísticas Talleres",
+      "error": "Error",
+      "tiempo": 2.0452999999999975
+    },
+    {
+      "endpoint": "Inscripción Simple",
+      "error": "Error",
+      "tiempo": 4.67659999999978
+    },
+    {
+      "endpoint": "Inscripción Múltiple",
+      "error": "Error",
+      "tiempo": 4.818299999999908
+    },
+    {
+      "endpoint": "Admin Login",
+      "error": "Error",
+      "tiempo": 5.091600000000199
+    }
+  ],
+  "tiempos": {
+    "promedio": "4.91ms",
+    "minimo": "1.49ms",
+    "maximo": "36.00ms"
+  }
+}

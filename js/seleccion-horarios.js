@@ -6,6 +6,7 @@
 let horariosDisponibles = [];
 let horariosSeleccionados = [];
 let diaFiltroActual = 'Todos';
+let añoNacimientoGlobal = null; // Guardar el año para filtrar horarios
 
 // Función para normalizar texto (eliminar acentos y convertir a minúsculas)
 function normalizarTexto(texto) {
@@ -159,17 +160,17 @@ async function cargarHorarios() {
         console.log('📅 Fecha nacimiento obtenida:', fechaNacimiento);
         
         // Extraer año de nacimiento si existe
-        let añoNacimiento = null;
         if (fechaNacimiento) {
-            añoNacimiento = new Date(fechaNacimiento).getFullYear();
-            console.log('🎯 Año de nacimiento calculado:', añoNacimiento);
-            console.log('📞 Llamando API con año:', añoNacimiento);
+            añoNacimientoGlobal = new Date(fechaNacimiento).getFullYear();
+            console.log('🎯 Año de nacimiento calculado:', añoNacimientoGlobal);
+            console.log('📞 Llamando API con año:', añoNacimientoGlobal);
         } else {
+            añoNacimientoGlobal = null;
             console.warn('⚠️ NO se encontró fecha de nacimiento - mostrando TODOS los horarios');
         }
         
         // Obtener horarios desde la API (filtrados por edad si se proporciona año)
-        horariosDisponibles = await academiaAPI.getHorarios(añoNacimiento);
+        horariosDisponibles = await academiaAPI.getHorarios(añoNacimientoGlobal);
         
         console.log('Horarios cargados:', horariosDisponibles);
         console.log('Total horarios:', horariosDisponibles.length);
@@ -289,7 +290,24 @@ function crearCardHorario(horario) {
     const iconoDeporte = obtenerIconoDeporte(horario.deporte);
     const cuposRestantes = horario.cupos_restantes !== undefined ? horario.cupos_restantes : (horario.cupo_maximo || 20) - (horario.cupos_ocupados || 0);
     const lleno = cuposRestantes <= 0;
-    const precioTexto = horario.precio ? Utils.formatearPrecio(horario.precio) : 'Consultar';
+    
+    // Determinar el texto del precio según el plan
+    let precioTexto;
+    const planNormalizado = (horario.plan || '').toString().toLowerCase().trim();
+    
+    if (planNormalizado === 'economico' || planNormalizado === 'económico') {
+        // Plan Económico: paquete (2 días = 60, 3 días = 80)
+        precioTexto = '<span class="text-[10px]">2 días: S/. 60</span><br><span class="text-[9px] text-green-600">3 días: S/. 80</span>';
+    } else if (planNormalizado === 'estándar' || planNormalizado === 'estandar') {
+        // Plan Estándar: S/. 40 por día
+        precioTexto = '<span class="text-xs">S/. 40</span><br><span class="text-[9px]">por día</span>';
+    } else if (planNormalizado === 'premium') {
+        // Plan Premium: 3 días obligatorio
+        precioTexto = '<span class="text-xs">S/. 150</span><br><span class="text-[9px]">(3 días)</span>';
+    } else {
+        // Otros planes: usar precio de BD
+        precioTexto = horario.precio ? Utils.formatearPrecio(horario.precio) : 'Consultar';
+    }
     
     // Obtener colores del plan
     const planInfo = obtenerEstiloPlan(horario.plan);

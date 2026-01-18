@@ -184,6 +184,14 @@ async function cargarInscritos(dia = null, deporte = null) {
             ? 'http://localhost:3002'
             : 'https://jaguares-backend.onrender.com';
         
+        // Obtener token de la sesión
+        const session = localStorage.getItem('adminSession');
+        if (!session) {
+            window.location.href = 'admin-login.html';
+            return;
+        }
+        const { token } = JSON.parse(session);
+        
         let url = `${API_BASE}/api/admin/inscritos`;
         const params = new URLSearchParams();
         
@@ -198,10 +206,11 @@ async function cargarInscritos(dia = null, deporte = null) {
         }
         
         const response = await fetch(url, {
-            cache: 'no-store', // Forzar no usar caché del navegador
+            cache: 'no-store',
             headers: {
                 'Cache-Control': 'no-cache, no-store, must-revalidate',
-                'Pragma': 'no-cache'
+                'Pragma': 'no-cache',
+                'Authorization': `Bearer ${token}` // ✅ Agregar token JWT
             }
         });
         const data = await response.json();
@@ -513,17 +522,21 @@ function mostrarDetalleUsuario(data) {
     console.log('========== DEBUG COMPLETO ==========');
     console.log('👤 Objeto data completo:', JSON.stringify(data, null, 2));
     console.log('👤 data.alumno:', data.alumno);
-    console.log('📄 URL DNI Frontal:', data.alumno.url_dni_frontal);
-    console.log('📄 URL DNI Reverso:', data.alumno.url_dni_reverso);
-    console.log('📸 URL Foto Carnet:', data.alumno.url_foto_carnet);
-    console.log('📄 Tipo de url_dni_frontal:', typeof data.alumno.url_dni_frontal);
-    console.log('📄 Longitud url_dni_frontal:', data.alumno.url_dni_frontal ? data.alumno.url_dni_frontal.length : 0);
+    console.log('📄 URL DNI Frontal:', data.alumno.dni_frontal_url);
+    console.log('📄 URL DNI Reverso:', data.alumno.dni_reverso_url);
+    console.log('📸 URL Foto Carnet:', data.alumno.foto_carnet_url);
+    console.log('📄 Tipo de dni_frontal_url:', typeof data.alumno.dni_frontal_url);
+    console.log('📄 Longitud dni_frontal_url:', data.alumno.dni_frontal_url ? data.alumno.dni_frontal_url.length : 0);
     console.log('====================================');
     
     // Datos personales
     document.getElementById('detalleDNI').textContent = data.alumno.dni;
     document.getElementById('detalleNombre').textContent = `${data.alumno.nombres} ${data.alumno.apellidos}`;
-    document.getElementById('detalleFechaNacimiento').textContent = data.alumno.fecha_nacimiento || 'No registrado';
+    
+    // Formatear fecha de nacimiento
+    const fechaNac = data.alumno.fecha_nacimiento ? new Date(data.alumno.fecha_nacimiento).toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'No registrado';
+    document.getElementById('detalleFechaNacimiento').textContent = fechaNac;
+    
     document.getElementById('detalleEdadSexo').textContent = `${data.alumno.edad || 'N/A'} / ${data.alumno.sexo || 'N/A'}`;
     
     // Contacto
@@ -552,9 +565,9 @@ function mostrarDetalleUsuario(data) {
         let imagenesHTML = '';
         
         // 1. Comprobante de Pago
-        if (data.pago.url_comprobante) {
-            const urlComprobante = convertirURLDrive(data.pago.url_comprobante);
-            const urlComprobanteView = convertirURLDriveView(data.pago.url_comprobante);
+        if (data.pago.comprobante_url) {
+            const urlComprobante = convertirURLDrive(data.pago.comprobante_url);
+            const urlComprobanteView = convertirURLDriveView(data.pago.comprobante_url);
             imagenesHTML += `
                 <div class="bg-blue-50 dark:bg-blue-900/10 rounded-lg p-3 border border-blue-200 dark:border-blue-800">
                     <p class="text-xs font-bold text-blue-900 dark:text-blue-200 mb-2 flex items-center gap-1">
@@ -576,9 +589,9 @@ function mostrarDetalleUsuario(data) {
         }
         
         // 2. DNI Frontal
-        if (data.alumno.url_dni_frontal) {
-            const urlDNIFrontal = convertirURLDrive(data.alumno.url_dni_frontal);
-            const urlDNIFrontalView = convertirURLDriveView(data.alumno.url_dni_frontal);
+        if (data.alumno.dni_frontal_url) {
+            const urlDNIFrontal = convertirURLDrive(data.alumno.dni_frontal_url);
+            const urlDNIFrontalView = convertirURLDriveView(data.alumno.dni_frontal_url);
             imagenesHTML += `
                 <div class="bg-green-50 dark:bg-green-900/10 rounded-lg p-3 border border-green-200 dark:border-green-800">
                     <p class="text-xs font-bold text-green-900 dark:text-green-200 mb-2 flex items-center gap-1">
@@ -600,9 +613,9 @@ function mostrarDetalleUsuario(data) {
         }
         
         // 3. DNI Reverso
-        if (data.alumno.url_dni_reverso) {
-            const urlDNIReverso = convertirURLDrive(data.alumno.url_dni_reverso);
-            const urlDNIReversoView = convertirURLDriveView(data.alumno.url_dni_reverso);
+        if (data.alumno.dni_reverso_url) {
+            const urlDNIReverso = convertirURLDrive(data.alumno.dni_reverso_url);
+            const urlDNIReversoView = convertirURLDriveView(data.alumno.dni_reverso_url);
             imagenesHTML += `
                 <div class="bg-green-50 dark:bg-green-900/10 rounded-lg p-3 border border-green-200 dark:border-green-800">
                     <p class="text-xs font-bold text-green-900 dark:text-green-200 mb-2 flex items-center gap-1">
@@ -624,9 +637,9 @@ function mostrarDetalleUsuario(data) {
         }
         
         // 4. Foto Carnet
-        if (data.alumno.url_foto_carnet) {
-            const urlFotoCarnet = convertirURLDrive(data.alumno.url_foto_carnet);
-            const urlFotoCarnetView = convertirURLDriveView(data.alumno.url_foto_carnet);
+        if (data.alumno.foto_carnet_url) {
+            const urlFotoCarnet = convertirURLDrive(data.alumno.foto_carnet_url);
+            const urlFotoCarnetView = convertirURLDriveView(data.alumno.foto_carnet_url);
             imagenesHTML += `
                 <div class="bg-green-50 dark:bg-green-900/10 rounded-lg p-3 border border-green-200 dark:border-green-800">
                     <p class="text-xs font-bold text-green-900 dark:text-green-200 mb-2 flex items-center gap-1">
@@ -675,9 +688,10 @@ function mostrarDetalleUsuario(data) {
             const horarioCard = document.createElement('div');
             horarioCard.className = 'border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-900';
             
-            // Determinar color del estado
-            const estadoColor = horario.estado === 'activa' ? 'text-green-600 dark:text-green-400' : 'text-yellow-600 dark:text-yellow-400';
-            const estadoTexto = horario.estado === 'activa' ? 'Activa' : 'Pendiente de Pago';
+            // Determinar color del estado basado en el estado de pago, no en el estado de la inscripción
+            const estadoPago = data.pago.estado === 'confirmado';
+            const estadoColor = estadoPago ? 'text-green-600 dark:text-green-400' : 'text-yellow-600 dark:text-yellow-400';
+            const estadoTexto = estadoPago ? 'Pago Confirmado' : 'Pendiente de Pago';
             
             horarioCard.innerHTML = `
                 <div class="flex items-center gap-3 mb-2">

@@ -437,13 +437,22 @@ function doPost(e) {
     
     switch (action) {
       case 'inscribir_multiple':
-        return respuestaJSON(inscribirMultiple(data.alumno, data.horarios));
+        return respuestaJSON(inscribirMultiple(data.alumno, data.horarios, data.codigo_operacion));
         
       case 'registrar_pago':
         return respuestaJSON(registrarPago(data));
         
+      case 'confirmar_pago':
+        return respuestaJSON(confirmarPagoDesdeMYSQL(data.dni, data.monto_pago, data.numero_operacion, data.fecha_confirmacion));
+        
       case 'subir_comprobante':
         return respuestaJSON(subirComprobanteDrive(data));
+        
+      case 'subir_comprobante_tardio':
+        return respuestaJSON(subirComprobanteTardio(data));
+        
+      case 'subir_pago_mensual':
+        return respuestaJSON(subirPagoMensual(data));
         
       case 'desactivar_usuario':
         return respuestaJSON(desactivarUsuario(data.dni));
@@ -887,13 +896,14 @@ function convertirHoraAMinutos(horaStr) {
 /**
  * Inscribir alumno en múltiples horarios
  */
-function inscribirMultiple(alumno, horarios) {
+function inscribirMultiple(alumno, horarios, codigoOperacion) {
   // LOGGING DETALLADO AL INICIO
   Logger.log('==================== INICIO INSCRIPCIÓN ====================');
   Logger.log('📥 DATOS RECIBIDOS:');
   Logger.log('👤 Alumno: ' + JSON.stringify(alumno));
   Logger.log('📅 Horarios (cantidad): ' + horarios.length);
   Logger.log('📋 Horarios completos: ' + JSON.stringify(horarios));
+  Logger.log('🔢 Código de operación recibido: ' + (codigoOperacion || 'ninguno'));
   
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheetInscripciones = ss.getSheetByName(SHEET_NAMES.INSCRIPCIONES);
@@ -920,8 +930,10 @@ function inscribirMultiple(alumno, horarios) {
   
   Logger.log('✅ Validación exitosa, procediendo con inscripción...');
   
-  // Generar código de operación único
-  const codigo = generarCodigoOperacion();
+  // Usar código de operación del backend si viene, sino generar uno nuevo
+  const codigo = codigoOperacion || generarCodigoOperacion();
+  Logger.log('📋 Código de operación: ' + codigo);
+  
   const fecha = new Date();
   const fechaStr = Utilities.formatDate(fecha, Session.getScriptTimeZone(), 'dd/MM/yyyy HH:mm');
   
@@ -1058,7 +1070,12 @@ function inscribirMultiple(alumno, horarios) {
     codigo_operacion: codigo,
     mensaje: 'Inscripción registrada correctamente',
     inscripciones_creadas: 1,
-    horarios_registrados: horarios.length
+    horarios_registrados: horarios.length,
+    urls_documentos: {
+      dni_frontal: urlDNIFrontal,
+      dni_reverso: urlDNIReverso,
+      foto_carnet: urlFotoCarnet
+    }
   };
 }
 
@@ -1921,6 +1938,207 @@ function subirComprobanteDrive(data) {
 }
 
 /**
+ * Subir comprobante de forma tardía (después de la inscripción)
+ * Para usuarios que eligieron efectivo pero cambiaron de opinión
+ */
+function subirComprobanteTardio(data) {
+  try {
+    if (!data.dni || !data.imagen) {
+      return { success: false, error: 'DNI e imagen son requeridos' };
+    }
+    
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheetInscripciones = ss.getSheetByName(SHEET_NAMES.INSCRIPCIONES);
+    const sheetPagos = ss.getSheetByName(SHEET_NAMES.PAGOS);
+    
+    if (!sheetInscripciones || !sheetPagos) {
+      return { success: false, error: 'Hojas no encontradas' };
+    }
+    
+    // Buscar datos del alumno en INSCRIPCIONES
+    const dataInscripciones = sheetInscripciones.getDataRange().getValues();
+    let alumnoEncontrado = null;
+    let codigoOperacion = '';
+    
+    for (let i = 1; i < dataInscripciones.length; i++) {
+      if (dataInscripciones[i][1] && dataInscripciones[i][1].toString() === data.dni.toString()) {
+        alumnoEncontrado = {
+          nombres: dataInscripciones[i][2] || '',
+          apellidos: dataInscripciones[i][3] || '',
+          dni: data.dni
+        };
+        codigoOperacion = dataInscripciones[i][0] || ''; // Columna A: código
+        break;
+      }
+    }
+    
+    if (!alumnoEncontrado) {
+      return { success: false, error: 'Alumno no encontrado en INSCRIPCIONES' };
+    }
+    
+    // Crear nombre de carpeta
+    const nombreCarpetaAlumno = `${alumnoEncontrado.nombres}_${alumnoEncontrado.apellidos}_${data.dni}`.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_]/g, '');
+    
+    // Subir a Drive
+    const urlComprobante = subirImagenDrive(data.imagen, 'Comprobante_Pago_Tardio', nombreCarpetaAlumno);
+    
+    if (!urlComprobante) {
+      return { success: false, error: 'Error al subir comprobante a Drive' };
+    }
+    
+    // Convertir a URL directa
+    const fileId = extraerFileIdDeUrl(urlComprobante);
+    const urlImagen = fileId ? `https://drive.google.com/uc?export=view&id=${fileId}` : urlComprobante;
+    
+    // Buscar o crear fila en PAGOS
+    const dataPagos = sheetPagos.getDataRange().getValues();
+    let filaPago = -1;
+    
+    for (let i = 1; i < dataPagos.length; i++) {
+      if (dataPagos[i][1] && dataPagos[i][1].toString() === data.dni.toString()) {
+        filaPago = i + 1;
+        break;
+      }
+    }
+    
+    const fecha = new Date();
+    const fechaSubidaStr = Utilities.formatDate(fecha, Session.getScriptTimeZone(), 'dd/MM/yyyy HH:mm');
+    
+    if (filaPago !== -1) {
+      // Actualizar fila existente - SOLO columnas J y K
+      sheetPagos.getRange(filaPago, 10).setValue(urlImagen); // Col J: comprobante_url
+      sheetPagos.getRange(filaPago, 11).setValue(fechaSubidaStr); // Col K: fecha_subida
+      Logger.log('✅ Comprobante tardío actualizado en PAGOS fila ' + filaPago);
+    }
+    
+    return {
+      success: true,
+      url_comprobante: urlImagen,
+      fecha_subida: fechaSubidaStr,
+      mensaje: 'Comprobante subido correctamente'
+    };
+    
+  } catch (error) {
+    Logger.log('❌ Error en subirComprobanteTardio: ' + error.toString());
+    return { success: false, error: error.toString() };
+  }
+}
+
+/**
+ * Subir comprobante de pago mensual a Google Drive
+ * Almacena en carpeta del alumno > subcarpeta "Pagos Mensuales"
+ */
+function subirPagoMensual(data) {
+  try {
+    if (!data.dni || !data.imagen) {
+      return { success: false, error: 'DNI e imagen son requeridos' };
+    }
+    
+    const nombreAlumno = data.alumno || data.dni;
+    const mes = data.mes || new Date().toLocaleString('es-PE', { month: 'long', year: 'numeric' });
+    const monto = data.monto || 0;
+    
+    // Buscar carpeta existente del alumno que contenga el DNI
+    const carpetaPrincipal = obtenerOCrearCarpeta('JAGUARES - Documentos');
+    const carpetaAlumno = buscarCarpetaPorDNI(carpetaPrincipal, data.dni);
+    
+    if (!carpetaAlumno) {
+      return { 
+        success: false, 
+        error: 'No se encontró la carpeta del alumno. El usuario debe estar inscrito primero.'
+      };
+    }
+    
+    // Obtener o crear subcarpeta Pagos_Mensuales dentro de la carpeta del alumno
+    const carpetaPagosMensuales = obtenerOCrearCarpetaEn(carpetaAlumno, 'Pagos_Mensuales');
+    
+    // Nombre del archivo con fecha y mes
+    const fecha = new Date();
+    const fechaStr = Utilities.formatDate(fecha, Session.getScriptTimeZone(), 'yyyy-MM-dd_HHmmss');
+    const nombreArchivo = `PAGO_${mes.replace(/\s+/g, '_')}_${fechaStr}`;
+    
+    // Decodificar imagen Base64
+    const base64Data = data.imagen.replace(/^data:image\/\w+;base64,/, '');
+    const imageBlob = Utilities.newBlob(Utilities.base64Decode(base64Data), 'image/jpeg', nombreArchivo + '.jpg');
+    
+    // Subir archivo a la carpeta de pagos mensuales
+    const archivo = carpetaPagosMensuales.createFile(imageBlob);
+    archivo.setDescription(`Pago mensual ${mes} - Monto: S/${monto} - DNI: ${data.dni} - Subido: ${fechaStr}`);
+    
+    // Obtener URL del archivo
+    const urlArchivo = archivo.getUrl();
+    const fileId = archivo.getId();
+    const urlImagen = `https://drive.google.com/uc?export=view&id=${fileId}`;
+    
+    Logger.log('✅ Pago mensual subido a Drive: ' + urlArchivo);
+    
+    return {
+      success: true,
+      url_comprobante: urlImagen,
+      url_drive: urlArchivo,
+      mes: mes,
+      monto: monto,
+      mensaje: 'Pago mensual registrado correctamente'
+    };
+    
+  } catch (error) {
+    Logger.log('❌ Error en subirPagoMensual: ' + error.toString());
+    return { success: false, error: error.toString() };
+  }
+}
+
+/**
+ * Buscar carpeta de alumno por DNI en la carpeta principal
+ * La carpeta puede tener formato: nombre_apellido_DNI
+ */
+function buscarCarpetaPorDNI(carpetaPadre, dni) {
+  try {
+    const carpetas = carpetaPadre.getFolders();
+    
+    while (carpetas.hasNext()) {
+      const carpeta = carpetas.next();
+      const nombreCarpeta = carpeta.getName();
+      
+      // Verificar si el nombre de la carpeta termina con el DNI
+      // Formato esperado: nombre_apellido_DNI o similar
+      if (nombreCarpeta.endsWith('_' + dni) || nombreCarpeta.includes('_' + dni + '_')) {
+        Logger.log('✅ Carpeta encontrada: ' + nombreCarpeta);
+        return carpeta;
+      }
+    }
+    
+    Logger.log('⚠️ No se encontró carpeta para DNI: ' + dni);
+    return null;
+    
+  } catch (error) {
+    Logger.log('❌ Error al buscar carpeta: ' + error.toString());
+    return null;
+  }
+}
+
+/**
+ * Obtener o crear una carpeta dentro de otra carpeta
+ */
+function obtenerOCrearCarpetaEn(carpetaPadre, nombreCarpeta) {
+  try {
+    const carpetas = carpetaPadre.getFoldersByName(nombreCarpeta);
+    
+    if (carpetas.hasNext()) {
+      return carpetas.next();
+    }
+    
+    // Crear carpeta si no existe
+    const nuevaCarpeta = carpetaPadre.createFolder(nombreCarpeta);
+    Logger.log('📁 Carpeta creada: ' + nombreCarpeta);
+    return nuevaCarpeta;
+    
+  } catch (error) {
+    Logger.log('❌ Error al crear carpeta: ' + error.toString());
+    throw error;
+  }
+}
+
+/**
  * Extraer file ID de una URL de Google Drive
  */
 function extraerFileIdDeUrl(url) {
@@ -2537,6 +2755,100 @@ function obtenerEstadisticasFinancieras() {
     return { 
       success: false, 
       error: 'Error al procesar estadísticas: ' + error.toString() 
+    };
+  }
+}
+
+/**
+ * Confirmar pago desde MySQL - sincronizar con Google Sheets
+ * Actualiza la hoja PAGOS marcando el estado como "confirmado"
+ */
+function confirmarPagoDesdeMYSQL(dni, montoPago, numeroOperacion, fechaConfirmacion) {
+  try {
+    if (!dni) {
+      return { success: false, error: 'DNI requerido' };
+    }
+    
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheetPagos = ss.getSheetByName(SHEET_NAMES.PAGOS);
+    
+    if (!sheetPagos) {
+      return { success: false, error: 'Hoja PAGOS no encontrada' };
+    }
+    
+    const data = sheetPagos.getDataRange().getValues();
+    const headers = data[0];
+    
+    // Encontrar índices de columnas
+    let colDNI = -1, colEstadoPago = -1, colMonto = -1, colNumOp = -1, colFechaPago = -1;
+    
+    for (let j = 0; j < headers.length; j++) {
+      const header = headers[j].toString().toLowerCase().trim();
+      if (header === 'dni') colDNI = j;
+      else if (header === 'estado_pago' || header === 'estado pago') colEstadoPago = j;
+      else if (header === 'monto_pago' || header === 'monto pago') colMonto = j;
+      else if (header === 'numero_operacion' || header === 'numero operacion' || header === 'nro operacion') colNumOp = j;
+      else if (header === 'fecha_pago' || header === 'fecha pago') colFechaPago = j;
+    }
+    
+    if (colDNI === -1 || colEstadoPago === -1) {
+      return { success: false, error: 'No se encontraron las columnas necesarias en PAGOS' };
+    }
+    
+    // Buscar la fila del DNI y actualizar
+    let encontrado = false;
+    for (let i = 1; i < data.length; i++) {
+      const row = data[i];
+      if (row[colDNI] && row[colDNI].toString() === dni.toString()) {
+        const fila = i + 1;
+        
+        // Actualizar estado_pago a "confirmado"
+        sheetPagos.getRange(fila, colEstadoPago + 1).setValue('confirmado');
+        
+        // Actualizar monto si existe la columna y se proporcionó
+        if (colMonto !== -1 && montoPago) {
+          sheetPagos.getRange(fila, colMonto + 1).setValue(montoPago);
+        }
+        
+        // Actualizar número de operación si existe la columna y se proporcionó
+        if (colNumOp !== -1 && numeroOperacion) {
+          sheetPagos.getRange(fila, colNumOp + 1).setValue(numeroOperacion);
+        }
+        
+        // Actualizar fecha de pago si existe la columna
+        if (colFechaPago !== -1) {
+          const fecha = fechaConfirmacion ? new Date(fechaConfirmacion) : new Date();
+          sheetPagos.getRange(fila, colFechaPago + 1).setValue(fecha);
+        }
+        
+        encontrado = true;
+        Logger.log(`✅ Pago confirmado en Google Sheets para DNI ${dni} - Fila ${fila}`);
+        break;
+      }
+    }
+    
+    if (!encontrado) {
+      return { 
+        success: false, 
+        error: `No se encontró el DNI ${dni} en la hoja PAGOS` 
+      };
+    }
+    
+    // El trigger onEdit() se encargará automáticamente de activar las inscripciones
+    // cuando detecte el cambio de estado_pago a "confirmado"
+    
+    return {
+      success: true,
+      mensaje: 'Pago confirmado en Google Sheets. Las inscripciones se activarán automáticamente.',
+      dni: dni,
+      sincronizado: true
+    };
+    
+  } catch (error) {
+    Logger.log('❌ Error al confirmar pago en Sheets: ' + error.toString());
+    return { 
+      success: false, 
+      error: 'Error al confirmar pago: ' + error.toString() 
     };
   }
 }

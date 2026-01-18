@@ -22,7 +22,7 @@ async function cargarDatosConfirmacion() {
     
     if (horariosCompletos.length === 0) {
         Utils.mostrarNotificacion('No hay horarios seleccionados', 'error');
-        window.location.href = 'seleccion-horarios.html';
+        window.location.href = 'seleccion-horarios-new.html';
         return;
     }
     
@@ -175,7 +175,37 @@ function renderizarConfirmacion(alumno, horarios, deportesConMatricula = []) {
                     </div>
 
                     <div class="space-y-2.5 overflow-y-auto flex-1 pr-2 scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-white/5">
-                        ${horarios.map(h => `
+                        ${horarios.map((h, index) => {
+                            // Contar cuántos horarios del mismo deporte y plan hay
+                            const mismoDeportePlan = horarios.filter(x => x.deporte === h.deporte && x.plan === h.plan);
+                            const cantidadDias = mismoDeportePlan.length;
+                            const posicionEnDeporte = mismoDeportePlan.findIndex(x => x.horario_id === h.horario_id) + 1;
+                            
+                            // Calcular precio individual según el plan y posición
+                            const planNormalizado = (h.plan || '').toLowerCase().trim();
+                            let precioDisplay;
+                            
+                            if (planNormalizado === 'economico' || planNormalizado === 'económico') {
+                                // Plan Económico: 2 días = 30 c/u, 3er día = 20
+                                if (cantidadDias === 2) {
+                                    precioDisplay = '<span class="text-white font-bold">S/. 30.00</span>';
+                                } else if (cantidadDias === 3) {
+                                    precioDisplay = posicionEnDeporte <= 2 ? '<span class="text-white font-bold">S/. 30.00</span>' : '<span class="text-white font-bold">S/. 20.00</span>';
+                                } else {
+                                    precioDisplay = '<span class="text-white font-bold">S/. 30.00</span>';
+                                }
+                            } else if (planNormalizado === 'estándar' || planNormalizado === 'estandar') {
+                                // Plan Estándar: S/. 40 cada día
+                                precioDisplay = '<span class="text-white font-bold">S/. 40.00</span>';
+                            } else if (planNormalizado === 'premium') {
+                                // Plan Premium: 3 días = 150 (50 c/u)
+                                precioDisplay = '<span class="text-white font-bold">S/. 50.00</span>';
+                            } else {
+                                // Otros planes: usar precio de BD
+                                precioDisplay = h.precio ? `S/. ${parseFloat(h.precio).toFixed(2)}` : 'Consultar';
+                            }
+                            
+                            return `
                             <div class="bg-white/10 rounded-lg p-3.5 backdrop-blur-sm border border-white/20 hover:bg-white/15 transition-colors">
                                 <div class="flex justify-between items-start mb-2">
                                     <div class="flex items-center gap-2.5">
@@ -185,14 +215,15 @@ function renderizarConfirmacion(alumno, horarios, deportesConMatricula = []) {
                                             <p class="text-xs text-zinc-400 mt-0.5">${h.dia}</p>
                                         </div>
                                     </div>
-                                    <span class="text-primary font-black text-lg">${Utils.formatearPrecio(h.precio)}</span>
+                                    <div class="text-primary font-black text-lg text-right">${precioDisplay}</div>
                                 </div>
                                 <div class="flex items-center gap-2 text-xs text-zinc-300">
                                     <span class="material-symbols-outlined text-sm">schedule</span>
                                     <span>${h.hora_inicio} - ${h.hora_fin}</span>
                                 </div>
                             </div>
-                        `).join('')}
+                            `;
+                        }).join('')}
                     </div>
 
                     <div class="border-t border-white/20 pt-3 mt-auto flex-shrink-0">
@@ -262,6 +293,9 @@ function obtenerIconoDeporte(deporte) {
 }
 
 async function confirmarInscripcion() {
+    // Mostrar loader profesional
+    mostrarLoaderInscripcion();
+    
     const btn = document.getElementById('btnConfirmarInscripcion');
     btn.disabled = true;
     btn.innerHTML = `
@@ -293,8 +327,9 @@ async function confirmarInscripcion() {
                 }
             });
             
-            // Limpiar datos temporales
+            // Limpiar datos temporales para evitar reintentos
             LocalStorage.remove('datosInscripcion');
+            LocalStorage.remove('horariosSeleccionados');
             
             // Redirigir a página de éxito
             window.location.href = `exito.html?codigo=${resultado.codigo_operacion}`;
@@ -303,8 +338,123 @@ async function confirmarInscripcion() {
         }
         
     } catch (error) {
+        // Cerrar loader antes de mostrar error
+        cerrarLoaderInscripcion();
+        
         console.error('Error al confirmar inscripción:', error);
-        Utils.mostrarNotificacion(`Error: ${error.message}`, 'error');
+        
+        // Restaurar botón
+        btn.disabled = false;
+        btn.innerHTML = `
+            <span>Confirmar y Finalizar</span>
+            <span class="material-symbols-outlined">check_circle</span>
+        `;
+        
+        // Mostrar modal informativo según el tipo de error
+        let titulo = '⚠️ Error en la Inscripción';
+        let mensaje = error.message;
+        let detalles = '';
+        
+        // Error 409: Inscripción duplicada
+        if (error.status === 409 && error.data) {
+            titulo = '🚫 Inscripción Duplicada';
+            mensaje = error.data.message || 'Ya existe una inscripción activa para este deporte';
+            if (error.data.deporte) {
+                detalles = `<div class="mt-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+                    <p class="font-semibold text-yellow-800 dark:text-yellow-400">Deporte: ${error.data.deporte}</p>
+                    ${error.data.inscripcion_existente ? `
+                        <p class="text-sm text-yellow-700 dark:text-yellow-500 mt-1">
+                            Estado: ${error.data.inscripcion_existente.estado === 'activa' ? 'Activa' : 'Pendiente'}<br>
+                            Plan: ${error.data.inscripcion_existente.plan}<br>
+                            Precio: S/ ${error.data.inscripcion_existente.precio}
+                        </p>
+                    ` : ''}
+                </div>`;
+            }
+        }
+        // Error 400: Horarios sin ID o validación
+        else if (error.status === 400 && error.data) {
+            titulo = '⚠️ Datos Inválidos';
+            mensaje = error.data.message || 'Los datos enviados no son válidos';
+            if (error.data.horarios_invalidos) {
+                detalles = `<div class="mt-3 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                    <p class="text-sm text-red-700 dark:text-red-400">
+                        Se encontraron ${error.data.horarios_invalidos} horarios sin identificador válido.
+                        <br><br>
+                        <strong>Solución:</strong> Por favor, vuelve al paso anterior y selecciona los horarios de la lista disponible.
+                    </p>
+                </div>`;
+            }
+        }
+        // Error 500: Error del servidor (puede ser duplicado en sistema externo)
+        else if (error.status === 500 && error.data) {
+            titulo = '⚠️ Error al Procesar';
+            mensaje = error.data.message || 'No se pudo completar la inscripción';
+            
+            // Detectar si es un duplicado
+            if (error.data.detalles === 'DUPLICADO' || (error.data.message && error.data.message.includes('Ya estás inscrito'))) {
+                titulo = '🚫 Inscripción Duplicada';
+                mensaje = 'Ya existe una inscripción activa para uno o más de estos horarios.';
+                detalles = `<div class="mt-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+                    <p class="text-sm text-yellow-700 dark:text-yellow-400">
+                        ${error.data.message}
+                    </p>
+                    <p class="text-xs text-yellow-600 dark:text-yellow-500 mt-2">
+                        <strong>Sugerencia:</strong> Si deseas cambiar de horario, primero debes dar de baja tu inscripción actual.
+                    </p>
+                </div>`;
+            }
+        }
+        else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+            titulo = '🌐 Error de Conexión';
+            mensaje = 'No se pudo conectar con el servidor';
+            detalles = `<div class="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <p class="text-sm text-blue-700 dark:text-blue-400">
+                    • Verifica tu conexión a internet<br>
+                    • El servidor puede estar temporalmente no disponible<br>
+                    • Intenta nuevamente en unos momentos
+                </p>
+            </div>`;
+        }
+        
+        // Crear y mostrar modal personalizado
+        const modalHTML = `
+            <div id="modalErrorInscripcion" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                <div class="bg-white dark:bg-surface-dark rounded-2xl shadow-2xl max-w-md w-full p-6 transform transition-all">
+                    <div class="flex items-start gap-4 mb-4">
+                        <div class="flex-shrink-0 w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-3xl text-red-600 dark:text-red-400">error</span>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-black dark:text-white mb-2">${titulo}</h3>
+                            <p class="text-text-muted dark:text-gray-300">${mensaje}</p>
+                            ${detalles}
+                        </div>
+                    </div>
+                    <div class="flex gap-3 mt-6">
+                        ${error.status === 409 ? `
+                            <button onclick="window.location.href='admin-panel.html?dni=${alumno.dni}'" 
+                                    class="flex-1 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors">
+                                Ver Mis Inscripciones
+                            </button>
+                        ` : (error.status === 400 || (error.status === 500 && error.data?.detalles === 'DUPLICADO')) ? `
+                            <button onclick="localStorage.clear(); window.location.href='seleccion-horarios-new.html'" 
+                                    class="flex-1 px-4 py-2.5 bg-primary hover:brightness-110 text-white rounded-lg font-semibold transition-all flex items-center justify-center gap-2">
+                                <span class="material-symbols-outlined">refresh</span>
+                                Seleccionar Otros Horarios
+                            </button>
+                        ` : ''}
+                        <button onclick="document.getElementById('modalErrorInscripcion').remove()" 
+                                class="flex-1 px-4 py-2.5 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-black dark:text-white rounded-lg font-semibold transition-colors">
+                            Cerrar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Insertar modal en el DOM
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
         
         btn.disabled = false;
         btn.innerHTML = `
@@ -315,7 +465,92 @@ async function confirmarInscripcion() {
 }
 
 function volverHorarios() {
-    if (confirm('¿Deseas volver a seleccionar horarios?')) {
-        window.location.href = 'seleccion-horarios.html';
+    // Crear modal personalizado en lugar del confirm nativo
+    const modalHTML = `
+        <div id="modalVolverHorarios" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+            <div class="bg-white dark:bg-surface-dark rounded-2xl shadow-2xl max-w-md w-full p-6 transform transition-all animate-scale-in">
+                <div class="flex items-start gap-4 mb-4">
+                    <div class="flex-shrink-0 w-12 h-12 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-3xl text-yellow-600 dark:text-yellow-400">warning</span>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-lg font-bold text-black dark:text-white mb-2">¿Volver a seleccionar horarios?</h3>
+                        <p class="text-text-muted dark:text-gray-300">Si vuelves, perderás la selección actual y tendrás que elegir tus horarios nuevamente.</p>
+                    </div>
+                </div>
+                <div class="flex gap-3 mt-6">
+                    <button onclick="document.getElementById('modalVolverHorarios').remove()" 
+                            class="flex-1 px-4 py-2.5 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-black dark:text-white rounded-lg font-semibold transition-colors">
+                        Cancelar
+                    </button>
+                    <button onclick="window.location.href='seleccion-horarios-new.html'" 
+                            class="flex-1 px-4 py-2.5 bg-primary hover:brightness-110 text-white rounded-lg font-semibold transition-all flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined">arrow_back</span>
+                        Sí, volver
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+/**
+ * Mostrar loader profesional durante la inscripción
+ */
+function mostrarLoaderInscripcion() {
+    const loader = document.createElement('div');
+    loader.id = 'loaderInscripcion';
+    loader.className = 'fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm';
+    loader.innerHTML = `
+        <div class="bg-white dark:bg-[#1a1a1a] rounded-3xl p-8 shadow-2xl max-w-md w-full mx-4 border border-primary/20">
+            <div class="flex flex-col items-center gap-6">
+                <!-- Spinner animado -->
+                <div class="relative">
+                    <div class="size-24 rounded-full border-4 border-primary/20"></div>
+                    <div class="absolute inset-0 size-24 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-primary text-4xl animate-pulse">rocket_launch</span>
+                    </div>
+                </div>
+                
+                <!-- Texto animado -->
+                <div class="text-center">
+                    <h3 class="text-2xl font-black text-text-main dark:text-white mb-2">Procesando Inscripción</h3>
+                    <p class="text-sm text-text-main/70 dark:text-white/70 mb-3">Por favor espera mientras procesamos tu inscripción...</p>
+                    
+                    <!-- Pasos -->
+                    <div class="space-y-2 text-left bg-gray-50 dark:bg-white/5 rounded-xl p-4">
+                        <div class="flex items-center gap-2 text-xs">
+                            <div class="size-2 rounded-full bg-primary animate-pulse"></div>
+                            <span class="text-text-main/60 dark:text-white/60">Guardando datos del alumno</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs">
+                            <div class="size-2 rounded-full bg-primary/50 animate-pulse" style="animation-delay: 0.2s"></div>
+                            <span class="text-text-main/60 dark:text-white/60">Registrando horarios seleccionados</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs">
+                            <div class="size-2 rounded-full bg-primary/50 animate-pulse" style="animation-delay: 0.4s"></div>
+                            <span class="text-text-main/60 dark:text-white/60">Procesando inscripción</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(loader);
+    document.body.style.overflow = 'hidden';
+}
+
+/**
+ * Cerrar loader de inscripción
+ */
+function cerrarLoaderInscripcion() {
+    const loader = document.getElementById('loaderInscripcion');
+    if (loader) {
+        loader.remove();
+        document.body.style.overflow = '';
     }
 }
+

@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  # Base de datos MySQL
+  mysql:
+    image: mysql:8.0
+    container_name: jaguares_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword123
+      MYSQL_DATABASE: jaguares_db
+      MYSQL_USER: jaguares_user
+      MYSQL_PASSWORD: jaguares_pass
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - jaguares_network
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+
+  # phpMyAdmin para gestión visual de la BD (opcional)
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: jaguares_phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: jaguares_user
+      PMA_PASSWORD: jaguares_pass
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql
+    networks:
+      - jaguares_network
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  jaguares_network:
+    driver: bridge

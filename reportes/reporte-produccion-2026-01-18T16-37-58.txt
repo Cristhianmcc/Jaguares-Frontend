@@ -1,0 +1,141 @@
+
+╔════════════════════════════════════════════════════════════════╗
+║        REPORTE DE PRUEBAS DE PRODUCCIÓN - SISTEMA JAGUARES        ║
+╚════════════════════════════════════════════════════════════════╝
+
+📅 Fecha: 2026-01-18T16:37:58.629Z
+🌐 URL Base: http://localhost:3002
+
+═══════════════════════════════════════════════════════════════════
+📊 RESUMEN GENERAL
+═══════════════════════════════════════════════════════════════════
+
+✓ Tests Totales:      25
+✓ Tests Exitosos:     11
+✗ Tests Fallidos:     14
+📈 Tasa de Éxito:     44.00%
+
+═══════════════════════════════════════════════════════════════════
+⚡ PRUEBAS DE CARGA
+═══════════════════════════════════════════════════════════════════
+
+👥 Usuarios Concurrentes:           50
+✅ Inscripciones Exitosas:          50
+❌ Inscripciones Fallidas:          0
+⏱️  Tiempo Promedio por Inscripción: 21865.47ms
+📊 Tiempo Mínimo:                   12277.79ms
+📊 Tiempo Máximo:                   27034.02ms
+🚀 Throughput:                      2.29 req/s
+
+═══════════════════════════════════════════════════════════════════
+⏱️  TIEMPOS DE RESPUESTA
+═══════════════════════════════════════════════════════════════════
+
+⌀ Promedio:  246.62ms
+↓ Mínimo:    1.38ms
+↑ Máximo:    3382.12ms
+
+═══════════════════════════════════════════════════════════════════
+🔍 DETALLE DE ENDPOINTS
+═══════════════════════════════════════════════════════════════════
+
+✅ Health Check                             OK         28.20ms
+✅ API Health                               OK         9.41ms
+✅ Cache Stats                              OK         1.97ms
+✅ Obtener Horarios                         OK         17.79ms
+❌ Debug Horarios                           FALLO      N/A
+✅ Validar DNI                              OK         3382.12ms
+❌ Verificar DNI                            FALLO      N/A
+✅ Verificar Pago                           OK         2624.27ms
+❌ Verificar Taller                         FALLO      N/A
+❌ Consultar DNI                            FALLO      N/A
+✅ Mis Inscripciones                        OK         5.88ms
+❌ Cupos Talleres                           FALLO      N/A
+❌ Estadísticas Talleres                    FALLO      N/A
+❌ Inscripción Simple                       FALLO      N/A
+❌ Verificar DNI Post-Inscripción           FALLO      N/A
+❌ Consultar Post-Inscripción               FALLO      N/A
+✅ Mis Inscripciones Post-Inscripción       OK         3.93ms
+❌ Inscripción Múltiple                     FALLO      N/A
+❌ Admin Login                              FALLO      N/A
+❌ Admin - Lista de Inscritos               FALLO      N/A
+❌ Admin - Usuarios                         FALLO      N/A
+❌ Admin - Estadísticas Financieras         FALLO      N/A
+✅ Admin - Deportes                         OK         5.27ms
+✅ Admin - Horarios                         OK         7.92ms
+✅ Admin - Categorías                       OK         7.87ms
+
+═══════════════════════════════════════════════════════════════════
+❌ ERRORES ENCONTRADOS
+═══════════════════════════════════════════════════════════════════
+
+1. Debug Horarios
+   Error: pool is not defined
+   Tiempo: 3.53ms
+
+2. Verificar DNI
+   Error: La ruta GET /api/verificar-dni/59024860 no existe
+   Tiempo: 2.10ms
+
+3. Verificar Taller
+   Error: La ruta GET /api/verificar-taller/59024860 no existe
+   Tiempo: 8.23ms
+
+4. Consultar DNI
+   Error: No se encontró ninguna inscripción con ese DNI
+   Tiempo: 10.11ms
+
+5. Cupos Talleres
+   Error: La ruta GET /api/cupos-talleres no existe
+   Tiempo: 2.32ms
+
+6. Estadísticas Talleres
+   Error: sheets is not defined
+   Tiempo: 3.33ms
+
+7. Inscripción Simple
+   Error: No se pudo completar la inscripción. Intente nuevamente.
+   Tiempo: 19.76ms
+
+8. Verificar DNI Post-Inscripción
+   Error: La ruta GET /api/verificar-dni/13631183 no existe
+   Tiempo: 1.49ms
+
+9. Consultar Post-Inscripción
+   Error: No se encontró ninguna inscripción con ese DNI
+   Tiempo: 3.85ms
+
+10. Inscripción Múltiple
+   Error: No se pudo completar la inscripción. Intente nuevamente.
+   Tiempo: 6.76ms
+
+11. Admin Login
+   Error: Usuario/Email y contraseña son requeridos
+   Tiempo: 4.77ms
+
+12. Admin - Lista de Inscritos
+   Error: El token de autenticación no es válido.
+   Tiempo: 1.75ms
+
+13. Admin - Usuarios
+   Error: El token de autenticación no es válido.
+   Tiempo: 1.38ms
+
+14. Admin - Estadísticas Financieras
+   Error: El token de autenticación no es válido.
+   Tiempo: 1.44ms
+
+═══════════════════════════════════════════════════════════════════
+🎯 CONCLUSIONES
+═══════════════════════════════════════════════════════════════════
+
+⚠️  SE ENCONTRARON 14 ERRORES
+   Revisa los detalles arriba antes de desplegar.
+
+✅ SISTEMA SOPORTA CARGA CONCURRENTE
+   Todas las inscripciones concurrentes fueron exitosas.
+
+═══════════════════════════════════════════════════════════════════
+
+Generado por: Sistema de Testing Automatizado Jaguares
+Versión: 2.0.0
