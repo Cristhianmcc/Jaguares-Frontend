@@ -1,0 +1,18 @@
+# Configuración para Netlify
+
+[build]
+  # Publicar la raíz (donde están tus HTMLs)
+  publish = "/"
+  # No necesitamos comando de build porque es HTML estático
+  command = "echo 'Desplegando Frontend Estático'"
+
+# Redirigir las llamadas de /api hacia tu backend en Render
+[[redirects]]
+  from = "/api/*"
+  to = "https://jaguares-backend.onrender.com/api/:splat"
+  status = 200
+  force = true
+
+# Evitar que Netlify haga deploys si solo cambiaste cosas en la carpeta server
+[build.ignore]
+  command = "git diff --quiet HEAD^ HEAD server/"
