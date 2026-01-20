@@ -6,3 +6,6 @@ dist/
 build/
 .vscode/
 .idea/
+
+# Backend (separado en otro repositorio)
+server/
