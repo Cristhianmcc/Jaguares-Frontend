@@ -9,3 +9,16 @@ build/
 
 # Backend (separado en otro repositorio)
 server/
+
+# Carpetas temporales y de desarrollo
+temp_backend/
+tests/
+test/
+
+# Reportes y documentación local
+reportes/
+docs/
+
+# Datos y base de datos
+database/
+data/
