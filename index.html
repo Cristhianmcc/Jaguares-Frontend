@@ -154,6 +154,86 @@
                 </div>
             </section>
 
+            <!-- Sección: Video Tutorial de Inscripción -->
+            <section class="w-full px-4 py-16 md:px-10 lg:px-40 bg-gradient-to-b from-gray-50 to-white dark:from-[#0a0a0a] dark:to-black">
+                <div class="max-w-[1200px] mx-auto">
+                    <div class="flex flex-col gap-8">
+                        <!-- Encabezado -->
+                        <div class="flex flex-col gap-4 text-center items-center">
+                            <div class="inline-flex items-center justify-center px-4 py-2 rounded-full border border-primary/30 bg-primary/10">
+                                <span class="material-symbols-outlined text-primary text-sm mr-2">play_circle</span>
+                                <span class="text-primary text-xs font-black tracking-[0.2em] uppercase">Tutorial de Inscripción</span>
+                            </div>
+                            <h2 class="text-black dark:text-white tracking-tight text-3xl md:text-4xl font-black uppercase italic max-w-[700px]">
+                                APRENDE CÓMO INSCRIBIRTE EN 
+                                <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary via-primary-dark to-primary">SIMPLES PASOS</span>
+                            </h2>
+                            <p class="text-gray-600 dark:text-gray-400 text-base md:text-lg font-medium max-w-[600px]">
+                                Mira este video tutorial para conocer el proceso completo de inscripción paso a paso
+                            </p>
+                        </div>
+
+                        <!-- Contenedor del Video -->
+                        <div class="relative w-full max-w-[900px] mx-auto">
+                            <div id="video-container" class="relative rounded-2xl overflow-hidden shadow-2xl border-2 border-primary/20 bg-black group">
+                                <video 
+                                    id="tutorial-video"
+                                    class="w-full aspect-video cursor-pointer"
+                                    controls
+                                    controlsList="nodownload"
+                                    preload="metadata"
+                                    ondblclick="this.paused ? this.play() : this.pause()"
+                                    oncontextmenu="return true;">
+                                    <source src="assets/video.mp4" type="video/mp4">
+                                    Tu navegador no soporta la reproducción de videos.
+                                </video>
+                                
+                                <!-- Controles personalizados superpuestos -->
+                                <div id="custom-controls" class="absolute bottom-14 left-0 right-0 px-2 sm:px-4 pb-2 bg-gradient-to-t from-black/80 to-transparent pointer-events-none opacity-0 transition-opacity duration-300">
+                                    <div class="flex flex-col sm:flex-row justify-between items-center gap-2 pointer-events-auto">
+                                        <!-- Botones de adelantar/retroceder -->
+                                        <div class="flex gap-1">
+                                            <button onclick="skipVideo(-10)" class="flex items-center gap-1 px-2 py-1 bg-black/60 hover:bg-primary/90 hover:text-black backdrop-blur-sm rounded text-white text-xs font-semibold transition-all touch-manipulation" title="Retroceder 10 segundos">
+                                                <span class="material-symbols-outlined text-base">replay_10</span>
+                                            </button>
+                                            <button onclick="skipVideo(10)" class="flex items-center gap-1 px-2 py-1 bg-black/60 hover:bg-primary/90 hover:text-black backdrop-blur-sm rounded text-white text-xs font-semibold transition-all touch-manipulation" title="Adelantar 10 segundos">
+                                                <span class="material-symbols-outlined text-base">forward_10</span>
+                                            </button>
+                                        </div>
+                                        
+                                        <!-- Control de velocidad -->
+                                        <div class="flex gap-1 items-center flex-wrap justify-center">
+                                            <span class="text-white text-xs font-semibold mr-1 opacity-80 hidden sm:inline">Velocidad:</span>
+                                            <button onclick="setPlaybackSpeed(0.5)" class="speed-btn px-2 py-1 bg-black/60 hover:bg-primary/90 hover:text-black backdrop-blur-sm rounded text-white text-xs font-semibold transition-all touch-manipulation">0.5x</button>
+                                            <button onclick="setPlaybackSpeed(1)" class="speed-btn px-2 py-1 bg-primary text-black backdrop-blur-sm rounded text-xs font-bold touch-manipulation">1x</button>
+                                            <button onclick="setPlaybackSpeed(1.5)" class="speed-btn px-2 py-1 bg-black/60 hover:bg-primary/90 hover:text-black backdrop-blur-sm rounded text-white text-xs font-semibold transition-all touch-manipulation">1.5x</button>
+                                            <button onclick="setPlaybackSpeed(2)" class="speed-btn px-2 py-1 bg-black/60 hover:bg-primary/90 hover:text-black backdrop-blur-sm rounded text-white text-xs font-semibold transition-all touch-manipulation">2x</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Decoración -->
+                                <div class="absolute -top-3 -right-3 w-24 h-24 bg-primary/20 rounded-full blur-3xl pointer-events-none"></div>
+                                <div class="absolute -bottom-3 -left-3 w-32 h-32 bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
+                            </div>
+                            
+                            <!-- Info adicional debajo del video -->
+                            <div class="mt-6 flex flex-col sm:flex-row gap-4 justify-center items-center text-sm text-gray-500 dark:text-gray-400">
+                                <div class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-primary text-lg">info</span>
+                                    <span>Duración aproximada del proceso: 5-10 minutos</span>
+                                </div>
+                                <div class="hidden sm:block w-1 h-1 rounded-full bg-gray-400"></div>
+                                <div class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-primary text-lg">support_agent</span>
+                                    <span>¿Necesitas ayuda? Contáctanos</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <section class="w-full px-4 py-16 md:px-10 lg:px-40 bg-white dark:bg-black relative">
                 <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-black via-primary to-black opacity-20"></div>
                 <div class="max-w-[1000px] mx-auto flex flex-col gap-12">
@@ -500,5 +580,65 @@
     <script src="js/api-service.js"></script>
     <script src="js/main.js"></script>
     <script src="js/mobile-menu.js"></script>
+    
+    <script>
+        // Funciones para el control del video tutorial
+        const video = document.getElementById('tutorial-video');
+        const videoContainer = document.getElementById('video-container');
+        const customControls = document.getElementById('custom-controls');
+        let hideControlsTimeout;
+        
+        // Mostrar controles
+        function showControls() {
+            customControls.style.opacity = '1';
+            
+            // Limpiar timeout anterior
+            clearTimeout(hideControlsTimeout);
+            
+            // Ocultar después de 3 segundos de inactividad
+            hideControlsTimeout = setTimeout(() => {
+                customControls.style.opacity = '0';
+            }, 3000);
+        }
+        
+        // Eventos para desktop (mouse)
+        videoContainer.addEventListener('mousemove', showControls);
+        videoContainer.addEventListener('mouseenter', showControls);
+        videoContainer.addEventListener('mouseleave', () => {
+            clearTimeout(hideControlsTimeout);
+            customControls.style.opacity = '0';
+        });
+        
+        // Eventos para móvil (touch)
+        videoContainer.addEventListener('touchstart', showControls);
+        videoContainer.addEventListener('touchmove', showControls);
+        
+        // Mostrar controles al pausar/reproducir
+        video.addEventListener('play', showControls);
+        video.addEventListener('pause', showControls);
+        
+        // Función para adelantar/retroceder
+        function skipVideo(seconds) {
+            video.currentTime += seconds;
+            showControls(); // Mostrar controles al usar botones
+        }
+        
+        // Función para cambiar velocidad
+        function setPlaybackSpeed(speed) {
+            video.playbackRate = speed;
+            
+            // Actualizar estilos de los botones
+            document.querySelectorAll('.speed-btn').forEach(btn => {
+                const btnSpeed = parseFloat(btn.textContent);
+                if (btnSpeed === speed) {
+                    btn.className = 'speed-btn px-2 py-1 bg-primary text-black backdrop-blur-sm rounded text-xs font-bold touch-manipulation';
+                } else {
+                    btn.className = 'speed-btn px-2 py-1 bg-black/60 hover:bg-primary/90 hover:text-black backdrop-blur-sm rounded text-white text-xs font-semibold transition-all touch-manipulation';
+                }
+            });
+            
+            showControls(); // Mostrar controles al cambiar velocidad
+        }
+    </script>
 </body>
 </html>
