@@ -10,7 +10,7 @@ let modoEdicion = false;
 
 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:3002'
-    : 'http://api.187.77.6.232.nip.io';
+    : 'https://api.jaguarescar.com';
 
 // ==================== INICIALIZACIÓN ====================
 
