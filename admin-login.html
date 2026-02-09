@@ -54,13 +54,13 @@
             <form id="formLogin" class="space-y-6">
                 <div>
                     <label class="block text-sm font-bold text-text-main dark:text-gray-300 uppercase tracking-wide mb-2">
-                        Correo Electrónico
+                        Usuario o Correo Electrónico
                     </label>
                     <input 
                         id="email" 
-                        type="email" 
+                        type="text" 
                         class="w-full h-12 px-4 rounded-lg border border-gray-300 bg-white dark:bg-[#252525] dark:border-gray-700 dark:text-white text-sm focus:ring-2 focus:ring-primary focus:border-primary" 
-                        placeholder="admin@jaguares.com" 
+                        placeholder="usuario o email@jaguares.com" 
                         required
                         autocomplete="username"
                     />
@@ -154,8 +154,13 @@
                         timestamp: new Date().toISOString()
                     }));
 
-                    // Redirigir al panel
-                    window.location.href = 'admin-panel.html';
+                    // Redirigir según el rol del usuario
+                    if (data.admin.rol === 'profesor') {
+                        window.location.href = 'profesor/index.html';
+                    } else {
+                        // super_admin o admin
+                        window.location.href = 'admin-panel.html';
+                    }
                 } else {
                     // Mostrar error
                     errorMessage.querySelector('p').textContent = data.error || 'Credenciales inválidas';
@@ -180,11 +185,16 @@
             const now = new Date().getTime();
             const hoursElapsed = (now - sessionTime) / (1000 * 60 * 60);
 
-            // Si la sesión tiene menos de 8 horas, redirigir al panel
+            // Si la sesión tiene menos de 8 horas, redirigir al panel correspondiente
             if (hoursElapsed < 8) {
-                window.location.href = 'admin-panel.html';
+                if (data.admin.rol === 'profesor') {
+                    window.location.href = 'profesor/index.html';
+                } else {
+                    window.location.href = 'admin-panel.html';
+                }
             } else {
                 localStorage.removeItem('adminSession');
+                localStorage.removeItem('admin_token');
             }
         }
     </script>

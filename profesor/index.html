@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html class="light" lang="es">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>JAGUARES - Panel Profesor</title>
+    <link rel="icon" type="image/x-icon" href="../assets/logo.ico"/>
+    <link rel="apple-touch-icon" href="../assets/logo.ico"/>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;700;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: { DEFAULT: '#C59D5F', dark: '#B08546', light: '#E3C58E' },
+                        'background-light': '#FFFFFF',
+                        'background-dark': '#0A0A0A',
+                        'surface-light': '#F9F9F9',
+                        'surface-dark': '#1A1A1A',
+                        'text-main': '#1A1A1A',
+                        'text-muted': '#6B6B6B',
+                        'border-color': '#E5E5E5'
+                    },
+                    fontFamily: {
+                        display: ['Lexend', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-text-main font-display min-h-screen flex flex-col">
+    
+    <!-- Header -->
+    <header class="sticky top-0 z-50 border-b border-solid border-border-color bg-surface-light/95 dark:bg-surface-dark/95 backdrop-blur-sm shadow-sm">
+        <div class="px-4 py-4 lg:px-10">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3 text-text-main dark:text-white flex-1 justify-center lg:justify-start">
+                    <img src="../assets/logo.ico" alt="Logo Jaguares" class="h-10 w-auto object-contain">
+                    <h2 class="text-xl lg:text-2xl font-black italic uppercase tracking-wider text-black dark:text-white">JAGUARES</h2>
+                </div>
+                
+                <!-- Botón hamburguesa móvil -->
+                <button id="mobile-menu-btn" class="lg:hidden p-2 text-text-main dark:text-white hover:text-primary transition-colors" aria-label="Menú">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
+                
+                <!-- Info profesor y cerrar sesión (desktop) -->
+                <div class="hidden lg:flex items-center gap-4">
+                    <div class="text-right">
+                        <p class="text-xs text-text-muted dark:text-gray-400 uppercase tracking-wide">Profesor</p>
+                        <p id="profesorNombre" class="text-sm font-semibold text-black dark:text-white"></p>
+                    </div>
+                    <button id="btnCerrarSesion" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 text-black dark:text-white rounded-lg font-semibold text-sm transition-colors flex items-center gap-2">
+                        <span class="material-symbols-outlined text-lg">logout</span>
+                        Cerrar Sesión
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Menú móvil -->
+            <div id="mobile-menu" class="hidden lg:hidden mt-4 pb-2 space-y-3 border-t border-gray-200 dark:border-gray-800 pt-4">
+                <div class="bg-surface-light dark:bg-surface-dark border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                    <p class="text-xs text-text-muted dark:text-gray-400 uppercase tracking-wide mb-1">Profesor</p>
+                    <p id="profesorNombreMobile" class="text-sm font-semibold text-black dark:text-white"></p>
+                </div>
+                <button id="btnCerrarSesionMobile" class="w-full px-4 py-3 bg-gray-200 hover:bg-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 text-black dark:text-white rounded-lg font-semibold text-base transition-colors flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-lg">logout</span>
+                    Cerrar Sesión
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow px-4 sm:px-6 lg:px-10 py-8">
+        <div class="max-w-screen-2xl mx-auto">
+            
+            <!-- Título -->
+            <div class="mb-8">
+                <h1 class="text-3xl md:text-4xl font-black italic uppercase tracking-tight text-black dark:text-white">
+                    Panel <span class="text-primary">Profesor</span>
+                </h1>
+                <p class="text-text-muted dark:text-gray-400 mt-2">Gestiona tus clases y asistencias</p>
+            </div>
+
+            <!-- Accesos rápidos -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <a href="asistencias.html" class="group bg-gradient-to-br from-primary to-primary-dark p-8 rounded-xl shadow-lg hover:shadow-2xl transition-all transform hover:scale-105 cursor-pointer">
+                    <div class="flex items-center gap-4">
+                        <span class="material-symbols-outlined text-6xl text-white">fact_check</span>
+                        <div>
+                            <h3 class="text-2xl font-black text-white uppercase">Tomar Asistencia</h3>
+                            <p class="text-white/80 mt-1">Registra la asistencia de tus alumnos</p>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="reportes.html" class="group bg-gradient-to-br from-gray-800 to-black p-8 rounded-xl shadow-lg hover:shadow-2xl transition-all transform hover:scale-105 cursor-pointer">
+                    <div class="flex items-center gap-4">
+                        <span class="material-symbols-outlined text-6xl text-primary">analytics</span>
+                        <div>
+                            <h3 class="text-2xl font-black text-white uppercase">Reportes</h3>
+                            <p class="text-gray-300 mt-1">Ver estadísticas de asistencia</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingContainer" class="text-center py-20">
+                <span class="material-symbols-outlined animate-spin text-6xl text-primary">progress_activity</span>
+                <p class="text-text-muted mt-4">Cargando clases de hoy...</p>
+            </div>
+
+            <!-- Clases de hoy -->
+            <div id="clasesContainer" class="hidden">
+                <h2 class="text-2xl font-bold text-black dark:text-white mb-4 flex items-center gap-2">
+                    <span class="material-symbols-outlined">today</span>
+                    Tus Clases de Hoy
+                </h2>
+
+                <div id="sinClases" class="hidden bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-8 text-center">
+                    <span class="material-symbols-outlined text-6xl text-blue-500 mb-4">event_busy</span>
+                    <p class="text-blue-800 dark:text-blue-300 font-semibold">No tienes clases programadas para hoy</p>
+                </div>
+
+                <div id="listaClases" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-border-color bg-surface-light dark:bg-surface-dark py-6 mt-8">
+        <div class="px-4 sm:px-6 lg:px-10">
+            <p class="text-center text-sm text-text-muted dark:text-gray-400">
+                © 2026 JAGUARES - Sistema de Gestión Deportiva
+            </p>
+        </div>
+    </footer>
+
+    <script src="js/profesor-dashboard.js"></script>
+</body>
+</html>
