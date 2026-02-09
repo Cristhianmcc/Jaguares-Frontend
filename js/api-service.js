@@ -110,7 +110,7 @@ const API_CONFIG = {
     // Detectar automáticamente el entorno
     baseUrl: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
         ? 'http://localhost:3002' // Desarrollo local
-        : 'https://jaguares-backend.onrender.com', // Producción en Render
+        : 'http://api.187.77.6.232.nip.io', // Producción en Dokploy
     endpoints: {
         horarios: '/api/horarios',
         inscribirMultiple: '/api/inscribir-multiple',

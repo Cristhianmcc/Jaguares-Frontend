@@ -42,7 +42,7 @@ async function cargarEstadisticas() {
     try {
         const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
             ? 'http://localhost:3002'
-            : 'https://jaguares-backend.onrender.com';
+            : 'http://api.187.77.6.232.nip.io';
         
         // Obtener token de sesión
         const sessionData = JSON.parse(localStorage.getItem('adminSession'));

@@ -182,7 +182,7 @@ async function cargarInscritos(dia = null, deporte = null) {
     try {
         const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
             ? 'http://localhost:3002'
-            : 'https://jaguares-backend.onrender.com';
+            : 'http://api.187.77.6.232.nip.io';
         
         // Obtener token de la sesión
         const session = localStorage.getItem('adminSession');
@@ -373,7 +373,7 @@ async function confirmarDesactivar() {
     try {
         const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
             ? 'http://localhost:3002'
-            : 'https://jaguares-backend.onrender.com';
+            : 'http://api.187.77.6.232.nip.io';
         
         const response = await fetch(`${API_BASE}/api/desactivar-usuario`, {
             method: 'POST',
@@ -414,7 +414,7 @@ async function confirmarReactivar() {
     try {
         const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
             ? 'http://localhost:3002'
-            : 'https://jaguares-backend.onrender.com';
+            : 'http://api.187.77.6.232.nip.io';
         
         const response = await fetch(`${API_BASE}/api/reactivar-usuario`, {
             method: 'POST',
@@ -485,7 +485,7 @@ async function buscarPorDNI(dni) {
     try {
         const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
             ? 'http://localhost:3002'
-            : 'https://jaguares-backend.onrender.com';
+            : 'http://api.187.77.6.232.nip.io';
         
         // ✅ Agregar timestamp para evitar caché y forzar actualización
         const timestamp = new Date().getTime();
