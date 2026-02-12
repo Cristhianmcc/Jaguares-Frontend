@@ -171,12 +171,13 @@ class AcademiaAPI {
     /**
      * Obtiene todos los horarios disponibles
      * @param {number} añoNacimiento - Año de nacimiento del alumno para filtrar por edad (opcional)
+     * @param {string} sexo - Sexo del alumno ('Masculino' o 'Femenino') para filtrar deportes específicos
      * @param {boolean} forceRefresh - Forzar actualización ignorando caché
      */
-    async getHorarios(añoNacimiento = null, forceRefresh = false) {
+    async getHorarios(añoNacimiento = null, sexo = null, forceRefresh = false) {
         try {
-            // Generar clave de caché única según los parámetros
-            const cacheKey = añoNacimiento ? `horarios_${añoNacimiento}` : 'horarios_all';
+            // Generar clave de caché única según los parámetros (incluye género)
+            const cacheKey = `horarios_${añoNacimiento || 'all'}_${sexo || 'all'}`;
             
             // Intentar obtener del caché si no se fuerza refresh
             if (!forceRefresh) {
@@ -191,14 +192,23 @@ class AcademiaAPI {
             
             console.log('🌐 URL base:', url);
             console.log('🎂 Año recibido en getHorarios:', añoNacimiento);
+            console.log('👤 Sexo recibido en getHorarios:', sexo);
             
-            // Agregar parámetro de año si se proporciona
+            // Construir URL con parámetros
+            const params = [];
             if (añoNacimiento) {
+                params.push(`año_nacimiento=${añoNacimiento}`);
+            }
+            if (sexo) {
+                params.push(`sexo=${encodeURIComponent(sexo)}`);
+            }
+            
+            if (params.length > 0) {
                 const separator = url.includes('?') ? '&' : '?';
-                url += `${separator}año_nacimiento=${añoNacimiento}`;
-                console.log('✅ URL con filtro:', url);
+                url += `${separator}${params.join('&')}`;
+                console.log('✅ URL con filtros:', url);
             } else {
-                console.log('ℹ️ Sin filtro de edad');
+                console.log('ℹ️ Sin filtros');
             }
             
             const fullUrl = `${this.baseUrl}${url}`;
@@ -326,6 +336,37 @@ class AcademiaAPI {
             return data;
         } catch (error) {
             console.error('Error al consultar inscripción:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Pausar o reactivar un deporte inscrito
+     * @param {string} dni - DNI del alumno
+     * @param {number} inscripcionId - ID de la inscripción
+     * @param {string} accion - 'pausar' o 'reactivar'
+     */
+    async toggleDeporte(dni, inscripcionId, accion) {
+        try {
+            const data = await this.request('/api/alumno/toggle-deporte', {
+                method: 'POST',
+                body: JSON.stringify({
+                    dni: dni,
+                    inscripcion_id: inscripcionId,
+                    accion: accion
+                })
+            });
+
+            // Invalidar caché después de cambiar estado
+            if (dni) {
+                cache.delete(`consulta_${dni}`);
+                cache.delete(`inscripciones_${dni}`);
+                console.log('🗑️ Caché invalidado tras toggle deporte para DNI:', dni);
+            }
+
+            return data;
+        } catch (error) {
+            console.error('Error al toggle deporte:', error);
             throw error;
         }
     }

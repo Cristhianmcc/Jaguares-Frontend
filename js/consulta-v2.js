@@ -374,33 +374,266 @@ function renderizarHorarios() {
         return;
     }
     
-    container.innerHTML = datosUsuario.horarios.map(horario => {
-        const icono = obtenerIconoDeporte(horario.deporte);
+    // Agrupar horarios por deporte (inscripcion_id)
+    const deportesAgrupados = {};
+    datosUsuario.horarios.forEach(horario => {
+        const key = horario.inscripcion_id;
+        if (!deportesAgrupados[key]) {
+            deportesAgrupados[key] = {
+                inscripcion_id: horario.inscripcion_id,
+                deporte: horario.deporte,
+                sede: horario.sede || 'Sede Principal',
+                precio: horario.precio,
+                estado: horario.estado_inscripcion || 'activa',
+                horarios: []
+            };
+        }
+        deportesAgrupados[key].horarios.push({
+            dia: horario.dia,
+            hora_inicio: horario.hora_inicio,
+            hora_fin: horario.hora_fin
+        });
+    });
+
+    // Verificar si puede pausar (solo primeros días del mes)
+    // ⚠️ TEMPORAL PARA PRUEBAS: Cambiado a día 15 - VOLVER A 5 DESPUÉS DE PROBAR
+    const hoy = new Date();
+    const diaDelMes = hoy.getDate();
+    const LIMITE_DIA = 15; // 🔧 CAMBIAR A 5 EN PRODUCCIÓN
+    const puedePausar = diaDelMes <= LIMITE_DIA;
+    
+    container.innerHTML = Object.values(deportesAgrupados).map(deporte => {
+        const icono = obtenerIconoDeporte(deporte.deporte);
+        const esSuspendido = deporte.estado === 'suspendida';
+        
+        // Clases condicionales según estado
+        const cardClasses = esSuspendido 
+            ? 'bg-gray-100 dark:bg-gray-800/50 opacity-70 border-gray-300 dark:border-gray-700' 
+            : 'bg-white dark:bg-[#222] border-gray-100 dark:border-gray-800 hover:border-primary dark:hover:border-primary';
+        
+        const iconBgClasses = esSuspendido
+            ? 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
+            : 'bg-primary/10 text-primary';
+        
+        // Botón de acción
+        let botonAccion = '';
+        if (esSuspendido) {
+            // Siempre puede reactivar
+            botonAccion = `
+                <button onclick="toggleDeporte(${deporte.inscripcion_id}, 'reactivar')" 
+                        class="mt-3 w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white text-xs font-bold uppercase transition-all">
+                    <span class="material-symbols-outlined text-sm">play_arrow</span>
+                    Reactivar Deporte
+                </button>
+            `;
+        } else if (puedePausar) {
+            // Puede pausar
+            botonAccion = `
+                <button onclick="toggleDeporte(${deporte.inscripcion_id}, 'pausar')" 
+                        class="mt-3 w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold uppercase transition-all">
+                    <span class="material-symbols-outlined text-sm">pause</span>
+                    Pausar Deporte
+                </button>
+            `;
+        } else {
+            // No puede pausar (después del día 5)
+            botonAccion = `
+                <div class="mt-3 text-center">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 italic">
+                        <span class="material-symbols-outlined text-sm align-middle">info</span>
+                        Podrás pausar este deporte a partir del día 1 del próximo mes
+                    </p>
+                </div>
+            `;
+        }
+        
+        // Lista de horarios
+        const horariosHtml = deporte.horarios.map(h => `
+            <div class="flex items-center gap-2 text-text-muted dark:text-gray-400 text-sm">
+                <span class="material-symbols-outlined text-lg ${esSuspendido ? 'text-gray-400' : 'text-primary'}">calendar_today</span>
+                <span class="font-medium">${h.dia} ${formatearHora(h.hora_inicio)} - ${formatearHora(h.hora_fin)}</span>
+            </div>
+        `).join('');
+        
         return `
-            <div class="bg-white dark:bg-[#222] rounded-lg p-5 shadow-md border border-gray-100 dark:border-gray-800 hover:border-primary dark:hover:border-primary transition-all">
+            <div class="rounded-lg p-5 shadow-md border transition-all ${cardClasses}">
                 <div class="flex items-start gap-4 mb-3">
-                    <div class="size-12 rounded-lg bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
+                    <div class="size-12 rounded-lg ${iconBgClasses} flex items-center justify-center flex-shrink-0">
                         <span class="material-symbols-outlined text-2xl">${icono}</span>
                     </div>
                     <div class="flex-1">
-                        <h4 class="text-lg font-black text-black dark:text-white uppercase tracking-tight">${horario.deporte}</h4>
-                        <p class="text-xs text-primary font-bold uppercase">${horario.sede || 'Sede Principal'}</p>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <h4 class="text-lg font-black ${esSuspendido ? 'text-gray-500 dark:text-gray-400' : 'text-black dark:text-white'} uppercase tracking-tight">${deporte.deporte}</h4>
+                            ${esSuspendido ? `
+                                <span class="px-2 py-0.5 rounded-full bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 text-[10px] font-bold uppercase">
+                                    Pausado
+                                </span>
+                            ` : `
+                                <span class="px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-[10px] font-bold uppercase">
+                                    Activo
+                                </span>
+                            `}
+                        </div>
+                        <p class="text-xs ${esSuspendido ? 'text-gray-400' : 'text-primary'} font-bold uppercase">${deporte.sede}</p>
+                        <p class="text-xs text-gray-500 mt-1">S/ ${parseFloat(deporte.precio).toFixed(2)}/mes</p>
                     </div>
                 </div>
                 
                 <div class="space-y-2">
-                    <div class="flex items-center gap-2 text-text-muted dark:text-gray-400 text-sm">
-                        <span class="material-symbols-outlined text-lg text-primary">calendar_today</span>
-                        <span class="font-medium">${horario.dia}</span>
-                    </div>
-                    <div class="flex items-center gap-2 text-text-muted dark:text-gray-400 text-sm">
-                        <span class="material-symbols-outlined text-lg text-primary">schedule</span>
-                        <span class="font-medium">${formatearHora(horario.hora_inicio)} - ${formatearHora(horario.hora_fin)}</span>
-                    </div>
+                    ${horariosHtml}
                 </div>
+                
+                ${botonAccion}
             </div>
         `;
     }).join('');
+}
+
+/**
+ * Mostrar modal de confirmación para pausar/reactivar deporte
+ */
+function mostrarModalToggleDeporte(inscripcionId, accion) {
+    const nombreDeporte = Object.values(datosUsuario.horarios).find(h => h.inscripcion_id === inscripcionId)?.deporte || 'el deporte';
+    
+    const esPausar = accion === 'pausar';
+    
+    const config = esPausar ? {
+        titulo: 'Pausar Deporte',
+        icono: 'pause_circle',
+        iconBg: 'bg-orange-100 dark:bg-orange-900/30',
+        iconColor: 'text-orange-600 dark:text-orange-400',
+        mensaje: `¿Estás seguro de pausar <strong>"${nombreDeporte}"</strong>?`,
+        detalle: 'No se incluirá en tu próximo pago mensual y no podrás asistir a las clases hasta que lo reactives.',
+        btnTexto: 'Sí, pausar deporte',
+        btnClass: 'bg-orange-500 hover:bg-orange-600',
+        btnIcon: 'pause'
+    } : {
+        titulo: 'Reactivar Deporte',
+        icono: 'play_circle',
+        iconBg: 'bg-green-100 dark:bg-green-900/30',
+        iconColor: 'text-green-600 dark:text-green-400',
+        mensaje: `¿Quieres reactivar <strong>"${nombreDeporte}"</strong>?`,
+        detalle: 'Se incluirá en tu próximo pago mensual y podrás volver a asistir a las clases.',
+        btnTexto: 'Sí, reactivar',
+        btnClass: 'bg-green-500 hover:bg-green-600',
+        btnIcon: 'play_arrow'
+    };
+    
+    // Remover modal anterior si existe
+    const existente = document.getElementById('modalToggleDeporte');
+    if (existente) existente.remove();
+    
+    const modal = document.createElement('div');
+    modal.id = 'modalToggleDeporte';
+    modal.className = 'fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4';
+    modal.innerHTML = `
+        <div class="bg-white dark:bg-surface-dark rounded-2xl shadow-2xl max-w-md w-full transform transition-all animate-[slideUp_0.3s_ease-out]">
+            <!-- Header -->
+            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                <div class="flex items-center gap-4">
+                    <div class="size-14 rounded-full ${config.iconBg} flex items-center justify-center">
+                        <span class="material-symbols-outlined text-3xl ${config.iconColor}">${config.icono}</span>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-black text-black dark:text-white uppercase">${config.titulo}</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">${nombreDeporte}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Contenido -->
+            <div class="p-6">
+                <p class="text-gray-700 dark:text-gray-300 mb-3">${config.mensaje}</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                    <span class="material-symbols-outlined text-sm align-middle mr-1">info</span>
+                    ${config.detalle}
+                </p>
+            </div>
+            
+            <!-- Acciones -->
+            <div class="p-6 border-t border-gray-200 dark:border-gray-700 flex gap-3 justify-end">
+                <button onclick="cerrarModalToggleDeporte()" 
+                        class="px-5 py-2.5 rounded-lg border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors font-bold uppercase text-sm">
+                    Cancelar
+                </button>
+                <button onclick="ejecutarToggleDeporte(${inscripcionId}, '${accion}')" 
+                        class="px-5 py-2.5 rounded-lg ${config.btnClass} text-white font-bold uppercase text-sm transition-colors flex items-center gap-2">
+                    <span class="material-symbols-outlined text-lg">${config.btnIcon}</span>
+                    ${config.btnTexto}
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    document.body.style.overflow = 'hidden';
+    
+    // Cerrar con click fuera
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) cerrarModalToggleDeporte();
+    });
+    
+    // Cerrar con Escape
+    const handleEscape = (e) => {
+        if (e.key === 'Escape') {
+            cerrarModalToggleDeporte();
+            document.removeEventListener('keydown', handleEscape);
+        }
+    };
+    document.addEventListener('keydown', handleEscape);
+}
+
+function cerrarModalToggleDeporte() {
+    const modal = document.getElementById('modalToggleDeporte');
+    if (modal) {
+        modal.remove();
+        document.body.style.overflow = '';
+    }
+}
+
+/**
+ * Ejecutar la acción de pausar/reactivar después de confirmar en modal
+ */
+async function ejecutarToggleDeporte(inscripcionId, accion) {
+    const dni = datosUsuario.alumno.dni;
+    
+    // Cambiar botón a loading
+    const btnConfirmar = document.querySelector('#modalToggleDeporte button:last-child');
+    if (btnConfirmar) {
+        btnConfirmar.disabled = true;
+        btnConfirmar.innerHTML = '<div class="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div><span class="ml-2">Procesando...</span>';
+    }
+    
+    try {
+        const resultado = await academiaAPI.toggleDeporte(dni, inscripcionId, accion);
+        
+        cerrarModalToggleDeporte();
+        
+        if (resultado.success) {
+            mostrarNotificacion(resultado.message, 'success');
+            
+            // Actualizar datos y re-renderizar
+            const nuevosDatos = await academiaAPI.consultarInscripcion(dni, true);
+            if (nuevosDatos.success) {
+                datosUsuario = nuevosDatos;
+                renderizarHorarios();
+                renderizarSeccionPagoMensual();
+            }
+        } else {
+            mostrarNotificacion(resultado.error || resultado.mensaje || 'Error al procesar', 'error');
+        }
+    } catch (error) {
+        cerrarModalToggleDeporte();
+        console.error('Error toggle deporte:', error);
+        mostrarNotificacion(error.message || 'Error de conexión', 'error');
+    }
+}
+
+/**
+ * Función llamada desde los botones (ahora muestra modal)
+ */
+function toggleDeporte(inscripcionId, accion) {
+    mostrarModalToggleDeporte(inscripcionId, accion);
 }
 
 function obtenerIconoDeporte(deporte) {
@@ -414,6 +647,8 @@ function obtenerIconoDeporte(deporte) {
         'Atletismo': 'sprint',
         'Entrenamiento Funcional Adultos': 'fitness_center',
         'Entrenamiento Funcional Menores': 'fitness_center',
+        'Entrenamiento Funcional Mixto': 'fitness_center',
+        'MAMAS FIT': 'fitness_center',
         'Entrenamiento de Fuerza y Tonificación Muscular': 'exercise'
     };
     return iconos[deporte] || 'sports';
@@ -848,6 +1083,24 @@ function renderizarSeccionPagoMensual() {
     const proximoMes = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 1);
     const nombreProximoMes = proximoMes.toLocaleString('es-PE', { month: 'long', year: 'numeric' });
     
+    // Verificar si hay deportes pausados
+    const deportesPausados = datosUsuario.horarios?.filter(h => h.estado_inscripcion === 'suspendida') || [];
+    const deportesPausadosUnicos = [...new Set(deportesPausados.map(h => h.deporte))];
+    const hayDeportesPausados = deportesPausadosUnicos.length > 0;
+    
+    // Nota de deportes pausados
+    const notaDeportesPausados = hayDeportesPausados ? `
+        <div class="bg-orange-50 dark:bg-orange-900/10 rounded-lg p-3 border border-orange-200 dark:border-orange-800 mt-2">
+            <div class="flex items-start gap-2">
+                <span class="material-symbols-outlined text-orange-600 text-sm flex-shrink-0">pause_circle</span>
+                <p class="text-xs text-orange-800 dark:text-orange-200">
+                    <strong>Deportes pausados:</strong> ${deportesPausadosUnicos.join(', ')}. 
+                    No se incluyen en el monto.
+                </p>
+            </div>
+        </div>
+    ` : '';
+    
     container.innerHTML = `
         <!-- Aviso importante -->
         <div class="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border border-amber-300 dark:border-amber-700 rounded-xl p-5 mb-6">
@@ -889,6 +1142,7 @@ function renderizarSeccionPagoMensual() {
                     <p class="text-xs text-text-muted dark:text-gray-400 font-bold uppercase mb-1">Monto según tu plan</p>
                     <p class="text-lg font-black text-primary">S/ ${datosUsuario.pago.monto?.toFixed(2) || '---'}</p>
                     <p class="text-xs text-text-muted dark:text-gray-400 mt-1">Basado en tu inscripción actual</p>
+                    ${notaDeportesPausados}
                 </div>
                 
                 <div class="bg-blue-50 dark:bg-blue-900/10 rounded-lg p-4 border border-blue-200 dark:border-blue-800">

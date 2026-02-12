@@ -253,8 +253,9 @@ function renderizarTabla(inscritos) {
         // Aplicar estilo especial si está inactivo
         row.className = `border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors ${esInactivo ? 'opacity-60 bg-gray-50 dark:bg-gray-900/50' : ''}`;
         
-        const estadoClass = inscrito.estado === 'activa' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400';
-        const estadoTexto = inscrito.estado === 'activa' ? 'Activo' : 'Pendiente';
+        // Usar estado_pago para mostrar el estado (consistente con Gestión de Pagos)
+        const estadoClass = inscrito.estado_pago === 'confirmado' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400';
+        const estadoTexto = inscrito.estado_pago === 'confirmado' ? 'Activo' : 'Pendiente';
         
         const horario = inscrito.hora_inicio && inscrito.hora_fin 
             ? `${inscrito.hora_inicio} - ${inscrito.hora_fin}` 
@@ -302,8 +303,9 @@ function renderizarTabla(inscritos) {
 
 function actualizarEstadisticas(inscritos) {
     const total = inscritos.length;
-    const activos = inscritos.filter(i => i.estado === 'activa' && (!i.estado_usuario || i.estado_usuario.toLowerCase() === 'activo')).length;
-    const pendientes = inscritos.filter(i => i.estado === 'pendiente_pago' && (!i.estado_usuario || i.estado_usuario.toLowerCase() === 'activo')).length;
+    // Usar estado_pago para los contadores (consistente con Gestión de Pagos)
+    const activos = inscritos.filter(i => i.estado_pago === 'confirmado' && (!i.estado_usuario || i.estado_usuario.toLowerCase() === 'activo')).length;
+    const pendientes = inscritos.filter(i => i.estado_pago === 'pendiente' && (!i.estado_usuario || i.estado_usuario.toLowerCase() === 'activo')).length;
     const inactivos = inscritos.filter(i => i.estado_usuario && i.estado_usuario.toLowerCase() === 'inactivo').length;
     
     document.getElementById('totalInscritos').textContent = total;
@@ -686,30 +688,48 @@ function mostrarDetalleUsuario(data) {
     if (data.horarios && data.horarios.length > 0) {
         data.horarios.forEach(horario => {
             const horarioCard = document.createElement('div');
-            horarioCard.className = 'border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-900';
             
-            // Determinar color del estado basado en el estado de pago, no en el estado de la inscripción
-            const estadoPago = data.pago.estado === 'confirmado';
-            const estadoColor = estadoPago ? 'text-green-600 dark:text-green-400' : 'text-yellow-600 dark:text-yellow-400';
-            const estadoTexto = estadoPago ? 'Pago Confirmado' : 'Pendiente de Pago';
+            // Verificar si el deporte está pausado/suspendido
+            const esSuspendido = horario.estado_inscripcion === 'suspendida';
+            
+            // Clases condicionales según estado
+            const cardClasses = esSuspendido 
+                ? 'border border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-gray-100 dark:bg-gray-800 opacity-60'
+                : 'border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-900';
+            const textClasses = esSuspendido ? 'line-through text-gray-400' : 'text-black dark:text-white';
+            const iconClasses = esSuspendido ? 'text-gray-400' : 'text-primary';
+            
+            horarioCard.className = cardClasses;
+            
+            // Determinar color del estado
+            let estadoHTML;
+            if (esSuspendido) {
+                estadoHTML = `<span class="px-2 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">Pausado por alumno</span>`;
+            } else {
+                const estadoPago = data.pago.estado === 'confirmado';
+                const estadoColor = estadoPago ? 'text-green-600 dark:text-green-400' : 'text-yellow-600 dark:text-yellow-400';
+                const estadoTexto = estadoPago ? 'Pago Confirmado' : 'Pendiente de Pago';
+                estadoHTML = `<span class="${estadoColor} font-semibold">${estadoTexto}</span>`;
+            }
             
             horarioCard.innerHTML = `
                 <div class="flex items-center gap-3 mb-2">
-                    <span class="material-symbols-outlined text-primary">sports</span>
-                    <p class="font-bold text-lg">${horario.deporte || '-'}</p>
+                    <span class="material-symbols-outlined ${iconClasses}">sports</span>
+                    <p class="font-bold text-lg ${textClasses}">${horario.deporte || '-'}</p>
+                    ${esSuspendido ? '<span class="px-2 py-0.5 rounded-full bg-orange-100 text-orange-600 text-[10px] font-bold uppercase">Pausado</span>' : ''}
                 </div>
-                <div class="space-y-1 text-sm">
+                <div class="space-y-1 text-sm ${esSuspendido ? 'text-gray-400' : ''}">
                     <div class="flex items-center gap-2">
                         <span class="material-symbols-outlined text-xs">calendar_today</span>
-                        <p><span class="font-semibold">Día:</span> ${horario.dia || '-'}</p>
+                        <p class="${esSuspendido ? 'line-through' : ''}"><span class="font-semibold">Día:</span> ${horario.dia || '-'}</p>
                     </div>
                     <div class="flex items-center gap-2">
                         <span class="material-symbols-outlined text-xs">schedule</span>
-                        <p><span class="font-semibold">Horario:</span> ${horario.hora_inicio || '-'} - ${horario.hora_fin || '-'}</p>
+                        <p class="${esSuspendido ? 'line-through' : ''}"><span class="font-semibold">Horario:</span> ${horario.hora_inicio || '-'} - ${horario.hora_fin || '-'}</p>
                     </div>
                     <div class="flex items-center gap-2">
                         <span class="material-symbols-outlined text-xs">check_circle</span>
-                        <p><span class="font-semibold">Estado:</span> <span class="${estadoColor} font-semibold">${estadoTexto}</span></p>
+                        <p><span class="font-semibold">Estado:</span> ${estadoHTML}</p>
                     </div>
                 </div>
             `;

@@ -95,7 +95,11 @@ function renderizarInscripciones(inscripciones) {
             <div class="flex flex-wrap gap-2 mt-2">
               ${ins.deportes_inscritos ? ins.deportes_inscritos.split(', ').map(deporte => 
                 `<span class="px-2 py-1 bg-primary/10 text-primary rounded text-xs font-medium">${deporte}</span>`
-              ).join('') : '<span class="text-gray-400 text-xs">Sin inscripciones activas</span>'}
+              ).join('') : ''}
+              ${ins.deportes_pausados ? ins.deportes_pausados.split(', ').map(deporte => 
+                `<span class="px-2 py-1 bg-orange-100 text-orange-600 rounded text-xs font-medium line-through opacity-70" title="Pausado por alumno">${deporte} (pausado)</span>`
+              ).join('') : ''}
+              ${!ins.deportes_inscritos && !ins.deportes_pausados ? '<span class="text-gray-400 text-xs">Sin inscripciones</span>' : ''}
             </div>
           </div>
           
@@ -187,10 +191,7 @@ async function verDetalleInscripcion(dni) {
 function mostrarModalDetalleInscripcion(data) {
   console.log('=== DEBUGGING MODAL ===');
   console.log('Data completa:', data);
-  console.log('Alumno:', data.alumno);
-  console.log('DNI Frontal URL:', data.alumno?.dni_frontal_url);
-  console.log('DNI Reverso URL:', data.alumno?.dni_reverso_url);
-  console.log('Foto Carnet URL:', data.alumno?.foto_carnet_url);
+  console.log('Inscripciones con estados:', data.inscripciones?.map(i => ({ deporte: i.deporte, estado: i.estado_inscripcion })));
   
   const usuario = data.alumno; // Cambiar de data.usuario a data.alumno para consistencia con Google Sheets
   const inscripciones = data.inscripciones;
@@ -305,22 +306,35 @@ function mostrarModalDetalleInscripcion(data) {
         <div>
           <h4 class="font-bold text-lg mb-3 text-black dark:text-white">Horarios Inscritos</h4>
           <div class="space-y-3">
-            ${inscripciones.length > 0 ? inscripciones.map(ins => `
-              <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 flex items-center gap-4">
-                <span class="material-symbols-outlined text-3xl text-primary">${ins.icono || 'sports'}</span>
+            ${inscripciones.length > 0 ? inscripciones.map(ins => {
+              const esSuspendido = ins.estado_inscripcion === 'suspendida';
+              const cardClasses = esSuspendido 
+                ? 'bg-gray-100 dark:bg-gray-900 opacity-60 border border-gray-300 dark:border-gray-700' 
+                : 'bg-gray-50 dark:bg-gray-800';
+              const textClasses = esSuspendido ? 'line-through text-gray-400' : 'text-black dark:text-white';
+              const iconClasses = esSuspendido ? 'text-gray-400' : 'text-primary';
+              
+              return `
+              <div class="${cardClasses} rounded-lg p-4 flex items-center gap-4">
+                <span class="material-symbols-outlined text-3xl ${iconClasses}">${ins.icono || 'sports'}</span>
                 <div class="flex-1">
-                  <p class="font-bold text-black dark:text-white">${ins.deporte} - ${ins.categoria || 'Sin categoría'}</p>
-                  <p class="text-sm text-gray-600 dark:text-gray-400">${ins.dia || 'Sin día'} ${ins.hora_inicio || ''} ${ins.hora_fin ? '- ' + ins.hora_fin : ''}</p>
-                  <p class="text-xs text-gray-500 dark:text-gray-500">${ins.nivel || ''} ${ins.nivel ? '|' : ''} ${ins.plan || 'Económico'} | S/ ${ins.precio}</p>
+                  <div class="flex items-center gap-2">
+                    <p class="font-bold ${textClasses}">${ins.deporte} - ${ins.categoria || 'Sin categoría'}</p>
+                    ${esSuspendido ? '<span class="px-2 py-0.5 rounded-full bg-orange-100 text-orange-600 text-[10px] font-bold uppercase">Pausado</span>' : ''}
+                  </div>
+                  <p class="text-sm ${esSuspendido ? 'text-gray-400 line-through' : 'text-gray-600 dark:text-gray-400'}">${ins.dia || 'Sin día'} ${ins.hora_inicio || ''} ${ins.hora_fin ? '- ' + ins.hora_fin : ''}</p>
+                  <p class="text-xs text-gray-500">${ins.nivel || ''} ${ins.nivel ? '|' : ''} ${ins.plan || 'Económico'} | S/ ${ins.precio}</p>
                 </div>
                 <div class="text-right">
                   <p class="text-xs text-gray-500 dark:text-gray-400">Estado</p>
-                  <span class="px-2 py-1 rounded-full text-xs font-semibold ${usuario.estado_pago === 'confirmado' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'}">
+                  ${esSuspendido 
+                    ? '<span class="px-2 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">Pausado por alumno</span>'
+                    : `<span class="px-2 py-1 rounded-full text-xs font-semibold ${usuario.estado_pago === 'confirmado' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'}">
                     ${usuario.estado_pago === 'confirmado' ? 'Pago Confirmado' : 'Pendiente de Pago'}
-                  </span>
+                  </span>`}
                 </div>
               </div>
-            `).join('') : '<p class="text-center text-gray-500 py-4">Sin inscripciones activas</p>'}
+            `}).join('') : '<p class="text-center text-gray-500 py-4">Sin inscripciones activas</p>'}
           </div>
         </div>
       </div>

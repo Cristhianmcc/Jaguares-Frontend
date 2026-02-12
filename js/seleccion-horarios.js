@@ -152,12 +152,14 @@ async function cargarHorarios() {
             </div>
         `;
         
-        // Obtener datos del alumno para filtrar por edad
+        // Obtener datos del alumno para filtrar por edad Y GÉNERO
         const datosInscripcion = LocalStorage.get('datosInscripcion');
         const fechaNacimiento = datosInscripcion?.alumno?.fecha_nacimiento;
+        const sexoAlumno = datosInscripcion?.alumno?.sexo; // Obtener género del alumno
         
         console.log('🔍 Datos completos inscripción:', datosInscripcion);
         console.log('📅 Fecha nacimiento obtenida:', fechaNacimiento);
+        console.log('👤 Sexo del alumno:', sexoAlumno);
         
         // Extraer año de nacimiento si existe
         if (fechaNacimiento) {
@@ -169,8 +171,8 @@ async function cargarHorarios() {
             console.warn('⚠️ NO se encontró fecha de nacimiento - mostrando TODOS los horarios');
         }
         
-        // Obtener horarios desde la API (filtrados por edad si se proporciona año)
-        horariosDisponibles = await academiaAPI.getHorarios(añoNacimientoGlobal);
+        // Obtener horarios desde la API (filtrados por edad Y género)
+        horariosDisponibles = await academiaAPI.getHorarios(añoNacimientoGlobal, sexoAlumno);
         
         console.log('Horarios cargados:', horariosDisponibles);
         console.log('Total horarios:', horariosDisponibles.length);

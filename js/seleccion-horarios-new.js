@@ -175,12 +175,14 @@ async function cargarHorarios() {
             </div>
         `;
         
-        // Obtener datos del alumno para filtrar por edad
+        // Obtener datos del alumno para filtrar por edad Y GÉNERO
         const datosInscripcion = LocalStorage.get('datosInscripcion');
         const fechaNacimiento = datosInscripcion?.alumno?.fecha_nacimiento;
+        const sexoAlumno = datosInscripcion?.alumno?.sexo; // Obtener género del alumno
         
         console.log('🔍 Datos completos inscripción:', datosInscripcion);
         console.log('📅 Fecha nacimiento obtenida:', fechaNacimiento);
+        console.log('👤 Sexo del alumno:', sexoAlumno);
         
         let edadCalculada = null;
         
@@ -210,7 +212,8 @@ async function cargarHorarios() {
             console.warn('⚠️ NO se encontró fecha de nacimiento - mostrando TODOS los horarios');
         }
         
-        const horarios = await academiaAPI.getHorarios(añoNacimientoGlobal, true); // Forzar refresh para obtener datos frescos siempre
+        // Obtener horarios filtrados por edad Y género (excluye MAMAS FIT para hombres)
+        const horarios = await academiaAPI.getHorarios(añoNacimientoGlobal, sexoAlumno, true); // año, sexo, forceRefresh
         
         if (!horarios || horarios.length === 0) {
             const mensajeEdad = edadCalculada ? 

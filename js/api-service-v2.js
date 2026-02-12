@@ -354,6 +354,37 @@ class AcademiaAPI {
     }
 
     /**
+     * Pausar o reactivar un deporte inscrito
+     * @param {string} dni - DNI del alumno
+     * @param {number} inscripcionId - ID de la inscripción
+     * @param {string} accion - 'pausar' o 'reactivar'
+     */
+    async toggleDeporte(dni, inscripcionId, accion) {
+        try {
+            const data = await this.request('/api/alumno/toggle-deporte', {
+                method: 'POST',
+                body: JSON.stringify({
+                    dni: dni,
+                    inscripcion_id: inscripcionId,
+                    accion: accion
+                })
+            });
+
+            // Invalidar caché después de cambiar estado
+            if (dni) {
+                cache.delete(`consulta_${dni}`);
+                cache.delete(`inscripciones_${dni}`);
+                console.log('🗑️ Caché invalidado tras toggle deporte para DNI:', dni);
+            }
+
+            return data;
+        } catch (error) {
+            console.error('Error al toggle deporte:', error);
+            throw error;
+        }
+    }
+
+    /**
      * Registra un pago pendiente
      */
     async registrarPago(alumno, metodoPago, horariosSeleccionados = []) {

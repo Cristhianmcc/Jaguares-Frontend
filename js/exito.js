@@ -620,7 +620,7 @@ async function descargarComprobante() {
         doc.setDrawColor(...colorGris);
         doc.line(20, y, 190, y);
         
-        // HORARIOS SELECCIONADOS
+        // HORARIOS SELECCIONADOS - Agrupados por deporte
         y += 10;
         doc.setFontSize(12);
         doc.setFont(undefined, 'bold');
@@ -629,41 +629,51 @@ async function descargarComprobante() {
         y += 7;
         doc.setFontSize(9);
         if (ultimaInscripcion.horarios && ultimaInscripcion.horarios.length > 0) {
-            ultimaInscripcion.horarios.forEach((horario, index) => {
-                // Contar cuántos horarios del mismo deporte y plan hay
-                const mismoDeportePlan = ultimaInscripcion.horarios.filter(x => x.deporte === horario.deporte && x.plan === horario.plan);
-                const cantidadDias = mismoDeportePlan.length;
-                const posicionEnDeporte = mismoDeportePlan.findIndex(x => x.horario_id === horario.horario_id) + 1;
-                
-                // Calcular precio individual según el plan y posición
-                const planNormalizado = (horario.plan || '').toLowerCase().trim();
-                let precioTexto;
-                
-                if (planNormalizado === 'economico' || planNormalizado === 'económico') {
-                    // Plan Económico: 2 días = 30 c/u, 3er día = 20
-                    if (cantidadDias === 2) {
-                        precioTexto = 'S/. 30.00';
-                    } else if (cantidadDias === 3) {
-                        precioTexto = posicionEnDeporte <= 2 ? 'S/. 30.00' : 'S/. 20.00';
-                    } else {
-                        precioTexto = 'S/. 30.00';
-                    }
-                } else if (planNormalizado === 'estándar' || planNormalizado === 'estandar') {
-                    // Plan Estándar: S/. 40 cada día
-                    precioTexto = 'S/. 40.00';
-                } else if (planNormalizado === 'premium') {
-                    // Plan Premium: 3 días = 150 (50 c/u)
-                    precioTexto = 'S/. 50.00';
-                } else {
-                    // Otros planes: usar precio de BD
-                    precioTexto = `S/. ${parseFloat(horario.precio).toFixed(2)}`;
+            // Agrupar horarios por deporte
+            const deportesAgrupados = {};
+            ultimaInscripcion.horarios.forEach(horario => {
+                const key = horario.deporte;
+                if (!deportesAgrupados[key]) {
+                    deportesAgrupados[key] = {
+                        deporte: horario.deporte,
+                        plan: horario.plan,
+                        horarios: [],
+                        precioTotal: 0
+                    };
                 }
+                deportesAgrupados[key].horarios.push({
+                    dia: horario.dia,
+                    hora_inicio: horario.hora_inicio,
+                    precio: parseFloat(horario.precio || 0)
+                });
+                deportesAgrupados[key].precioTotal += parseFloat(horario.precio || 0);
+            });
+            
+            // Mostrar cada deporte con sus días y precio total
+            let deporteIndex = 1;
+            Object.values(deportesAgrupados).forEach(grupo => {
+                // Ordenar días de la semana
+                const ordenDias = ['LUNES', 'MARTES', 'MIÉRCOLES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SÁBADO', 'SABADO', 'DOMINGO'];
+                grupo.horarios.sort((a, b) => ordenDias.indexOf(a.dia.toUpperCase()) - ordenDias.indexOf(b.dia.toUpperCase()));
                 
+                // Crear texto de días con horarios
+                const diasTexto = grupo.horarios.map(h => `${h.dia} ${h.hora_inicio}`).join(', ');
+                
+                doc.setFont(undefined, 'bold');
+                doc.text(`${deporteIndex}. ${grupo.deporte}`, 25, y);
+                doc.text(`S/. ${grupo.precioTotal.toFixed(2)}`, 160, y, { align: 'right' });
+                y += 5;
+                
+                // Mostrar días en línea siguiente con formato más compacto
                 doc.setFont(undefined, 'normal');
-                doc.text(`${index + 1}. ${horario.deporte}`, 25, y);
-                doc.text(`${horario.dia} ${horario.hora_inicio}`, 100, y);
-                doc.text(precioTexto, 160, y, { align: 'right' });
-                y += 6;
+                doc.setTextColor(100, 100, 100);
+                doc.setFontSize(8);
+                doc.text(`   ${diasTexto}`, 25, y);
+                doc.setTextColor(0, 0, 0);
+                doc.setFontSize(9);
+                y += 7;
+                
+                deporteIndex++;
             });
         }
         
