@@ -3,7 +3,9 @@
  * Academia Jaguares
  */
 
-const API_BASE = 'http://localhost:3002';
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:3002'
+    : 'https://api.jaguarescar.com';
 
 // Estado global
 let deporteActual = null;
