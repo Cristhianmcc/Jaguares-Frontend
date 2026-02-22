@@ -12,6 +12,16 @@ const API_BASE = window.location.hostname === 'localhost' || window.location.hos
     ? 'http://localhost:3002'
     : 'https://api.jaguarescar.com';
 
+// Helper para obtener headers con autenticación
+function getAuthHeaders() {
+    const session = localStorage.getItem('adminSession');
+    const token = session ? JSON.parse(session).token : null;
+    return {
+        'Content-Type': 'application/json',
+        'Authorization': token ? `Bearer ${token}` : ''
+    };
+}
+
 // ==================== INICIALIZACIÓN ====================
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -61,7 +71,10 @@ function cambiarTab(tab) {
     else if (tab === 'deportes') cargarDeportes();
     else if (tab === 'categorias') cargarCategorias();
     else if (tab === 'horarios') cargarHorarios();
-    else if (tab === 'inscripciones') cargarInscripciones();
+    else if (tab === 'inscripciones') {
+        if (typeof cargarInscripciones === 'function') cargarInscripciones();
+        else setTimeout(() => cambiarTab('inscripciones'), 300);
+    }
     else if (tab === 'reportes') { /* Los reportes se generan bajo demanda */ }
 }
 
@@ -75,7 +88,9 @@ async function cargarCalendario() {
     container.classList.add('hidden');
     
     try {
-        const response = await fetch(`${API_BASE}/api/admin/horarios`);
+        const response = await fetch(`${API_BASE}/api/admin/horarios`, {
+            headers: getAuthHeaders()
+        });
         const data = await response.json();
         
         if (data.success) {
@@ -318,7 +333,9 @@ async function cargarCategorias() {
         let url = `${API_BASE}/api/admin/categorias`;
         if (deporteId) url += `?deporte_id=${deporteId}`;
         
-        const response = await fetch(url);
+        const response = await fetch(url, {
+            headers: getAuthHeaders()
+        });
         const data = await response.json();
         
         if (data.success) {
@@ -404,7 +421,10 @@ async function confirmarEliminarCategoria(id, nombre) {
     if (!confirm(`¿Desactivar categoría "${nombre}"?`)) return;
     
     try {
-        const response = await fetch(`${API_BASE}/api/admin/categorias/${id}`, { method: 'DELETE' });
+        const response = await fetch(`${API_BASE}/api/admin/categorias/${id}`, {
+            method: 'DELETE',
+            headers: getAuthHeaders()
+        });
         const data = await response.json();
         if (data.success) {
             alert('✅ Categoría desactivada');
@@ -427,7 +447,9 @@ async function cargarDeportes() {
     container.classList.add('hidden');
     
     try {
-        const response = await fetch(`${API_BASE}/api/admin/deportes`);
+        const response = await fetch(`${API_BASE}/api/admin/deportes`, {
+            headers: getAuthHeaders()
+        });
         const data = await response.json();
         
         if (data.success) {
@@ -588,7 +610,10 @@ function cerrarModalEliminarDeporte() {
 
 async function desactivarDeporte(id, nombre) {
     try {
-        const response = await fetch(`${API_BASE}/api/admin/deportes/${id}`, { method: 'DELETE' });
+        const response = await fetch(`${API_BASE}/api/admin/deportes/${id}`, {
+            method: 'DELETE',
+            headers: getAuthHeaders()
+        });
         const data = await response.json();
         if (data.success) {
             cerrarModalEliminarDeporte();
@@ -686,7 +711,8 @@ async function ejecutarEliminacionPermanente(id, nombre) {
     
     try {
         const response = await fetch(`${API_BASE}/api/admin/deportes/${id}/eliminar-permanente`, { 
-            method: 'DELETE' 
+            method: 'DELETE',
+            headers: getAuthHeaders()
         });
         const data = await response.json();
         
@@ -724,7 +750,9 @@ async function cargarHorarios() {
         if (deporteId) url += `deporte_id=${deporteId}&`;
         if (estado) url += `estado=${estado}`;
         
-        const response = await fetch(url);
+        const response = await fetch(url, {
+            headers: getAuthHeaders()
+        });
         const data = await response.json();
         
         if (data.success) {
@@ -849,7 +877,10 @@ async function ejecutarEliminarHorario() {
     if (!horarioIdAEliminar) return;
     
     try {
-        const response = await fetch(`${API_BASE}/api/admin/horarios/${horarioIdAEliminar}`, { method: 'DELETE' });
+        const response = await fetch(`${API_BASE}/api/admin/horarios/${horarioIdAEliminar}`, {
+            method: 'DELETE',
+            headers: getAuthHeaders()
+        });
         const data = await response.json();
         
         cerrarModalEliminarHorario();
@@ -943,7 +974,10 @@ async function eliminarTodosHorariosDeHora(hora) {
     try {
         let eliminados = 0;
         for (const horario of horariosEnHora) {
-            const response = await fetch(`${API_BASE}/api/admin/horarios/${horario.horario_id}`, { method: 'DELETE' });
+            const response = await fetch(`${API_BASE}/api/admin/horarios/${horario.horario_id}`, {
+                method: 'DELETE',
+                headers: getAuthHeaders()
+            });
             const data = await response.json();
             if (data.success) eliminados++;
         }
@@ -1110,7 +1144,7 @@ async function guardarEdicionRapida(e) {
     try {
         const response = await fetch(`${API_BASE}/api/admin/horarios/${horarioId}/edicion-rapida`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
+            headers: getAuthHeaders(),
             body: JSON.stringify(formData)
         });
         
@@ -1255,7 +1289,9 @@ function cerrarModalExito() {
 
 async function cargarDeportesActivos() {
     try {
-        const response = await fetch(`${API_BASE}/api/admin/deportes-activos`);
+        const response = await fetch(`${API_BASE}/api/admin/deportes-activos`, {
+            headers: getAuthHeaders()
+        });
         const data = await response.json();
         
         if (data.success) {
@@ -1289,7 +1325,9 @@ async function cargarCategoriasDeporte(deporteId, categoriaSeleccionada = null) 
     }
     
     try {
-        const response = await fetch(`${API_BASE}/api/admin/categorias?deporte_id=${deporteId}`);
+        const response = await fetch(`${API_BASE}/api/admin/categorias?deporte_id=${deporteId}`, {
+            headers: getAuthHeaders()
+        });
         const data = await response.json();
         
         if (data.success) {
@@ -1368,7 +1406,7 @@ function setupFormHandlers() {
             const url = id ? `${API_BASE}/api/admin/deportes/${id}` : `${API_BASE}/api/admin/deportes`;
             const response = await fetch(url, {
                 method: id ? 'PUT' : 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: getAuthHeaders(),
                 body: JSON.stringify(formData)
             });
             
@@ -1409,7 +1447,7 @@ function setupFormHandlers() {
             const url = id ? `${API_BASE}/api/admin/categorias/${id}` : `${API_BASE}/api/admin/categorias`;
             const response = await fetch(url, {
                 method: id ? 'PUT' : 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: getAuthHeaders(),
                 body: JSON.stringify(formData)
             });
             
@@ -1454,7 +1492,7 @@ function setupFormHandlers() {
             const url = id ? `${API_BASE}/api/admin/horarios/${id}` : `${API_BASE}/api/admin/horarios`;
             const response = await fetch(url, {
                 method: id ? 'PUT' : 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: getAuthHeaders(),
                 body: JSON.stringify(formData)
             });
             
@@ -1483,7 +1521,9 @@ let datosReporte = [];
 async function cargarFiltrosReportes() {
     try {
         // Cargar deportes
-        const responseDeportes = await fetch(`${API_BASE}/api/admin/deportes-activos`);
+        const responseDeportes = await fetch(`${API_BASE}/api/admin/deportes-activos`, {
+            headers: getAuthHeaders()
+        });
         const dataDeportes = await responseDeportes.json();
         
         if (dataDeportes.success) {
@@ -1494,7 +1534,9 @@ async function cargarFiltrosReportes() {
         }
         
         // Cargar categorías
-        const responseCategorias = await fetch(`${API_BASE}/api/admin/categorias`);
+        const responseCategorias = await fetch(`${API_BASE}/api/admin/categorias`, {
+            headers: getAuthHeaders()
+        });
         const dataCategorias = await responseCategorias.json();
         
         if (dataCategorias.success) {
@@ -1520,7 +1562,9 @@ async function generarReporte() {
         if (dia) url += `dia=${dia}&`;
         if (categoria) url += `categoria=${categoria}`;
         
-        const response = await fetch(url);
+        const response = await fetch(url, {
+            headers: getAuthHeaders()
+        });
         const data = await response.json();
         
         if (data.success && data.alumnos.length > 0) {
