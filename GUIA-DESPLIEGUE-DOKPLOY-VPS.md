@@ -224,10 +224,11 @@ APPS_SCRIPT_URL=https://script.google.com/macros/s/AKfycbxrAbX71R1Rzj9gHDLwmMN3e
 
 Pestaña **"Domains"**:
 ```
-Host: api.187.77.6.232.nip.io
+Host: api.jaguarescar.com
 Path: /
 Container Port: 3002
-HTTPS: Disabled (por ahora)
+HTTPS: Enabled
+Certificate Provider: None (Cloudflare maneja SSL)
 ```
 
 ### 5. Deploy del Backend
@@ -311,7 +312,7 @@ Actualizar todos los archivos JS para usar el backend en producción:
 // En api-service.js, api-service-v2.js, y archivos admin
 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:3002'
-    : 'http://api.187.77.6.232.nip.io'; // Producción en Dokploy
+    : 'https://api.jaguarescar.com'; // Producción con dominio real
 ```
 
 **Archivos a actualizar:**
@@ -350,172 +351,480 @@ HTTPS: Disabled (por ahora)
 1. Click **"Create"** y **"Deploy"**
 2. Esperar hasta estado **"Running"**
 
+
+
 ---
 
-## ⚠️ Resolución de Problemas
+## 🌐 Configuración de Dominios con HTTPS
 
-### Problema 1: Error CORS en Frontend
+### 1. Configuración DNS en Cloudflare
 
-**Síntoma**: Error `No 'Access-Control-Allow-Origin' header` al hacer login
+Acceder a Cloudflare y crear los siguientes registros A:
 
-**Solución**: Actualizar whitelist de CORS en el backend.
+| Tipo | Nombre | Destino | Proxy Status |
+|------|---------|---------|---|
+| A | @ (root) | 187.77.6.232 | ✅ Proxied (Naranja) |
+| A | api | 187.77.6.232 | ✅ Proxied (Naranja) |
+| A | www | 187.77.6.232 | ✅ Proxied (Naranja) |
 
-En `server/middleware/security.js`:
+**Importante**: El proxy naranja de Cloudflare maneja automáticamente los certificados SSL.
 
-```javascript
-const whitelist = [
-    'http://localhost:3000',
-    'http://localhost:5500',
-    // ... otros localhost
-    // Agregar URLs de producción
-    'http://187.77.6.232.nip.io',
-    'http://api.187.77.6.232.nip.io'
-];
+**Verificar propagación DNS:**
+
+```bash
+# Windows PowerShell
+nslookup jaguarescar.com
+nslookup api.jaguarescar.com
 ```
 
-**Pasos:**
-1. Actualizar archivo en repositorio backend
-2. Push a GitHub
-3. Rebuild backend en Dokploy
+**Resultado esperado:**
+```
+Nombre: jaguarescar.com
+Addresses: 104.21.3.199, 172.67.131.38 (Cloudflare IPs)
+```
 
-### Problema 2: Backend No Conecta a Base de Datos
+### 2. Configurar Dominios en Dokploy
 
-**Síntoma**: `Error: getaddrinfo ENOTFOUND jaguares-mysql`
+#### Frontend Domain
 
-**Solución**: Verificar `DB_HOST` en variables de entorno.
+1. Ve a **Dokploy** → **Projects** → **jaguares-frontend**
+2. Click en tab **"Domains"**
+3. **Add Domain** o edita el existente:
+   - **Host**: `jaguarescar.com`
+   - **Path**: `/`
+   - **Container Port**: `80`
+   - **HTTPS**: ✅ Enabled
+   - **Certificate Provider**: `None` (Cloudflare lo maneja)
+   - Click **"Update"**
 
-1. Ir a **jaguares-mysql** → **"General"** → Copiar **"Internal Host"**
-2. Actualizar `DB_HOST` en variables del backend
-3. Restart del backend
+4. También agregar `www.jaguarescar.com` (opcional pero recomendado):
+   - Click **"Add Domain"** nuevamente
+   - **Host**: `www.jaguarescar.com`
+   - Misma configuración
+   - Click **"Create"**
 
-### Problema 3: GitHub Provider Not Found
+#### Backend Domain
 
-**Solución**: Autorizar Dokploy en GitHub.
+1. Ve a **Dokploy** → **Projects** → **jaguares-backend**
+2. Click en tab **"Domains"**
+3. **Add Domain** o edita el existente:
+   - **Host**: `api.jaguarescar.com`
+   - **Path**: `/`
+   - **Container Port**: `3002`
+   - **HTTPS**: ✅ Enabled
+   - **Certificate Provider**: `None`
+   - Click **"Update"**
 
-1. Settings → Git → Connect GitHub
-2. O cambiar de "GitHub" a "Git" genérico en configuración del servicio
+### 3. Actualizar URLs en el Código
 
----
+#### Backend JavaScript
 
-## 🌐 Configuración de Dominios
+Actualizar en TODOS estos archivos:
 
-### 1. DNS en Cloudflare
+**Archivos a modificar:**
+- `js/api-service.js`
+- `js/api-service-v2.js`
+- `js/admin-crud.js`
+- `js/admin-dashboard.js`
+- `js/admin-panel.js`
+- `admin-login.html`
+- `admin.html`
+- `profesor/js/profesor-dashboard.js`
+- `profesor/js/profesor-asistencias.js`
+- `profesor/js/profesor-reportes.js`
 
-Crear registros A:
-
-| Tipo | Nombre | Destino | Proxy |
-|------|---------|---------|-------|
-| A | @ | 187.77.6.232 | ✅ |
-| A | api | 187.77.6.232 | ✅ |
-| A | www | 187.77.6.232 | ✅ |
-
-### 2. Actualizar Dominios en Dokploy
-
-**Frontend:**
-- Cambiar de `187.77.6.232.nip.io` a `jaguarescar.com`
-- Habilitar HTTPS
-
-**Backend:**
-- Cambiar de `api.187.77.6.232.nip.io` a `api.jaguarescar.com`
-- Habilitar HTTPS
-
-### 3. Actualizar URLs en Código
-
+**Cambiar de:**
 ```javascript
-// Actualizar a HTTPS y dominio real
-const API_BASE = window.location.hostname === 'localhost'
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:3002'
+    : 'http://api.187.77.6.232.nip.io';
+```
+
+**A:**
+```javascript
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:3002'
     : 'https://api.jaguarescar.com';
 ```
 
-### 4. Actualizar CORS
+### 4. Actualizar CORS en Backend
+
+En `server/middleware/security.js`, actualizar el whitelist de CORS:
 
 ```javascript
 const whitelist = [
-    // ... localhost entries
+    // Desarrollo local
+    'http://localhost:3000',
+    'http://localhost:5500',
+    'http://localhost:5501',
+    'http://localhost:5502',
+    'http://localhost:8080',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:5500',
+    'http://127.0.0.1:5501',
+    'http://127.0.0.1:5502',
+    'http://127.0.0.1:8080',
+    
+    // Producción Dokploy (Legacy - para compatibilidad)
+    'http://187.77.6.232.nip.io',
+    'http://api.187.77.6.232.nip.io',
+    
+    // Producción Dominio Real con HTTPS
     'https://jaguarescar.com',
     'https://www.jaguarescar.com',
     'https://api.jaguarescar.com'
 ];
 ```
 
----
+### 5. Configurar Trust Proxy en Express
 
-## 💻 Comandos Útiles
+Para que Express funcione correctamente con Traefik (proxy reverso):
 
-### Docker en VPS
+En `server/index.js`, después de crear la aplicación Express:
 
-```bash
-# Ver todos los contenedores
-docker ps
+```javascript
+const app = express();
+const PORT = process.env.PORT || 3002;
 
-# Ver servicios de Docker Swarm
-docker service ls
+// Confiar en proxy reverso (Traefik/Dokploy) para headers X-Forwarded-*
+app.set('trust proxy', 1);
 
-# Ver logs de un contenedor
-docker logs [CONTAINER_ID]
-
-# Ver logs de un servicio
-docker service logs [SERVICE_NAME]
-
-# Ejecutar comandos en contenedor
-docker exec -it [CONTAINER_ID] bash
-
-# Ver redes de Docker
-docker network ls
-
-# Limpiar imágenes no utilizadas
-docker system prune
+// ==================== CONFIGURACIÓN ACADEMIA DEPORTIVA ====================
 ```
 
-### Git y Despliegue
+**Esto resuelve:**
+- ✅ Errores `ValidationError X-Forwarded-For` del rate-limiter
+- ✅ IP correcta en logs
+- ✅ CORS funciona con proxy reverso
+
+### 6. Hacer el Redeploy
+
+**Frontend:**
+1. Ve a **jaguares-frontend** → **Deployments**
+2. Click en **"Redeploy"** (o **"Rebuild"**)
+3. Espera a que termine (~2 minutos)
+
+**Backend:**
+1. Ve a **jaguares-backend** → **Deployments**
+2. Click en **"Redeploy"**
+3. Espera a que termine (~2 minutos)
+
+### 7. Hacer Push de Cambios
 
 ```bash
-# Actualizar código y redesplegar
+# Frontend
+cd C:\Users\Cris\Desktop\jaguares-funcional
 git add .
-git commit -m "Descripción del cambio"
+git commit -m "feat: Migrar URLs de API de nip.io a jaguarescar.com
+
+- Actualizar todas las URLs del frontend JavaScript a https://api.jaguarescar.com
+- Cambios en js/*.js y profesor/js/*.js para usar dominio real
+- Mantener compatibilidad con desarrollo local (localhost)
+- Preparar para despliegue en dominio real con SSL"
+git push origin master
+
+# Backend
+cd C:\Users\Cris\Desktop\jaguares-funcional\server
+git add .
+git commit -m "fix: Actualizar CORS whitelist a jaguarescar.com y agregar trust proxy
+
+- Agregar dominios de producción: jaguarescar.com, api.jaguarescar.com, www.jaguarescar.com
+- Configurar app.set('trust proxy', 1) para funcionar con proxy reverso
+- Permite que express-rate-limit use X-Forwarded-For correctamente
+- Mantener URLs legacy para compatibilidad"
 git push origin main
-
-# En Dokploy: General → Rebuild
-```
-
-### Base de Datos
-
-```bash
-# Conectar a MySQL
-docker exec -it [MYSQL_CONTAINER_ID] mysql -uroot -pROOT_PASSWORD
-
-# Backup de base de datos
-docker exec [MYSQL_CONTAINER_ID] mysqldump -uroot -pROOT_PASSWORD jaguares_db > backup.sql
-
-# Restaurar backup
-docker exec -i [MYSQL_CONTAINER_ID] mysql -uroot -pROOT_PASSWORD jaguares_db < backup.sql
 ```
 
 ---
 
-## 🔧 Variables de Entorno Completas
+## 🧪 Verificación Final
+
+### 1. Verificar Conectividad HTTPS
+
+```powershell
+# Desde Windows PowerShell
+Invoke-WebRequest -Uri "https://jaguarescar.com" -Method Head -UseBasicParsing | Select-Object StatusCode
+
+Invoke-WebRequest -Uri "https://api.jaguarescar.com/api/health" -Method Get -UseBasicParsing | Select-Object StatusCode
+
+Invoke-WebRequest -Uri "https://api.jaguarescar.com/api/horarios" -Method Get -UseBasicParsing | Select-Object StatusCode, @{Name='ContentLength';Expression={$_.Content.Length}}
+```
+
+**Resultado esperado:**
+- Frontend: **200 OK**
+- API health: **200 OK**
+- API horarios: **200 OK** + datos (45KB+)
+
+### 2. Limpiar Caché del Navegador
+
+Después de los cambios, hacer un **hard refresh**:
+
+- **Windows/Linux**: `Ctrl + Shift + R`
+- **Mac**: `Cmd + Shift + R`
+
+O limpiar caché completo:
+- F12 → **Application** → **Storage** → **Clear site data**
+
+### 3. Acceder a la Aplicación
+
+- **Frontend**: https://jaguarescar.com
+- **Admin Panel**: https://jaguarescar.com/admin-login.html
+- **Inscripciones**: https://jaguarescar.com/inscripcion.html
+- **Consultas**: https://jaguarescar.com/consulta.html
+
+### 4. Verificar Panel de Admin
+
+1. Ir a https://jaguarescar.com/admin-login.html
+2. Iniciar sesión:
+   - **Email**: `administrador@jaguares.com`
+   - **Password**: (contraseña configurada)
+3. Verificar que carga correctamente
+4. Acceder a "Gestión de Usuarios" y "Deportes y Horarios"
+
+---
+
+## 🐛 Resolución de Problemas - Dominio Real
+
+### Problema: Error ERR_BLOCKED_BY_CLIENT en Consola
+
+**Síntoma**: Error al cargar Cloudflare Insights
+
+**Solución**: Es una advertencia de tu navegador, no afecta funcionamiento. Ignorar.
+
+---
+
+### Problema: Errores de Tailwind CSS en Consola
+
+**Síntoma**: Advertencia "cdn.tailwindcss.com should not be used in production"
+
+**Solución**: Es advertencia de Tailwind, no afecta funcionamiento. Los estilos funcionan correctamente.
+
+---
+
+### Problema: CORS Error después de cambiar dominio
+
+**Síntoma**: `No 'Access-Control-Allow-Origin' header`
+
+**Soluciones:**
+1. ✅ Verificar que actualizaste el whitelist en `security.js`
+2. ✅ Hacer redeploy del backend
+3. ✅ Limpiar caché del navegador (Ctrl+Shift+R)
+
+---
+
+### Problema: Validación Error X-Forwarded-For
+
+**Síntoma**: En logs: `ValidationError: The 'X-Forwarded-For' header is set but the Express 'trust proxy' setting is false`
+
+**Solución**: 
+1. ✅ Agregar `app.set('trust proxy', 1)` en `server/index.js`
+2. ✅ Hacer redeploy del backend
+3. ✅ El error desaparecerá
+
+---
+
+## 📊 Dashboard y Monitoreo
+
+### Acceso a Dokploy
+
+- **URL**: `http://187.77.6.232:3000`
+- **Ver estado de servicios**: Home → Projects → jaguares-academia
+- **Ver logs en tiempo real**: Click en deployment o servicio → "View"
+- **Monitoreo**: Sidebar → "Monitoring"
+
+### Logs del Backend
+
+```bash
+# SSH al VPS
+ssh root@187.77.6.232
+
+# Ver logs del backend en tiempo real
+docker logs -f [CONTAINER_ID_BACKEND]
+
+# Ver logs del frontend
+docker logs -f [CONTAINER_ID_FRONTEND]
+
+# Ver logs de MySQL
+docker logs -f [CONTAINER_ID_MYSQL]
+```
+
+---
+
+## 🎯 URLs Finales Actualizadas
+
+### Producción - Dominio Real (HTTPS)
+- ✅ **Frontend Principal**: `https://jaguarescar.com`
+- ✅ **Frontend WWW**: `https://www.jaguarescar.com`
+- ✅ **Backend API**: `https://api.jaguarescar.com`
+- ✅ **Admin Panel**: `https://jaguarescar.com/admin-login.html`
+- ✅ **Dashboard Admin**: `https://jaguarescar.com/admin-dashboard.html`
+- ✅ **Inscripciones**: `https://jaguarescar.com/inscripcion.html`
+- ✅ **Consultas**: `https://jaguarescar.com/consulta.html`
+- ✅ **Profesor Portal**: `https://jaguarescar.com/profesor/`
+
+### Legacy - IP con nip.io (HTTP)
+- ❌ `http://187.77.6.232.nip.io` (descontinuado)
+- ❌ `http://api.187.77.6.232.nip.io` (descontinuado)
+
+---
+
+## ✅ Checklist Final de Configuración
+
+### Dominio y HTTPS
+- [x] Registros DNS configurados en Cloudflare
+- [x] Proxy naranja activado para SSL automático
+- [x] Dominios actualizados en Dokploy
+- [x] HTTPS habilitado en ambos servicios
+- [x] Certificados SSL funcionando (via Cloudflare)
+
+### Código y Backend
+- [x] URLs actualizadas a `https://api.jaguarescar.com`
+- [x] CORS whitelist actualizado
+- [x] `app.set('trust proxy', 1)` configurado
+- [x] Variables de entorno correctas
+- [x] Cambios subidos a GitHub (push completado)
+
+### Despliegue
+- [x] Frontend redeployed
+- [x] Backend redeployed
+- [x] Base de datos MySQL funcionando
+- [x] Todos los servicios en estado "Running"
+
+### Verificación
+- [x] Frontend responde (200 OK)
+- [x] API health funciona (200 OK)
+- [x] API horarios devuelve datos
+- [x] Admin login responde
+- [x] Panel de admin funciona
+- [x] Datos se cargan correctamente (10 inscritos)
+
+### Seguridad
+- [x] CORS restringido a dominios permitidos
+- [x] Rate limiting configurado
+- [x] Helmet security headers activos
+- [x] Variables de entorno seguras
+- [x] Trust proxy configurado
+
+---
+
+## 🔄 Próximos Pasos Recomendados
+
+1. **Backups Automáticos**
+   - Configurar backup diario de MySQL
+   - Almacenar en S3 o servicio externo
+   - Documentar proceso de restauración
+
+2. **Monitoreo y Alertas**
+   - Configurar alertas de CPU/RAM
+   - Monitorear disponibilidad de servicios
+   - Alarmas en caso de caída de servicios
+
+3. **Optimización**
+   - CDN para assets estáticos (Cloudflare)
+   - Cache headers optimizados
+   - Compresión GZIP configurada
+
+4. **CI/CD Avanzado**
+   - Automatizar tests antes de deploy
+   - Pipeline de integración continua
+   - Rollback automático en caso de falla
+
+5. **Escalabilidad**
+   - Replicas múltiples del backend
+   - Load balancing
+   - Auto-scaling según demanda
+
+---
+
+## 📚 Documentación Oficial
+
+- **Dokploy Oficial**: https://docs.dokploy.com/
+- **Docker Documentation**: https://docs.docker.com/
+- **Express.js**: https://expressjs.com/
+- **Nginx**: https://nginx.org/en/docs/
+- **Traefik**: https://doc.traefik.io/traefik/
+- **Cloudflare**: https://developers.cloudflare.com/
+
+---
+
+## 🎊 Estado Final - Despliegue Completado
+
+### ✅ Aplicación en Producción
+
+- **Fecha**: Febrero 10, 2026
+- **Dominio**: jaguarescar.com
+- **Estado**: 🟢 Funcionando correctamente
+- **Certificado SSL**: ✅ Activo (Cloudflare)
+- **Servidor**: 187.77.6.232 (Ubuntu 22.04)
+- **Plataforma**: Dokploy v0.26.7
+- **Estadísticas**:
+  - Storage: 8 deportes
+  - Horarios: 153 disponibles
+  - Inscritos: 10 usuarios
+  - Activos: 1 usuario
+
+### 🎯 Funcionalidades Activas
+
+- ✅ Inscripción a deportes
+- ✅ Selección de horarios
+- ✅ Consulta de estado
+- ✅ Panel administrativo
+- ✅ Gestión de usuarios
+- ✅ Gestión de horarios
+- ✅ Sistema de pagos (integrable)
+- ✅ Reportes de profesores
+
+### 🔒 Seguridad
+
+- ✅ HTTPS/SSL en todos los dominios
+- ✅ CORS configurado y restringido
+- ✅ Rate limiting activo
+- ✅ Helmet security headers
+- ✅ Validación de entrada
+- ✅ Autenticación JWT
+- ✅ Contraseñas hasheadas
+
+---
+
+## 📞 Soporte
+
+Para asistencia técnica o cambios futuros:
+
+1. **Actualizar código**: Modificar repositorio → Push a GitHub
+2. **Redeploy**: Ir a Dokploy → Rebuild/Redeploy
+3. **Ver logs**: Dokploy → Deployments → View logs
+4. **Emergencias**: SSH al VPS y revisar docker logs
+
+---
+
+**¡🎉 JAGUARES Academia Deportiva está en PRODUCCIÓN con Dokploy! 🎉**
+
+La aplicación está lista para recibir usuarios, inscripciones y gestión de deportes en tiempo real.
+
+---
+
+## � Variables de Entorno Completas
 
 ### Backend (jaguares-backend)
 
 ```env
-# Base de Datos
+# Base de Datos MySQL
 DB_HOST=jaguaresacademia-jaguaresmysql-czxi5m
 DB_PORT=3306
 DB_USER=admin
 DB_PASSWORD=kikomoreno1
 DB_NAME=jaguares_db
 
-# Servidor
+# Servidor Node.js
 PORT=3002
 NODE_ENV=production
 
-# JWT
+# Seguridad - JWT
 JWT_SECRET=jaguares_2025_super_secret_key_8f7s9dF!23xD_muy_seguro_y_largo
 
-# Google Apps Script (opcional)
+# Google Apps Script (opcional para integraciones futuras)
 APPS_SCRIPT_TOKEN=academia_2025_TOKEN_8f7s9dF!23xD
-APPS_SCRIPT_URL=https://script.google.com/macros/s/AKfycbzUSJ0k79mdjd13pk5Rbv9obkXxDx2IvLV8KjglNMkBWW3RPQ1i-kFlm7G0NDDb6W1HSg/exec
+APPS_SCRIPT_URL=https://script.google.com/macros/s/AKfycbxrAbX71R1Rzj9gHDLwmMN3eSBEwZaR_bNbWmiXbcVKe9iqn36mDP6VMd1Evaq1dZpF/exec
 ```
 
 ### Base de Datos (jaguares-mysql)
@@ -527,58 +836,108 @@ MYSQL_USER=admin
 MYSQL_PASSWORD=kikomoreno1
 ```
 
+### Frontend
+
+No requiere variables de entorno. Las URLs se detectan automáticamente en JavaScript.
+
 ---
 
-## 🎯 URLs Finales
+## 💻 Comandos Útiles
 
-### Con IP (Funcionando)
-- **Frontend**: `http://187.77.6.232.nip.io`
-- **Backend API**: `http://api.187.77.6.232.nip.io`
-- **Admin Panel**: `http://187.77.6.232.nip.io/admin-login.html`
+### Docker en VPS
 
-### Con Dominio (Próximo paso)
-- **Frontend**: `https://jaguarescar.com`
+```bash
+# Ver todos los contenedores corriendo
+docker ps
+
+# Ver todos los servicios Docker Swarm
+docker service ls
+
+# Ver logs de un contenedor específico
+docker logs [CONTAINER_ID]
+
+# Ver logs tiempo real
+docker logs -f [CONTAINER_ID]
+
+# Ver logs de un servicio
+docker service logs [SERVICE_NAME]
+
+# Ejecutar comandos dentro de un contenedor
+docker exec -it [CONTAINER_ID] bash
+
+# Listar redes Docker
+docker network ls
+
+# Limpiar espacio (imágenes, volúmenes no usados)
+docker system prune --volumes
+```
+
+### Git y Actualizaciones
+
+```bash
+# Hacer cambios y subir a GitHub
+cd /ruta/del/proyecto
+git add .
+git commit -m "Descripción del cambio"
+git push origin main  # o master para frontend
+
+# En Dokploy: Ir a Deployments → Rebuild/Redeploy
+```
+
+### Base de Datos MySQL
+
+```bash
+# Conectar a MySQL desde SSH del contenedor
+docker exec -it [MYSQL_CONTAINER] mysql -uroot -pRootJaguar2026! jaguares_db
+
+# Crear backup de la base de datos
+docker exec [MYSQL_CONTAINER] mysqldump -uroot -pRootJaguar2026! jaguares_db > backup_$(date +%Y%m%d_%H%M%S).sql
+
+# Restaurar desde backup
+docker exec -i [MYSQL_CONTAINER] mysql -uroot -pRootJaguar2026! jaguares_db < backup.sql
+
+# Ver tamaño de base de datos
+docker exec -it [MYSQL_CONTAINER] mysql -uroot -pRootJaguar2026! -e "SELECT table_schema, SUM(data_length + index_length) / 1024 / 1024 AS size_mb FROM information_schema.tables GROUP BY table_schema;"
+```
+
+### Verificaciones Rápidas
+
+```bash
+# Verificar que DNS está propagado
+nslookup jaguarescar.com
+nslookup api.jaguarescar.com
+
+# Probar conectividad a endpoints
+curl -I https://jaguarescar.com
+curl -I https://api.jaguarescar.com/api/health
+curl https://api.jaguarescar.com/api/horarios | head -c 300
+
+# Ver estado de servicios en Dokploy
+# Acceder a: http://187.77.6.232:3000
+```
+
+---
+
+---
+
+## 🎯 URLs Finales (Actualizado - En Producción)
+
+### ✅ Producción - Dominio Real con HTTPS
+- **Frontend Principal**: `https://jaguarescar.com`
+- **Frontend WWW**: `https://www.jaguarescar.com`
 - **Backend API**: `https://api.jaguarescar.com`
 - **Admin Panel**: `https://jaguarescar.com/admin-login.html`
+- **Admin Dashboard**: `https://jaguarescar.com/admin-dashboard.html`
+
+### ⚠️ Legacy - IP con nip.io (Descontinuado)
+- `http://187.77.6.232.nip.io` - No usar
+- `http://api.187.77.6.232.nip.io` - No usar
 
 ---
 
-## ✅ Checklist de Verificación
+## ✅ Checklist de Verificación (Actualizado)
 
-### Despliegue Completo
-- [ ] Dokploy instalado y funcionando
-- [ ] Proyecto creado en Dokploy
-- [ ] Base de datos MySQL desplegada ✅
-- [ ] Datos importados correctamente ✅
-- [ ] Backend desplegado y funcionando ✅
-- [ ] Frontend desplegado y funcionando ✅
-- [ ] CORS configurado correctamente ✅
-- [ ] Login administrativo funcional ✅
-
-### Configuración de Dominio
-- [ ] DNS configurado en Cloudflare
-- [ ] Dominios actualizados en Dokploy
-- [ ] URLs actualizadas en código
-- [ ] HTTPS habilitado
-- [ ] Certificados SSL funcionando
-
-### Seguridad y Optimización
-- [ ] Rate limiting configurado
-- [ ] Helmet security headers activos
-- [ ] Variables de entorno seguras
-- [ ] Backups automáticos configurados
-- [ ] Monitoreo configurado
-
----
-
-## 🔄 Próximos Pasos
-
-1. **Configurar dominio real**: `jaguarescar.com` con HTTPS
-2. **Backups automáticos**: Configurar backup diario de MySQL
-3. **Monitoreo**: Configurar alertas y métricas
-4. **CDN**: Optimizar carga de assets estáticos
-5. **CI/CD**: Automatizar despliegues desde GitHub
-6. **Escalabilidad**: Configurar múltiples réplicas si es necesario
+Este checklist verifica que el despliegue con dominio real está completo.
 
 ---
 
